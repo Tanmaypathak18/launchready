@@ -1,0 +1,53 @@
+{
+  "label": "measured",
+  "what": "launchready.engines sparse clone + registry scan; no weights",
+  "checked_utc": "2026-11-03T22:24:24+00:00",
+  "configs": {
+    "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16": {
+      "revision": "a9904d24bcc1d289a1950fa9d2b978c47cf903b9",
+      "architectures": [
+        "NemotronHForCausalLM"
+      ],
+      "model_type": "nemotron_h",
+      "auto_map": false
+    },
+    "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4": {
+      "revision": "bee7596271d1495f6992ae224aefde4410e816b8",
+      "architectures": [
+        "NemotronHForCausalLM"
+      ],
+      "model_type": "nemotron_h",
+      "auto_map": false
+    }
+  },
+  "vllm": {
+    "v0.27.1": {
+      "sha": "6e448d0ea9bf3d88d898b65449ca6dc2aec170ac",
+      "names": {
+        "NemotronHForCausalLM": {
+          "registry_found": true,
+          "moved": null,
+          "found": true,
+          "file": "vllm/model_executor/models/registry.py",
+          "line": 182,
+          "text": "\"NemotronHForCausalLM\": (\"nemotron_h\", \"NemotronHForCausalLM\"),",
+          "url": "https://github.com/vllm-project/vllm/blob/v0.27.1/vllm/model_executor/models/registry.py#L182"
+        }
+      }
+    },
+    "v0.32.0": {
+      "sha": "5df63a7203cdb9328d824a27b682e77c7b9928be",
+      "names": {
+        "NemotronHForCausalLM": {
+          "registry_found": true,
+          "moved": null,
+          "found": true,
+          "file": "vllm/model_executor/models/registry.py",
+          "line": 180,
+          "text": "\"NemotronHForCausalLM\": (\"nemotron_h\", \"NemotronHForCausalLM\"),",
+          "url": "https://github.com/vllm-project/vllm/blob/v0.32.0/vllm/model_executor/models/registry.py#L180"
+        }
+      }
+    }
+  }
+}

@@ -18,6 +18,16 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Gap check said the card has "no RTX 5090 row"; it has one
+- When / where: 2026-11-03 · no GPU · NVFP4 card @ bee7596, saved verbatim in `results/evidence/`
+- Exact command: `curl -sfL https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4/resolve/bee7596271d1495f6992ae224aefde4410e816b8/README.md`
+- What happened: the recipe README and checklist row 1.2 said the card has no 5090 row. Line 67 has one: `_confirm_` compute path, `_no recipe published_`, `Hardware: yes`. The card also lists the 5090 as supported hardware and under Test Hardware, and shows `marlin` on DGX Spark running W4A16, not FP4 tensor cores. The other gap-check claims matched the saved card.
+- Root cause: ours. The gap check came from a summarized web fetch, and the card wasn't saved in the repo. `results/quickstart_audit/card_README.md` is Qwen3-4B's card.
+- Fix or workaround: card saved byte for byte; the claim is corrected and linked to the line; new checklist row 3.8 tracks the 5090's compute path, since our config copies `marlin`.
+- Severity: cosmetic (no number depended on it; the conclusion, no 5090 vLLM recipe, still holds)
+- Filed: not filed: our doc
+- Requirement this implies: quote primary sources from a saved copy, not a summary.
+
 ### Dry run 2: vLLM quality scored exactly 0.0 because every answer came back in `reasoning`, not `content`
 - When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 88a53fd · session dryrun_kaggle_qwen3_4b_20261103T2043Z · vLLM 0.32.0 · lm-eval 0.4.13 · Qwen/Qwen3-4B @ 1cfa9a7
 - Exact command: `vllm serve Qwen/Qwen3-4B ... --reasoning-parser deepseek_r1 --default-chat-template-kwargs '{"enable_thinking": false}'`, then `lm_eval --model local-chat-completions ... --tasks gsm8k --limit 20` (same for ifeval)
