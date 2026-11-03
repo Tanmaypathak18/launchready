@@ -9,6 +9,8 @@
 
 Run 1 crashed early and its outputs aren't kept; see the [friction log](../../docs/friction_log.md). Each session's own `.tar.gz` is left out because it duplicates these files.
 
+The files are raw, with one edit: in run 3's vLLM IFEval samples, an address the model invented in a sample advert is written `info[at]softguard.com`, because the repo's tree guard bans email addresses. Scores aren't affected.
+
 ## Environment (run 3)
 
 | | |
