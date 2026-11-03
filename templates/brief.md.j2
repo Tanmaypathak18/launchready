@@ -1,0 +1,117 @@
+# {{ model_name }}: LaunchReady brief
+
+Projected unless marked measured · generated {{ generated }} by launchready {{ version }} · sources at the bottom
+
+## TL;DR
+
+{% for line in tldr %}
+- {{ line }}
+{% endfor %}
+
+## Identity
+
+| | |
+|---|---|
+| Builder | {{ builder }} |
+| Hugging Face repo | [{{ repo_id }}]({{ hf_url }}) @ `{{ revision[:7] }}` [1] |
+| Repo created | {{ created or "unknown" }} (Hub creation date; public release can be later) [1] |
+| Last modified | {{ last_modified or "unknown" }} [1] |
+| License | {{ license or "not declared on the model card" }} [1] |
+| Gated | {{ "yes (" ~ gated ~ ")" if gated else "no" }} [1] |
+
+## Architecture
+
+| | |
+|---|---|
+| Family | {{ arch.family }} ({{ arch.model_type }}) [2] |
+| Layers | {{ arch.layers }} ({{ arch.layer_summary }}) [2] |
+| Parameters | {{ arch.params }} [3] |
+| Attention | {{ arch.attention }} [2] |
+| Context length | {{ arch.context }} [2] |
+{% if arch.extras %}
+| Extras | {{ arch.extras | join("; ") }} |
+{% endif %}
+
+## What this means for developers
+
+{% for sentence in developer %}
+{{ sentence }}{% if not loop.last %}
+
+
+{% endif %}
+{% endfor %}
+
+
+## Hardware requirements
+
+All projected [4]. Weights use total parameters from safetensors headers [3]; "Hub files" is the real size of the matching repo on the Hub (file size, not measured GPU memory).
+
+| Precision | Bits/weight | Weights GiB (projected) | Hub files GiB | Repo |
+|---|---:|---:|---:|---|
+{% for row in weights %}
+| {{ row.label }} | {{ row.bits }} | {{ row.projected }} | {{ row.real or "—" }} | {{ row.repo_link or "—" }} |
+{% endfor %}
+
+Memory per sequence (KV cache FP16{% if state_dtype %}, Mamba state {{ state_dtype }}{% endif %}), the same for every weight precision:
+
+| Context | KV cache GiB | {% if state_dtype %}Mamba state GiB | {% endif %}Total GiB |
+|---:|---:|---:{% if state_dtype %}|---:{% endif %}|
+{% for row in sequences %}
+| {{ row.context }} | {{ row.kv }} | {% if state_dtype %}{{ row.state }} | {% endif %}{{ row.total }} |
+{% endfor %}
+
+Smallest single NVIDIA GPU with native support that fits the weights plus N sequences:
+
+| Precision |{% for c in gpu_columns %} {{ c }} |{% endfor %}
+
+|---|{% for c in gpu_columns %}---|{% endfor %}
+
+{% for row in gpu_rows %}
+| {{ row.label }} |{% for cell in row.cells %} {{ cell }} |{% endfor %}
+
+{% endfor %}
+
+Fit model: usable = VRAM × {{ utilization }} − weights − {{ reserve_gib }} GiB reserve; users = floor(usable ÷ per-sequence memory). Uses Hub file sizes where they exist, else projected weights. GPU capacity is the marketed size read as GiB. "—" = no single GPU in the catalog.
+{% for note in hardware_notes %}
+- {{ note }}
+{% endfor %}
+
+## Engine readiness
+
+Checked against shallow sparse clones of each engine at its latest stable release and its default branch on {{ generated }}.
+
+| Engine | Status | Version | Where | Notes |
+|---|---|---|---|---|
+{% for e in engines %}
+| {{ e.engine }} | {{ e.status }} | {{ e.version or "—" }} | {% if e.url %}[{{ e.path }}:{{ e.line }}]({{ e.url }}){% else %}—{% endif %} | {{ e.notes | join("; ") or "—" }} |
+{% endfor %}
+
+`release` = registered in the latest stable release · `main-only` = only on the default branch · `not-found` = registry checked, architecture absent · `unknown` = couldn't check. A registry entry means the engine knows the architecture; it doesn't prove every precision or feature works.
+
+## Available variants
+
+{% if variants %}
+| Format | Repo | Size | Downloads |
+|---|---|---|---:|
+{% for v in variants %}
+| {{ v.format }} | [{{ v.repo_id }}](https://huggingface.co/{{ v.repo_id }}) | {{ v.size }} | {{ "{:,}".format(v.downloads) }} |
+{% endfor %}
+
+From the Hub filter `base_model:quantized:{{ repo_id }}` and a search of the {{ builder }} org, most downloaded first (builder's own repos on top), on {{ generated }}. Sizes are file sizes on the Hub.
+{% else %}
+No quantized variants found on the Hub.
+{% endif %}
+
+## Ecosystem impact (hand-written)
+
+TODO: who it competes with · which developer segment · what it means for NVIDIA.
+
+## Open questions and risks (hand-written)
+
+TODO
+
+## Sources
+
+{% for s in sources %}
+{{ loop.index }}. {{ s.label }}: {{ s.url }}
+{% endfor %}

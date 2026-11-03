@@ -13,8 +13,3 @@ def test_help_lists_subcommands():
     for command in ("fit", "brief", "radar"):
         assert command in result.output
 
-
-def test_brief_not_implemented():
-    result = runner.invoke(app, ["brief", "Qwen/Qwen3-4B"])
-    assert result.exit_code == 1
-    assert "not implemented" in result.output

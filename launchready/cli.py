@@ -1,12 +1,14 @@
 """Command-line interface: `launchready fit`, `launchready brief` and `launchready radar`."""
 
 import json
+from pathlib import Path
 
 import typer
 from rich.console import Console
 from rich.table import Table
 
 from launchready.arch import parse_config
+from launchready.brief import write_brief
 from launchready.hub import HubError, load_model
 from launchready.memory import (
     BITS_PER_WEIGHT,
@@ -37,11 +39,6 @@ PRECISION_LABELS = {
 }
 REFERENCE_CONTEXTS = (8_192, 32_768, 131_072)
 KV_DTYPES = ("fp16", "fp8")
-
-
-def _not_implemented() -> None:
-    typer.echo("not implemented")
-    raise typer.Exit(code=1)
 
 
 def _fail(message: str, code: int) -> None:
@@ -258,12 +255,23 @@ def fit(
 
 
 @app.command()
-def brief(repo_id: str = typer.Argument(..., help="Hugging Face repo ID, e.g. Qwen/Qwen3-4B.")):
-    """Write a one-page LaunchReady brief for the model to briefs/ (Phase 2)."""
-    _not_implemented()
+def brief(
+    repo_id: str = typer.Argument(..., help="Hugging Face repo ID, e.g. Qwen/Qwen3-4B."),
+    out: str = typer.Option("briefs", help="Directory to write the brief to."),
+    refresh: bool = typer.Option(False, help="Ignore caches: re-read the Hub and re-clone."),
+):
+    """Write a one-page LaunchReady brief to briefs/<org>__<model>.md: identity, architecture,
+    projected hardware needs, engine readiness and quantized variants."""
+    try:
+        path = write_brief(repo_id, Path(out), refresh=refresh)
+    except (HubError, ValueError) as e:
+        _fail(str(e), 1)
+    typer.echo(f"wrote {path}")
+    typer.echo('TODO: hand-write "Ecosystem impact" and "Open questions and risks"')
 
 
 @app.command()
 def radar(since: str = typer.Option("30d", help="Look-back window, e.g. 30d.")):
     """List recent root-model releases from the watchlist (Phase 2)."""
-    _not_implemented()
+    typer.echo("not implemented")
+    raise typer.Exit(code=1)
