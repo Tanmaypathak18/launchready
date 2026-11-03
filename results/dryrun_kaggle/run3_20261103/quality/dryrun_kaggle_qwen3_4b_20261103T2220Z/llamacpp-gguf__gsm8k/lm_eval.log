@@ -1,0 +1,24 @@
+2026-11-03:23:25:49 WARNING  [config.evaluate_config:337] --limit SHOULD ONLY BE USED FOR TESTING. REAL METRICS SHOULD NOT BE COMPUTED USING LIMIT.
+2026-11-03:23:26:02 INFO     [_cli.run:392] Selected Tasks: ['gsm8k']
+2026-11-03:23:26:02 INFO     [evaluator:214] Setting random seed to 1234 | Setting numpy seed to 1234 | Setting torch manual seed to 1234 | Setting fewshot manual seed to 1234
+2026-11-03:23:26:02 WARNING  [evaluator:226] generation_kwargs: {'temperature': 0} specified through cli, these settings will update set parameters in yaml tasks. Ensure 'do_sample=True' for non-greedy decoding!
+2026-11-03:23:26:02 INFO     [evaluator:239] Initializing local-chat-completions model, with arguments: {'base_url': 'http://127.0.0.1:8001/v1/chat/completions', 'model': 'qwen3-4b-gguf', 'num_concurrent': 8, 'max_retries': 3, 'tokenized_requests': False, 'timeout': 1800}
+2026-11-03:23:26:02 INFO     [models.api_models:176] Using max length 2048 - 1
+2026-11-03:23:26:02 INFO     [models.api_models:197] Using tokenizer None
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03:23:26:03 INFO     [evaluator_utils:472] Selected tasks:
+2026-11-03:23:26:03 INFO     [evaluator_utils:506] Task: gsm8k (gsm8k/gsm8k.yaml)
+2026-11-03:23:26:03 INFO     [evaluator:314] gsm8k: Using gen_kwargs: {'until': ['Question:', '</s>', '<|im_end|>'], 'do_sample': False, 'temperature': 0}
+2026-11-03:23:26:03 INFO     [api.task:312] Building contexts for gsm8k on rank 0...
+  0%|          | 0/20 [00:00<?, ?it/s] 90%|█████████ | 18/20 [00:00<00:00, 171.10it/s]100%|██████████| 20/20 [00:00<00:00, 171.58it/s]
+2026-11-03:23:26:03 INFO     [evaluator:589] Running generate_until requests
+2026-11-03:23:26:03 INFO     [models.api_models:752] Tokenized requests are disabled. Context + generation length is not checked.
+Requesting API:   0%|          | 0/20 [00:00<?, ?it/s]Requesting API:   5%|▌         | 1/20 [00:09<02:53,  9.12s/it]Requesting API:  10%|█         | 2/20 [00:12<01:46,  5.92s/it]Requesting API:  15%|█▌        | 3/20 [00:14<01:04,  3.82s/it]Requesting API:  20%|██        | 4/20 [00:15<00:43,  2.74s/it]Requesting API:  25%|██▌       | 5/20 [00:16<00:35,  2.36s/it]Requesting API:  30%|███       | 6/20 [00:19<00:36,  2.60s/it]Requesting API:  35%|███▌      | 7/20 [00:21<00:29,  2.27s/it]Requesting API:  40%|████      | 8/20 [00:25<00:32,  2.72s/it]Requesting API:  45%|████▌     | 9/20 [00:26<00:26,  2.39s/it]Requesting API:  50%|█████     | 10/20 [00:31<00:31,  3.15s/it]Requesting API:  55%|█████▌    | 11/20 [00:33<00:24,  2.68s/it]Requesting API:  60%|██████    | 12/20 [00:34<00:18,  2.28s/it]Requesting API:  65%|██████▌   | 13/20 [00:35<00:13,  1.96s/it]Requesting API:  70%|███████   | 14/20 [00:36<00:08,  1.42s/it]Requesting API:  75%|███████▌  | 15/20 [00:39<00:10,  2.09s/it]Requesting API:  80%|████████  | 16/20 [00:40<00:06,  1.56s/it]Requesting API:  85%|████████▌ | 17/20 [00:41<00:04,  1.65s/it]Requesting API:  90%|█████████ | 18/20 [00:43<00:03,  1.76s/it]Requesting API:  95%|█████████▌| 19/20 [00:44<00:01,  1.39s/it]Requesting API: 100%|██████████| 20/20 [00:46<00:00,  1.55s/it]Requesting API: 100%|██████████| 20/20 [00:46<00:00,  2.32s/it]
+2026-11-03:23:26:49 INFO     [loggers.evaluation_tracker:247] Saving results aggregated
+2026-11-03:23:26:49 INFO     [loggers.evaluation_tracker:119] Saving per-task samples to results_dryrun/quality/dryrun_kaggle_qwen3_4b_20261103T2220Z/llamacpp-gguf__gsm8k/qwen3-4b-gguf/*.jsonl
+local-chat-completions ({'base_url': 'http://127.0.0.1:8001/v1/chat/completions', 'model': 'qwen3-4b-gguf', 'num_concurrent': 8, 'max_retries': 3, 'tokenized_requests': False, 'timeout': 1800}), gen_kwargs: ({'temperature': 0}), limit: 20.0, num_fewshot: None, batch_size: 1
+|Tasks|Version|     Filter     |n-shot|  Metric   |   |Value|   |Stderr|
+|-----|------:|----------------|-----:|-----------|---|----:|---|-----:|
+|gsm8k|      3|flexible-extract|     5|exact_match|↑  | 0.65|±  |0.1094|
+|     |       |strict-match    |     5|exact_match|↑  | 0.65|±  |0.1094|
+

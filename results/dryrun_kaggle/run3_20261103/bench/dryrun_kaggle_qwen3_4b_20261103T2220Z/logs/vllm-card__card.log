@@ -1,0 +1,4 @@
+$ vllm serve Qwen/Qwen3-4B --revision 1cfa9a7208912126459214e8b04321603b3df60c --enable-reasoning --reasoning-parser deepseek_r1 --dtype half --served-model-name qwen3-4b --max-model-len 8192
+usage: vllm [-h] [-v]
+            {chat,complete,serve,launch,bench,collect-env,download-kernels,preload,run-batch,snapshot} ...
+vllm: error: unrecognized arguments: --enable-reasoning

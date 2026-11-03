@@ -1,0 +1,179 @@
+23:21:44.596 INFO     Starting AIPerf System (_single_run.py:81)
+23:21:44.608 INFO     [OK] Tokenizer Qwen/Qwen3-4B detected (tokenizer_display.py:297)
+23:21:44.608 INFO     1 tokenizer validated | 0.0s (tokenizer_display.py:306)
+23:21:44.608 INFO     HF cache hit (skipping prefetch): ['Qwen/Qwen3-4B'] (tokenizer_validator.py:99)
+23:21:44.967 INFO     GPU telemetry disabled via --no-gpu-telemetry (system_controller.py:506)
+23:21:44.971 INFO     Server metrics disabled via --no-server-metrics (system_controller.py:512)
+23:21:44.990 INFO     Registered: Worker_Manager ('worker_manager') [0/0] (service_registry.py:196)
+23:21:44.990 INFO     Registered Worker Manager (id: 'worker_manager') (system_controller_dispatch.py:146)
+23:21:45.024 INFO     Registered: Dataset_Manager ('dataset_manager') [0/0] (service_registry.py:196)
+23:21:45.024 INFO     Registered Dataset Manager (id: 'dataset_manager') (system_controller_dispatch.py:146)
+23:21:45.035 INFO     Telemetry streaming is disabled (set --otel-url and/or --mlflow-tracking-uri to enable) (otel_metrics_results_processor.py:127)
+23:21:45.036 INFO     Record metrics export enabled: /kaggle/working/launchready/results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2220Z/aiperf/llamacpp-gguf__np8__chat__c32__r1/profile_export.jsonl (record_export_jsonl_writer.py:62)
+23:21:45.051 INFO     Registered: Records_Manager ('records_manager') [0/0] (service_registry.py:196)
+23:21:45.051 INFO     Registered Records Manager (id: 'records_manager') (system_controller_dispatch.py:146)
+23:21:45.052 INFO     Registered Records Manager (id: 'records_manager') (system_controller_dispatch.py:146)
+23:21:45.088 INFO     Registered Worker Manager (id: 'worker_manager') (system_controller_dispatch.py:146)
+23:21:45.126 INFO     Registered Dataset Manager (id: 'dataset_manager') (system_controller_dispatch.py:146)
+23:21:45.193 INFO     Registered: Record_Processor ('record_processor_d2f73ad4') [0/0] (service_registry.py:196)
+23:21:45.194 INFO     Registered Record Processor (id: 'record_processor_d2f73ad4') (system_controller_dispatch.py:146)
+23:21:45.195 INFO     Registered Record Processor (id: 'record_processor_d2f73ad4') (system_controller_dispatch.py:146)
+23:21:45.345 INFO     Registered: Timing_Manager ('timing_manager') [0/0] (service_registry.py:196)
+23:21:45.345 INFO     Registered Timing Manager (id: 'timing_manager') (system_controller_dispatch.py:146)
+23:21:45.345 INFO     Registered Timing Manager (id: 'timing_manager') (system_controller_dispatch.py:146)
+23:21:45.376 INFO     Registered: Worker ('worker_4ff846dd') [0/0] (service_registry.py:196)
+23:21:45.376 INFO     Registered Worker (id: 'worker_4ff846dd') (system_controller_dispatch.py:146)
+23:21:45.376 INFO     Registered Worker (id: 'worker_4ff846dd') (system_controller_dispatch.py:146)
+23:21:45.435 INFO     Registered: Worker ('worker_81a54425') [0/0] (service_registry.py:196)
+23:21:45.436 INFO     Registered Worker (id: 'worker_81a54425') (system_controller_dispatch.py:146)
+23:21:45.436 INFO     Registered Worker (id: 'worker_81a54425') (system_controller_dispatch.py:146)
+23:21:45.473 INFO     System state: initializing -> configuring (system_controller.py:700)
+23:21:45.473 INFO     AIPerf System is CONFIGURING (system_controller.py:536)
+23:21:45.473 INFO     Configuring all services to start profiling (system_controller.py:713)
+23:21:45.474 INFO     Configuring tokenizers for inference result parser (resolve_alias: True) (inference_result_parser.py:91)
+23:21:45.474 INFO     Waiting for dataset to be configured before configuring timing (manager.py:149)
+23:21:45.476 INFO     Configuring tokenizer(s) for dataset manager (dataset_manager.py:271)
+23:21:47.330 INFO     HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B/tree/1cfa9a7208912126459214e8b04321603b3df60c/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found" (_client.py:1025)
+23:21:47.370 INFO     HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B/tree/1cfa9a7208912126459214e8b04321603b3df60c?recursive=true&expand=false "HTTP/1.1 200 OK" (_client.py:1025)
+23:21:47.545 INFO     HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B/tree/1cfa9a7208912126459214e8b04321603b3df60c/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found" (_client.py:1025)
+23:21:47.593 INFO     HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B/tree/1cfa9a7208912126459214e8b04321603b3df60c?recursive=true&expand=false "HTTP/1.1 200 OK" (_client.py:1025)
+23:21:48.043 INFO     HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B "HTTP/1.1 200 OK" (_client.py:1025)
+23:21:48.046 INFO     Initialized tokenizers: {'qwen3-4b-gguf': {'class': 'Qwen2Tokenizer', 'name_or_path': 'Qwen/Qwen3-4B'}} in 2.57 seconds (inference_result_parser.py:117)
+23:21:48.243 INFO     HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B "HTTP/1.1 200 OK" (_client.py:1025)
+23:21:48.247 INFO     Tokenizer(s) configured in 2.77 seconds (dataset_manager.py:275)
+23:21:48.247 INFO     Configuring dataset for dataset_manager (dataset_manager.py:281)
+23:21:49.910 INFO     Memory-mapped backing store initialized (streaming to /tmp/aiperf_mmap_b4e0c0ad2150/dataset.dat) (memory_map_utils.py:160)
+23:21:49.917 INFO     Data file finalized: 66 conversations, 0.19 MB (memory_map_utils.py:288)
+23:21:49.917 INFO     Index file created: /tmp/aiperf_mmap_b4e0c0ad2150/index.dat (memory_map_utils.py:295)
+23:21:49.918 INFO     Backing store finalized: client_type=DatasetClientStoreType.MEMORY_MAP format=MemoryMapFormat.CONVERSATION data_file_path=PosixPath('/tmp/aiperf_mmap_b4e0c0ad2150/dataset.dat') index_file_path=PosixPath('/tmp/aiperf_mmap_b4e0c0ad2150/index.dat') conversation_count=66 total_size_bytes=204373 compressed=False compressed_data_file_path=None compressed_index_file_path=None compressed_size_bytes=0 (dataset_manager.py:1009)
+23:21:49.919 INFO     sampling strategy: sequential, unique conversations: 66, unique turn count: 66 (dataset_manager.py:1027)
+23:21:49.920 INFO     Generating inputs.json file at /kaggle/working/launchready/results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2220Z/aiperf/llamacpp-gguf__np8__chat__c32__r1/inputs.json (dataset_manager.py:526)
+23:21:49.925 INFO     Initialized 2 phase(s): ['Warmup', 'Profiling'] (phase_orchestrator.py:341)
+23:21:49.929 INFO     inputs.json file generated in 0.01 seconds (dataset_manager.py:545)
+23:21:50.060 INFO     Dataset client initialized and freed 66 conversations from memory (dataset_manager.py:364)
+23:21:50.061 INFO     Dataset configured in 1.81 seconds (dataset_manager.py:294)
+23:21:50.061 INFO     All services configured in 4.59 seconds (system_controller.py:722)
+23:21:50.062 INFO     System state: configuring -> ready (system_controller.py:700)
+23:21:50.062 INFO     AIPerf System is CONFIGURED (system_controller.py:539)
+23:21:50.065 INFO     All services started profiling successfully (system_controller.py:742)
+23:21:50.066 INFO     System state: ready -> profiling (system_controller.py:700)
+23:21:50.066 INFO     AIPerf System is PROFILING (system_controller.py:548)
+23:21:50.066 INFO     Waiting for result domains: profile (system_controller.py:1635)
+23:21:50.068 INFO     Creating interval generator: pattern=concurrency_burst, rate=None, smoothness=None (request_rate.py:116)
+23:21:50.068 NOTICE   Phase warmup (warmup) started | phase_index=0 | target: 2 requests (runner.py:660)
+23:21:50.069 INFO     Credit phase start: warmup (records_manager.py:1406)
+23:21:50.070 INFO     Rate loop pacing via timerfd (kernel hrtimer) (request_rate.py:146)
+23:21:50.071 NOTICE   Phase warmup (warmup) sending complete | sent=2, completed=0, in_flight=2 | sessions: sent=2, completed=0 (runner.py:1103)
+23:21:58.241 NOTICE   Phase warmup (warmup) complete | completed=2, cancelled=0, errors=0 | sessions: completed=2, cancelled=0 | elapsed=8.17s (runner.py:1226)
+23:21:58.242 INFO     Creating interval generator: pattern=concurrency_burst, rate=None, smoothness=None (request_rate.py:116)
+23:21:58.243 NOTICE   Phase profiling (profiling) started | phase_index=1 | profiling_index=0 | target: 64 requests (runner.py:660)
+23:21:58.244 INFO     Rate loop pacing via timerfd (kernel hrtimer) (request_rate.py:146)
+23:21:58.244 INFO     Credit phase start: profiling (records_manager.py:1406)
+23:23:15.462 NOTICE   Phase profiling (profiling) sending complete | sent=64, completed=32, in_flight=32 | sessions: sent=64, completed=32 (runner.py:1103)
+23:23:15.463 INFO     Sent 64 requests. Waiting for all to complete... (records_manager.py:1422)
+23:24:27.205 NOTICE   Phase profiling (profiling) complete | completed=64, cancelled=0, errors=0 | sessions: completed=64, cancelled=0 | elapsed=148.96s (runner.py:1226)
+23:24:27.206 NOTICE   All credits completed (phase_orchestrator.py:358)
+23:24:27.207 INFO     Received credits complete from 'timing_manager' (system_controller.py:829)
+23:24:27.207 INFO     Received CREDIT_PHASE_COMPLETE message, Phase complete: PhaseRecordsStats(phase=CreditPhase.PROFILING, phase_index=1, profiling_index=0, phase_name='profiling', phase_kind='profiling', start_ns=1793748118243001634, sent_end_ns=1793748195461958995, requests_end_ns=1793748267205361591, baseline_start_ns=1793748118242974183, baseline_end_ns=1793748267205372007, total_expected_requests=64, expected_duration_sec=None, expected_num_sessions=None, expected_grace_period_sec=None, final_requests_sent=None, final_requests_completed=64, final_requests_cancelled=0, final_request_errors=0, final_sent_sessions=None, final_completed_sessions=None, final_cancelled_sessions=None, timeout_triggered=False, grace_period_timeout_triggered=False, was_cancelled=False, records_end_ns=None, success_records=62, error_records=0) (records_manager.py:1449)
+23:24:27.207 INFO     System state: profiling -> processing (system_controller.py:700)
+23:24:27.207 NOTICE   All requests have completed, please wait for the results to be processed (currently 62 of 64 records processed)... (records_manager.py:1460)
+23:24:27.207 INFO     All credits complete, please wait for the results to be processed... (records_manager.py:1505)
+23:24:27.219 INFO     Processed 64 valid requests and 0 errors (64 total). (records_manager.py:1207)
+23:24:27.219 INFO     Received all records, processing now... (records_manager.py:1213)
+23:24:27.221 INFO     Processing records results... (records_manager.py:2368)
+23:24:27.321 INFO     _finalize_and_process_results completed (records_manager.py:1359)
+23:24:27.322 INFO     System state: processing -> stopping (system_controller.py:700)
+23:24:27.323 INFO     All results received, initiating shutdown (system_controller.py:1630)
+23:24:27.323 INFO     System state: stopping -> shutdown (system_controller.py:700)
+23:24:27.925 INFO     Exporting all records (exporter_manager.py:97)
+23:24:27.994 INFO     Exporting console data (exporter_manager.py:527)
+
+
+                                             NVIDIA AIPerf | LLM Metrics: Effective                                              
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃                                    Metric ┃       avg ┃       min ┃       max ┃       p99 ┃       p90 ┃       p50 ┃       std ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━┩
+│          Effective Concurrency (requests) │     26.26 │      0.00 │     32.00 │     32.00 │     32.00 │     32.00 │      8.50 │
+│  Effective Decode Throughput (tokens/sec) │    109.50 │      0.00 │    175.81 │    149.01 │    143.41 │    131.98 │     52.23 │
+│ Effective Prefill Throughput (tokens/sec) │    219.98 │      0.00 │  2,043.54 │  2,043.54 │    359.35 │    216.02 │    243.81 │
+│   Effective Decode Concurrency (requests) │      7.36 │      0.00 │      8.00 │      8.00 │      8.00 │      8.00 │      1.43 │
+│  Effective Prefill Concurrency (requests) │     18.89 │      0.00 │     32.00 │     32.00 │     26.00 │     24.00 │      8.73 │
+│   Effective Total Throughput (tokens/sec) │    329.47 │      0.00 │  2,043.54 │  2,043.54 │    477.05 │    330.93 │    230.31 │
+│      Effective Decode Throughput Per User │     13.75 │      0.00 │     49.36 │     18.63 │     17.93 │     16.50 │      6.44 │
+│                         (tokens/sec/user) │           │           │           │           │           │           │           │
+│     Effective Prefill Throughput Per User │      9.89 │      0.00 │    206.41 │     63.86 │     14.97 │      9.00 │      7.59 │
+│                         (tokens/sec/user) │           │           │           │           │           │           │           │
+│                 Tokens In Flight (tokens) │ 14,383.09 │      0.00 │ 18,419.00 │ 18,382.07 │ 18,023.41 │ 16,674.00 │  4,384.94 │
+│         Effective Latency (CO-aware) (ms) │ 61,118.51 │ 18,775.41 │ 77,207.09 │ 77,206.24 │ 74,713.22 │ 73,952.92 │ 19,529.90 │
+└───────────────────────────────────────────┴───────────┴───────────┴───────────┴───────────┴───────────┴───────────┴───────────┘
+                                    NVIDIA AIPerf | LLM Metrics: Active                                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┓
+┃                                 Metric ┃    avg ┃   min ┃      max ┃      p99 ┃    p90 ┃    p50 ┃    std ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━┩
+│  Active Decode Throughput (tokens/sec) │ 110.85 │  0.81 │   175.81 │   149.01 │ 143.43 │ 132.02 │  51.10 │
+│ Active Prefill Throughput (tokens/sec) │ 244.29 │  9.00 │ 2,043.54 │ 2,043.54 │ 359.35 │ 216.02 │ 245.10 │
+│      Active Decode Throughput Per User │  13.92 │  0.40 │    49.36 │    18.65 │  17.93 │  16.50 │   6.29 │
+│                      (tokens/sec/user) │        │       │          │          │        │        │        │
+│     Active Prefill Throughput Per User │  10.98 │  8.92 │   206.41 │    63.86 │  14.97 │   9.00 │   7.21 │
+│                      (tokens/sec/user) │        │       │          │          │        │        │        │
+│   Active Total Throughput (tokens/sec) │ 329.49 │ 17.21 │ 2,043.54 │ 2,043.54 │ 477.05 │ 330.93 │ 230.30 │
+└────────────────────────────────────────┴────────┴───────┴──────────┴──────────┴────────┴────────┴────────┘
+                                    NVIDIA AIPerf | LLM Metrics: Usage                                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━┓
+┃                                  Metric ┃       avg ┃    min ┃    max ┃    p99 ┃    p90 ┃    p50 ┃  std ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━┩
+│            Usage Prompt Tokens (tokens) │    524.00 │ 524.00 │ 524.00 │ 524.00 │ 524.00 │ 524.00 │ 0.00 │
+│ Usage Prompt Cache Read Tokens (tokens) │      0.00 │   0.00 │   0.00 │   0.00 │   0.00 │   0.00 │ 0.00 │
+│        Usage Completion Tokens (tokens) │    256.00 │ 256.00 │ 256.00 │ 256.00 │ 256.00 │ 256.00 │ 0.00 │
+│             Usage Total Tokens (tokens) │    780.00 │ 780.00 │ 780.00 │ 780.00 │ 780.00 │ 780.00 │ 0.00 │
+│      Total Usage Prompt Tokens (tokens) │ 33,536.00 │    N/A │    N/A │    N/A │    N/A │    N/A │  N/A │
+│    Total Usage Prompt Cache Read Tokens │      0.00 │    N/A │    N/A │    N/A │    N/A │    N/A │  N/A │
+│                                (tokens) │           │        │        │        │        │        │      │
+│       Overall Usage Prompt Cache Read % │      0.00 │    N/A │    N/A │    N/A │    N/A │    N/A │  N/A │
+│                                     (%) │           │        │        │        │        │        │      │
+│  Total Usage Completion Tokens (tokens) │ 16,384.00 │    N/A │    N/A │    N/A │    N/A │    N/A │  N/A │
+│       Total Usage Total Tokens (tokens) │ 49,920.00 │    N/A │    N/A │    N/A │    N/A │    N/A │  N/A │
+└─────────────────────────────────────────┴───────────┴────────┴────────┴────────┴────────┴────────┴──────┘
+                                                     NVIDIA AIPerf | LLM Metrics                                                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃                                        Metric ┃       avg ┃       min ┃       max ┃       p99 ┃       p90 ┃       p50 ┃       std ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━┩
+│                      Time to First Token (ms) │ 43,971.08 │  1,803.54 │ 60,222.03 │ 60,215.87 │ 57,842.58 │ 56,483.49 │ 19,742.98 │
+│                     Time to Second Token (ms) │    846.76 │     48.82 │  1,981.50 │  1,981.43 │  1,412.80 │    921.58 │    575.48 │
+│               Time to First Output Token (ms) │ 43,971.08 │  1,803.54 │ 60,222.03 │ 60,215.87 │ 57,842.58 │ 56,483.49 │ 19,742.98 │
+│                          Request Latency (ms) │ 61,110.34 │ 18,766.91 │ 77,200.89 │ 77,196.43 │ 74,703.21 │ 73,948.13 │ 19,528.57 │
+│                          Decode Duration (ms) │ 17,139.26 │ 14,820.24 │ 19,058.43 │ 18,652.56 │ 18,088.76 │ 17,047.66 │    764.16 │
+│                      Inter Token Latency (ms) │     67.25 │     58.12 │     74.74 │     73.51 │     70.94 │     66.85 │      2.99 │
+│              Output Token Throughput Per User │     14.90 │     13.38 │     17.21 │     17.21 │     15.36 │     14.96 │      0.69 │
+│                             (tokens/sec/user) │           │           │           │           │           │           │           │
+│ E2E Output Token Throughput (tokens/sec/user) │      5.12 │      3.32 │     13.64 │     13.64 │     12.29 │      3.46 │      3.10 │
+│               Output Sequence Length (tokens) │    255.86 │    252.00 │    257.00 │    256.37 │    256.00 │    256.00 │      0.68 │
+│                Input Sequence Length (tokens) │    512.00 │    512.00 │    512.00 │    512.00 │    512.00 │    512.00 │      0.00 │
+│          Output Token Throughput (tokens/sec) │    109.93 │       N/A │       N/A │       N/A │       N/A │       N/A │       N/A │
+│           Input Token Throughput (tokens/sec) │    219.98 │       N/A │       N/A │       N/A │       N/A │       N/A │       N/A │
+│             Request Throughput (requests/sec) │      0.43 │       N/A │       N/A │       N/A │       N/A │       N/A │       N/A │
+│          Completed Requests (Success + Error) │     64.00 │       N/A │       N/A │       N/A │       N/A │       N/A │       N/A │
+│                                    (requests) │           │           │           │           │           │           │           │
+│                        Request Error Rate (%) │      0.00 │       N/A │       N/A │       N/A │       N/A │       N/A │       N/A │
+│                      Request Count (requests) │     64.00 │       N/A │       N/A │       N/A │       N/A │       N/A │       N/A │
+└───────────────────────────────────────────────┴───────────┴───────────┴───────────┴───────────┴───────────┴───────────┴───────────┘
+
+CLI Command: aiperf profile --model 'qwen3-4b-gguf' --url 'http://127.0.0.1:8001' --endpoint-type 
+'chat' --streaming --tokenizer 'Qwen/Qwen3-4B' --tokenizer-revision 
+'1cfa9a7208912126459214e8b04321603b3df60c' --concurrency 32 --request-count 64 
+--warmup-request-count 2 --num-dataset-entries 66 --isl 512 --isl-stddev 0 --osl 256 --osl-stddev 0 
+--random-seed 1234 --request-timeout-seconds 1800 --artifact-dir 
+'results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2220Z/aiperf/llamacpp-gguf__np8__chat__c32__r1
+' --ui-type None --no-gpu-telemetry --no-server-metrics --extra-inputs '{"ignore_eos": true, 
+"cache_prompt": false}'
+Benchmark Duration: 148.95 sec
+CSV Export: 
+/kaggle/working/launchready/results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2220Z/aiperf/llamac
+pp-gguf__np8__chat__c32__r1/profile_export_aiperf.csv
+JSON Export: 
+/kaggle/working/launchready/results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2220Z/aiperf/llamac
+pp-gguf__np8__chat__c32__r1/profile_export_aiperf.json
+Log File: 
+/kaggle/working/launchready/results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2220Z/aiperf/llamac
+pp-gguf__np8__chat__c32__r1/logs/aiperf.log
+
