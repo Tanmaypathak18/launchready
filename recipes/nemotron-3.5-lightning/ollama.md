@@ -44,4 +44,4 @@ hf download bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF NVIDIA-Nemotron
 |---|---|---|---|---|
 | This GGUF | 23.73 GiB (file size; header: 6.19 bits/weight) | 0.28 GiB (0.23 GiB attention KV at FP16 + 0.05 GiB Mamba state) | 2.25 GiB | ~6.0 GiB for compute buffers |
 
-Formula: per sequence = 6 attention layers × 2 × 2 KV heads × 128 × 2 bytes × 40,960 tokens + Mamba state (`launchready fit`, BUILD_PLAN 6.2). `launchready fit` projects 18.58 GiB for "Q4_K_M" at 4.85 bits/weight. That's 22% below the real file, because the experts fall back to Q5_0. Use the file size. Measured numbers will replace this table after the 5090 session.
+Formula: per sequence = 6 attention layers × 2 × 2 KV heads × 128 × 2 bytes × 40,960 tokens + Mamba state (`launchready fit`, roadmap 6.2). `launchready fit` projects 18.58 GiB for "Q4_K_M" at 4.85 bits/weight. That's 22% below the real file, because the experts fall back to Q5_0. Use the file size. Measured numbers will replace this table after the 5090 session.

@@ -1,4 +1,4 @@
-"""Engine readiness checks (Phase 2; BUILD_PLAN.md section 6.6).
+"""Engine readiness checks (Phase 2; docs/roadmap.md section 6.6).
 
 Uses shallow sparse clones of vLLM, SGLang, llama.cpp and Transformers at `main` and the latest
 stable release tag, cached under ~/.cache/launchready/engines (override with

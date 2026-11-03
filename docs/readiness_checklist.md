@@ -2,7 +2,7 @@
 
 **Not ready on an RTX 5090 yet: 1 ready, 5 not ready, 21 unknown, out of 27 checks.** Nothing has been measured on a 5090, so no claim about how Lightning runs can be marked ready yet. The Phase 5 bar is that each check is green or its exception is explained.
 
-Template: BUILD_PLAN 7.2. Checked 2026-11-03 using only evidence committed in this repo, including [NVIDIA's card at `bee7596`](../results/evidence/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4__README__bee7596.md). Later Kaggle runs aren't included until their results are in the repo.
+Template: roadmap 7.2. Checked 2026-11-03 using only evidence committed in this repo, including [NVIDIA's card at `bee7596`](../results/evidence/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4__README__bee7596.md). Later Kaggle runs aren't included until their results are in the repo.
 
 | Status | Meaning |
 |---|---|

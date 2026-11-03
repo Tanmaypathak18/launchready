@@ -41,7 +41,7 @@ NVIDIA's [NVFP4 card](../../results/evidence/nvidia__NVIDIA-Nemotron-3.5-Lightni
 | vLLM, NVFP4, BF16 KV cache, `--gpu-memory-utilization 0.85` | 20.08 GiB (Hub files; 17.24 GiB if every weight were 4.5 bits) | 0.28 GiB (0.23 GiB attention KV at 2 bytes + 0.05 GiB Mamba state) | ~18 |
 | llama-server, GGUF Q4_K_M, `-np 8` | 23.73 GiB (file; header says 6.19 bits/weight) | 0.28 GiB | 8 slots used; ~6.0 GiB left for buffers |
 
-Formula (BUILD_PLAN 6.2–6.3): KV budget = 32 GiB × 0.85 − weights − 2 GiB reserve = 5.12 GiB for NVFP4. Sequences = floor(5.12 ÷ 0.281) = 18. The working config uses a BF16 KV cache because FP8 KV is the flag reported to break on SM12x. For hybrids, vLLM's real concurrency can be far below this projection: granite-4.0-h-tiny came in at 50.6 against 118 projected in Phase 3. The 5090 session measures it, using vLLM's `GPU KV cache size` and `Maximum concurrency` lines in `startup/*.json`.
+Formula (roadmap 6.2–6.3): KV budget = 32 GiB × 0.85 − weights − 2 GiB reserve = 5.12 GiB for NVFP4. Sequences = floor(5.12 ÷ 0.281) = 18. The working config uses a BF16 KV cache because FP8 KV is the flag reported to break on SM12x. For hybrids, vLLM's real concurrency can be far below this projection: granite-4.0-h-tiny came in at 50.6 against 118 projected in Phase 3. The 5090 session measures it, using vLLM's `GPU KV cache size` and `Maximum concurrency` lines in `startup/*.json`.
 
 ## What the session runs
 

@@ -1,4 +1,4 @@
-# RTX 5090 session for NVIDIA Nemotron 3.5 Lightning (BUILD_PLAN Phase 5 step 6, section 6.9).
+# RTX 5090 session for NVIDIA Nemotron 3.5 Lightning (roadmap Phase 5 step 6, section 6.9).
 # Run it through bench/run_session_5090.sh, which downloads, builds, benchmarks and packs results.
 #
 # Plan changes from docs/requirements.md ("What this changes in LaunchReady") built in here:

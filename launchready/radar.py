@@ -1,4 +1,4 @@
-"""One-off release radar (Phase 2; BUILD_PLAN.md section 6.7).
+"""One-off release radar (Phase 2; docs/roadmap.md section 6.7).
 
 Lists recent root-model releases from the watchlist orgs within a look-back window, skipping
 quantized, GGUF, adapter repos and fine-tunes of other orgs' models, and writes radar/<date>.md.
@@ -139,7 +139,7 @@ def render(
     lines = [
         f"# Release radar: {today.isoformat()}",
         "",
-        f"New root-model repos on Hugging Face from the BUILD_PLAN 6.7 watchlist in the last "
+        f"New root-model repos on Hugging Face from the roadmap 6.7 watchlist in the last "
         f"{since} (repo creation dates; {total} repos). Skipped: quantized/GGUF repos, adapters "
         "and fine-tunes of other orgs' models. A builder's own fine-tunes (e.g. Instruct from its "
         "Base) are nested under their base with ↳. Parameters are from safetensors metadata.",
@@ -173,7 +173,7 @@ def render(
         lines += [
             "## Not checked",
             "",
-            f"Handles not found on the Hub: {', '.join(missing)}. Verify them in BUILD_PLAN 6.7.",
+            f"Handles not found on the Hub: {', '.join(missing)}. Verify them in roadmap 6.7.",
             "",
         ]
     lines += ["---", "", CAVEAT, ""]

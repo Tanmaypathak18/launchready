@@ -1,6 +1,6 @@
 # Dry run, Qwen3-4B, T4, not headline
 
-**These are not published results.** This is the raw output of `bench/run_session_5090.sh` from a Kaggle dry run (BUILD_PLAN Phase 5 step 5), kept to show the scripts ran end to end. The files say `"label": "measured"` because the scripts wrote them that way; here that means "measured in a dry run". Don't quote these numbers as Lightning or RTX 5090 performance.
+**These are not published results.** This is the raw output of `bench/run_session_5090.sh` from a Kaggle dry run (roadmap Phase 5 step 5), kept to show the scripts ran end to end. The files say `"label": "measured"` because the scripts wrote them that way; here that means "measured in a dry run". Don't quote these numbers as Lightning or RTX 5090 performance.
 
 | | |
 |---|---|

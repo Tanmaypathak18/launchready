@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LaunchReady: Start here</title>
+<meta name="description" content="LaunchReady helps a team know whether a new open model will run on NVIDIA GPUs before launch. Findings, evidence and what is not done yet.">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f7f7f4;
+    --surface: #ffffff;
+    --ink: #1c1f1d;
+    --muted: #565d58;
+    --line: #dcdfd9;
+    --accent: #1f6b45;
+    --link: #17603b;
+    --measured-bg: #dff0e5;
+    --measured-ink: #14532f;
+    --projected-bg: #fbeed2;
+    --projected-ink: #6b4300;
+    --open-bg: #eceee9;
+    --open-ink: #3c423e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141715;
+      --surface: #1c201d;
+      --ink: #e9ebe7;
+      --muted: #a6ada7;
+      --line: #333935;
+      --accent: #6fd09b;
+      --link: #86dbab;
+      --measured-bg: #17382a;
+      --measured-ink: #a5e6c2;
+      --projected-bg: #3d2f12;
+      --projected-ink: #f2cf8a;
+      --open-bg: #2a2f2b;
+      --open-ink: #d3d8d3;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { max-width: 46rem; margin: 0 auto; padding: 2.5rem 16px 4rem; }
+  h1 { font-size: 2.1rem; line-height: 1.15; margin: 0 0 1rem; letter-spacing: -0.01em; }
+  h2 { font-size: 1.4rem; line-height: 1.25; margin: 3rem 0 0.75rem; }
+  h3 { font-size: 1.08rem; line-height: 1.3; margin: 0; }
+  p { margin: 0 0 0.75rem; }
+  a { color: var(--link); text-underline-offset: 2px; }
+  code { font: 0.88em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+  ul { margin: 0; padding-left: 1.2rem; }
+  li { margin-bottom: 0.45rem; }
+  .eyebrow { color: var(--accent); font-size: 0.82rem; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .summary p { font-size: 1.1rem; }
+  .jump { color: var(--muted); font-size: 0.92rem; }
+  .card, .box {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.1rem 1.15rem;
+    margin-bottom: 1rem;
+  }
+  .card-head { display: grid; grid-template-columns: 7.2rem 1fr; gap: 0.25rem 1rem; align-items: start; margin-bottom: 0.65rem; }
+  .big { font-size: 2.15rem; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .big small { display: block; font-size: 0.74rem; font-weight: 500; letter-spacing: 0; color: var(--muted); margin-top: 0.3rem; line-height: 1.3; }
+  .meaning { margin-top: 0.3rem; margin-bottom: 0; }
+  .vals { list-style: none; padding: 0; margin: 0 0 0.65rem; font-size: 0.95rem; }
+  .vals li { margin-bottom: 0.35rem; }
+  .tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 0.02rem 0.38rem;
+    font-size: 0.74rem;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .m { background: var(--measured-bg); color: var(--measured-ink); }
+  .p { background: var(--projected-bg); color: var(--projected-ink); }
+  .o { background: var(--open-bg); color: var(--open-ink); }
+  .note { color: var(--muted); font-size: 0.92rem; }
+  .evidence { font-size: 0.9rem; border-top: 1px solid var(--line); padding-top: 0.55rem; margin: 0.75rem 0 0; }
+  .why { margin: 0 0 0.65rem; }
+  figure { margin: 1rem 0 0; }
+  .chart-scroll { overflow-x: auto; background: #ffffff; border: 1px solid var(--line); border-radius: 10px; -webkit-overflow-scrolling: touch; }
+  .chart-scroll img { display: block; width: 100%; min-width: 760px; height: auto; }
+  figcaption { color: var(--muted); font-size: 0.88rem; margin-top: 0.45rem; }
+  .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin: 0.75rem 0; }
+  .count { border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 0.7rem; }
+  .count b { display: block; font-size: 1.7rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .count span { color: var(--muted); font-size: 0.86rem; }
+  .boxes { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+  .boxes .box { margin-bottom: 0; }
+  .box h2 { font-size: 1.15rem; margin: 0 0 0.6rem; }
+  .box h3 { margin: 0.8rem 0 0.35rem; font-size: 0.98rem; }
+  .box.open { border-left: 4px solid var(--projected-ink); }
+  .areas { list-style: none; counter-reset: area; padding: 0; margin: 0; }
+  .areas li { counter-increment: area; position: relative; padding: 0.7rem 0 0.7rem 2.1rem; margin: 0; border-top: 1px solid var(--line); }
+  .areas li:first-child { border-top: 0; padding-top: 0; }
+  .areas li::before { content: counter(area); position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .areas b { display: block; font-weight: 650; }
+  .placeholder { color: var(--muted); font-weight: 600; }
+  footer { color: var(--muted); font-size: 0.86rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+  @media (max-width: 34rem) {
+    body { font-size: 16.5px; }
+    main { padding-top: 1.75rem; }
+    h1 { font-size: 1.8rem; }
+    .card-head { grid-template-columns: 1fr; }
+    .count b { font-size: 1.45rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <p class="eyebrow">Start here</p>
+  <h1>LaunchReady</h1>
+  <div class="summary">
+    <p>LaunchReady is a small open-source kit for open models on NVIDIA GPUs.</p>
+    <p>Its job is to help a team know whether a new open model will run on NVIDIA GPUs before launch.</p>
+    <p>It projects memory from a model's published files, then tests those projections on real GPUs and real quickstarts.</p>
+  </div>
+  <p class="jump"><a href="https://github.com/Tanmaypathak18/launchready">Repo</a> · <a href="#found">What I found</a> · <a href="#brief">Brief and checklist</a> · <a href="#status">Measured vs projected</a> · <a href="#practice">In practice</a></p>
+</header>
+
+<section id="found">
+  <h2>What I found</h2>
+  <p class="note">Every number below is tagged <span class="tag m">measured</span> or <span class="tag p">projected</span> and links to its file. Measured results are from 2026-11-03 unless noted.</p>
+
+  <article class="card">
+    <div class="card-head">
+      <div class="big">4–6%<small>measured vs projected gap</small></div>
+      <div>
+        <h3>The memory math held up on standard models</h3>
+        <p class="meaning">For one dense model and one mixture-of-experts (MoE) model, projected user capacity landed within 4–6% of measured, slightly on the cautious side.</p>
+      </div>
+    </div>
+    <ul class="vals">
+      <li>Qwen3-4B (dense), users at 4,096 tokens: <span class="tag p">projected</span> 7.12, <span class="tag m">measured</span> 7.41, a gap of −3.9%</li>
+      <li>OLMoE-1B-7B (MoE), users at 4,096 tokens: <span class="tag p">projected</span> 20.22, <span class="tag m">measured</span> 21.47, a gap of −5.8%</li>
+      <li>Model weights, same two models: −0.9% and −0.1% against <span class="tag m">measured</span></li>
+    </ul>
+    <p class="note">Run on 2× Tesla T4 on Kaggle with vLLM 0.32.0.</p>
+    <figure id="chart">
+      <div class="chart-scroll">
+        <a href="assets/memory_validation.png"><img src="assets/memory_validation.png" width="2250" height="750" alt="Three scatter charts of projected against measured values on 2× Tesla T4. Weights: Qwen3-4B −0.9%, OLMoE-1B-7B −0.1%, granite-h-tiny −0.3%. KV-cache tokens: Qwen3-4B −3.8%, OLMoE-1B-7B −5.8%, hybrid Mamba excluded as not comparable. Max concurrency: Qwen3-4B −3.9%, OLMoE-1B-7B −5.8%, granite-h-tiny +133%, far outside the band."></a>
+      </div>
+      <figcaption>On the line means projected equals measured. On a phone, swipe sideways to see all three panels, or tap the chart to open it.</figcaption>
+    </figure>
+    <p class="evidence">Evidence: <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/memory_validation.csv">memory_validation.csv</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/memory_validation.png">chart</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/environment.json">environment</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/notebooks/01_memory_validation.ipynb">notebook</a></p>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <div class="big">+133%<small>projected above measured</small></div>
+      <div>
+        <h3>The hybrid Mamba model broke the math</h3>
+        <p class="meaning">On granite-4.0-h-tiny, a team sizing from my projection would have expected more than twice the users the engine could hold.</p>
+      </div>
+    </div>
+    <ul class="vals">
+      <li>Users at 4,096 tokens: <span class="tag p">projected</span> 118.08, <span class="tag m">measured</span> 50.58</li>
+    </ul>
+    <p class="why">Two errors multiply to make that miss:</p>
+    <ul class="vals">
+      <li><span class="tag m">confirmed</span> <b>×1.72, less memory left for users.</b> vLLM's log shows 2.93 GiB per GPU <span class="tag m">measured</span> against 5.04 GiB <span class="tag p">projected</span>, because overhead beyond the weights was 3.70 GiB <span class="tag m">measured</span>, not the 2 GiB the formula assumes.</li>
+      <li><span class="tag o">hypothesis</span> <b>×1.36, each user costs more.</b> The size is known: 124 MB <span class="tag m">measured</span> against 92 MB <span class="tag p">projected</span>. The cause is not: how vLLM pages Mamba state is the likely reason, and it is not confirmed.</li>
+    </ul>
+    <p class="note">The tool now warns about this gap, and I did not retune it from one model. Lightning is also a hybrid Mamba model, so its capacity projection carries the same risk.</p>
+    <p class="evidence">Evidence: <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/friction_log.md#granite-40-h-tiny-serves-23-fewer-users-in-vllm-than-projected">friction log analysis</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/memory_validation.csv">memory_validation.csv</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/logs/ibm-granite__granite-4.0-h-tiny__vllm.log">vLLM log</a></p>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <div class="big">+16%<small>real file above projection</small></div>
+      <div>
+        <h3>Lightning's real NVFP4 file is bigger than the math says</h3>
+        <p class="meaning">The projection treats every weight as 4-bit, but the real checkpoint keeps some tensors at higher precision, so the tools now use real file sizes when they exist.</p>
+      </div>
+    </div>
+    <ul class="vals">
+      <li>NVFP4 weights: <span class="tag p">projected</span> 17.24 GiB, <span class="tag m">measured</span> 20.08 GiB</li>
+    </ul>
+    <p class="note">20.08 GiB is the file size on Hugging Face, read on 2026-11-02, not memory measured on a GPU.</p>
+    <p class="evidence">Evidence: <a href="https://github.com/Tanmaypathak18/launchready/blob/main/briefs/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md#hardware-requirements">brief, hardware table</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/friction_log.md#lightning-nvfp4-projection-is-16-below-the-real-nvfp4-repo">friction log</a></p>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <div class="big">~6.1<small>bits per weight</small></div>
+      <div>
+        <h3>"Q4_K_M" GGUF files are not what the name suggests</h3>
+        <p class="meaning">Three Lightning files with that name store about 6.1 bits per weight, so they take more memory than the label implies.</p>
+      </div>
+    </div>
+    <ul class="vals">
+      <li>Read from file headers: <span class="tag m">measured</span> 6.19 (bartowski), 6.14 (unsloth), 6.08 (AtomicChat)</li>
+      <li>What my tool assumes: <span class="tag p">projected</span> 4.85 bits per weight, or 18.58 GiB against a 23.73 GiB file <span class="tag m">measured</span> (bartowski)</li>
+    </ul>
+    <p class="note">No GPU involved, and no weights downloaded. <code>launchready fit</code> still uses 4.85, which the checklist marks not ready; the brief and recipes use real file sizes instead.</p>
+    <p class="evidence">Evidence: <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/bench/gguf/bartowski__Lightning-Q4_K_M.json">bartowski header</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/bench/gguf/unsloth__Lightning-UD-Q4_K_M.json">unsloth header</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/bench/gguf/AtomicChat__Lightning-Q4_K_M.json">AtomicChat header</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/friction_log.md#every-lightning-q4_k_m-gguf-is-62-bitsweight-and-tagged-with-the-wrong-pre-tokenizer">friction log</a></p>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <div class="big">3<small>quickstarts that broke</small></div>
+      <div>
+        <h3>Following the model cards as written hit three breaks</h3>
+        <p class="meaning">I ran published commands word for word, the way a first-time developer would, and each of these stopped them from getting an answer.</p>
+      </div>
+    </div>
+    <ul class="vals">
+      <li><b>Qwen3-4B card, vLLM command.</b> Fails on vLLM 0.32.0 with an unrecognized <code>--enable-reasoning</code> flag, exiting after 30 s <span class="tag m">measured</span>, on 2× Tesla T4.</li>
+      <li><b>Qwen3-4B card, Python snippet on a 16 GB Mac.</b> Offloads to disk with only a one-line log notice, and printed no answer before the 2,700 s cap <span class="tag m">measured</span>. The same snippet worked on 2× Tesla T4 in 115 s <span class="tag m">measured</span>.</li>
+      <li><b>Lightning NVFP4 card, llama.cpp recipe.</b> Asks for <code>:Q4_K_M</code>, but the official GGUF repo has no such file, so it exits after 6 s <span class="tag m">measured</span>.</li>
+    </ul>
+    <p class="evidence">Evidence: <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/quickstart_audit/1b_vllm.log">vLLM log</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/friction_log.md#qwen3-4bs-vllm-one-liner-fails-on---enable-reasoning-in-vllm-0320-quickstart-audit-1b-kaggle">vLLM write-up</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/quickstart_audit/1a_mac_run2_with_accelerate.log">Mac log</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/friction_log.md#qwen3-4b-quickstart-offloads-to-disk-on-a-16-gb-mac-and-doesnt-finish-in-45-minutes-quickstart-audit-1a-mac">Mac write-up</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/quickstart_audit/kaggle_summary.json">Kaggle summary</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/quickstart_audit/3b_lightning_llama_server.log">llama.cpp log</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/evidence/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4__README__bee7596.md?plain=1#L571">NVIDIA card, official repo line</a> · <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/friction_log.md#lightnings-llamacpp-recipe-asks-for-a-q4_k_m-file-that-doesnt-exist-quickstart-audit-3b">llama.cpp write-up</a></p>
+  </article>
+</section>
+
+<section id="brief">
+  <h2>The Lightning brief and readiness checklist</h2>
+  <p>I applied this work to one launch: NVIDIA Nemotron 3.5 Lightning on a single RTX 5090. The verdict today is <b>not ready yet</b>, mostly because nothing has been measured on a 5090.</p>
+  <div class="box">
+    <div class="counts">
+      <div class="count"><b>1</b><span>ready</span></div>
+      <div class="count"><b>5</b><span>not ready</span></div>
+      <div class="count"><b>21</b><span>unknown</span></div>
+    </div>
+    <p class="note">27 checks in all. These are counts of checklist items from evidence in the repo, not hardware measurements. The one ready item is a document check.</p>
+    <ul>
+      <li><a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/readiness_checklist.md">Readiness checklist</a>: each check with its status, evidence and what closes it.</li>
+      <li><a href="https://github.com/Tanmaypathak18/launchready/blob/main/briefs/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md">Lightning model brief</a>: capabilities, hardware needs, engine support and ecosystem impact, projected unless marked measured.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="status">
+  <div class="boxes">
+    <div class="box">
+      <h2>What is measured vs projected</h2>
+      <h3><span class="tag m">measured</span></h3>
+      <ul>
+        <li><a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/environment.json">Memory on 2× Tesla T4</a>: driver 580.178.04, CUDA 13.0, vLLM 0.32.0. Weights come from vLLM's load log, because a separate <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/friction_log.md#transformers-weight-measurement-crashed-for-every-model">Transformers check crashed on my own bug</a>; that fix was not re-run on a GPU.</li>
+        <li><a href="https://github.com/Tanmaypathak18/launchready/tree/main/results/bench/gguf">GGUF headers</a> and Hugging Face file sizes, read without a GPU.</li>
+        <li><a href="https://github.com/Tanmaypathak18/launchready/tree/main/results/quickstart_audit">Quickstart audits</a>, on Kaggle 2× T4 and a MacBook Air M4 with 16 GB.</li>
+      </ul>
+      <h3><span class="tag p">projected</span></h3>
+      <ul>
+        <li>Everything about Lightning running on an RTX 5090. With vLLM: 20.08 GiB of weights, 0.28 GiB per 40,960-token conversation and about 18 conversations (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/recipes/nemotron-3.5-lightning/README.md#memory-on-a-32-gib-rtx-5090-projected">formula and table</a>).</li>
+        <li>With a GGUF file: about 6.0 GiB left with 8 slots, from a 23.73 GiB file (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/recipes/nemotron-3.5-lightning/ollama.md#memory-projected">formula and table</a>).</li>
+      </ul>
+    </div>
+    <div class="box open">
+      <h2>Not done yet</h2>
+      <ul>
+        <li><b>Lightning on an RTX 5090 has not been run.</b> No speed, memory or quality number on this page comes from a 5090 (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/progress.md">progress</a>).</li>
+        <li><b>The kit is dry-run only</b>, on Tesla T4 with Qwen3-4B, not Lightning. Those outputs prove the scripts run and are <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/dryrun_kaggle/README.md">not headline results</a>.</li>
+        <li><b>Fixes after the dry run are tested offline only</b>, not re-run on a GPU (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/dryrun_kaggle/README.md#known-problems-in-these-results">known problems</a>).</li>
+        <li><b>Chat template, tool calling, a long soak run and a tokenizer comparison</b> are not covered by the planned 5090 session (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/readiness_checklist.md#not-tested-by-the-5090-session">list</a>).</li>
+        <li><b>The quality bar is not set</b>, and <b>nothing is filed upstream</b> yet, including the Lightning card fix (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/readiness_checklist.md">checks 4.3 and 1.4</a>).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="try">
+  <h2>Try it</h2>
+  <div class="box">
+    <!-- Placeholder: when the live tool is published, replace this span with a link to it. -->
+    <p><span class="placeholder" id="try-it">Live tool: link will go here once it is published.</span></p>
+    <p>Repo, with commands and all raw results: <a href="https://github.com/Tanmaypathak18/launchready">github.com/Tanmaypathak18/launchready</a></p>
+  </div>
+</section>
+
+<section id="practice">
+  <h2>How this applies to open-model launches</h2>
+  <p class="note">Seven areas of launch work, and what the project does in each.</p>
+  <ol class="areas">
+    <li><b>Enablement and launch readiness with model builders</b>A <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/readiness_checklist.md">checklist like this one</a> gives builders confirmed defects and the fix that closes each one.</li>
+    <li><b>Tracking and summarizing releases</b>A <a href="https://github.com/Tanmaypathak18/launchready/blob/main/radar/2026-11-02.md">release radar</a> and a <a href="https://github.com/Tanmaypathak18/launchready/blob/main/briefs/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md">one-page brief</a> cover capabilities, hardware needs and ecosystem impact.</li>
+    <li><b>Requirements, launch plans and checklists</b>What testing finds becomes <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/requirements.md">requirements with acceptance criteria and owners</a>.</li>
+    <li><b>Inference, evaluation and deployment</b>Pinned <a href="https://github.com/Tanmaypathak18/launchready/blob/main/recipes/nemotron-3.5-lightning/README.md">recipes and benchmark scripts</a> can repeat for each launch; here they have run only as a dry run.</li>
+    <li><b>Feedback into recurring issues and requirements</b>Developer threads are read by hand, grouped by root cause and <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/requirements.md">ranked by severity</a>.</li>
+    <li><b>Testing developer workflows, notebooks and Python</b>Quickstarts are run word for word, with each break logged in a <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/friction_log.md">friction log</a> and <a href="https://github.com/Tanmaypathak18/launchready/blob/main/notebooks/03_quickstart_audit.ipynb">runnable notebooks</a>.</li>
+    <li><b>Blogs, docs and social</b>The <a href="https://github.com/Tanmaypathak18/launchready/blob/main/recipes/nemotron-3.5-lightning/README.md">recipe README</a> shows the writing style, with every number labeled; the blog post is not written yet.</li>
+  </ol>
+</section>
+
+<footer>
+  <p>By Tanmay Pathak. Evidence as of 2026-11-03. Every evidence link opens the file in the <a href="https://github.com/Tanmaypathak18/launchready">public repo</a>.</p>
+</footer>
+
+</main>
+</body>
+</html>

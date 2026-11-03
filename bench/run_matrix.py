@@ -1,6 +1,6 @@
 """Run a benchmark matrix: start each server, check it, benchmark it with AIPerf, stop it.
 
-Reads a small YAML matrix (BUILD_PLAN 6.9; see bench/matrices/). For each server, tries its
+Reads a small YAML matrix (roadmap 6.9; see bench/matrices/). For each server, tries its
 variants in order (e.g. the card's `--kv-cache-dtype fp8`, then without it), records every
 startup attempt, and benchmarks the first variant that starts and answers a fixed 8-request
 sequence. Each run samples nvidia-smi every 500 ms and is written as one JSON as soon as it
@@ -297,7 +297,7 @@ def error_note(metrics: dict) -> str | None:
 
 
 def cost_per_million(hourly_price: float, tokens_per_s: float | None) -> float | None:
-    """$ per 1M output tokens = hourly price ÷ (tokens/s × 3,600) × 1,000,000 (BUILD_PLAN 6.9)."""
+    """$ per 1M output tokens = hourly price ÷ (tokens/s × 3,600) × 1,000,000 (roadmap 6.9)."""
     if not tokens_per_s:
         return None
     return hourly_price / (tokens_per_s * 3600) * 1_000_000

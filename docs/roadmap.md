@@ -1,25 +1,24 @@
-# LaunchReady: Build Plan (Lean)
+# LaunchReady: Roadmap
 
-**A small, open-source launch-readiness kit for open models on NVIDIA GPUs.** It shows, rather than tells, that you can do NVIDIA's Product Manager – Open Models job: size a new model's hardware needs, run it on NVIDIA GPUs with the community's tools, measure it honestly, and explain it to developers.
+**A small, open-source launch-readiness kit for open models on NVIDIA GPUs.** It sizes a new model's hardware needs, runs it on NVIDIA GPUs with the community's tools, measures it honestly, and explains the results to developers.
 
-- **Owner:** Tanmay Pathak
-- **Build tool:** Claude Code
-- **Plan date:** November 2, 2026
-- **Budget:** $0 for everything except one rented RTX 5090 session (~$5–10). Hard cap $20.
+**Compute budget:** $0 for everything except one rented RTX 5090 session (~$5–10, hard cap $20).
+
+| Phase | Status |
+|---|---|
+| 0. Setup | Done |
+| 1. Memory calculator | Done |
+| 2. Engine readiness + Nemotron brief | Done |
+| 3. Validate on free GPUs + first-user audits | Done |
+| 4. Developer feedback → requirements | Done |
+| 5. Nemotron 3.5 Lightning launch kit | In progress: steps 1–5 done; RTX 5090 session and results notebook left |
+| 6. Publish | Not started |
+
+Details of what shipped in each phase are in [progress.md](progress.md).
 
 ---
 
-## How to use this plan in Claude Code
-
-1. Create a public GitHub repo named `launchready`. Save this file in it as `BUILD_PLAN.md`, and save section 8 as `CLAUDE.md` in the repo root. Claude Code loads `CLAUDE.md` at the start of every session.
-2. Run one phase per session: paste that phase's prompt, ask Claude to show its plan before writing code, review the diff, run the tests, commit.
-3. Tick a phase's boxes only when its "Done when" criteria pass.
-4. When anything breaks, write the friction-log entry (template 7.3) *before* you fix it. That log becomes blog material and interview stories.
-5. Phases 0–3 are already showable. If you want to send something early, send the brief and the validation results.
-
----
-
-## 1. What you're building
+## 1. What the project delivers
 
 One repo with five deliverables:
 
@@ -35,35 +34,28 @@ One repo with five deliverables:
 
 ---
 
-## 2. JD coverage
+## 2. Goals and deliverables
 
-| JD responsibility | What proves it |
+| Project goal | Deliverable |
 |---|---|
-| 1. Work with model builders on enablement and launch readiness | Readiness checklist + recipes; issues or PRs filed upstream |
-| 2. Track releases; summarize capabilities, hardware needs, ecosystem impact | Nemotron brief + a one-off radar of recent releases |
-| 3. Requirements, launch plans, checklists | Readiness checklist; requirements table |
-| 4. Inference, evaluation, deployment | vLLM/Ollama recipes, benchmarks, quality check, pinned containers |
-| 5. Feedback → recurring issues → requirements | Hand-reviewed issues → requirements table |
-| 6. Test developer workflows, notebooks, Python | Quickstart audits, friction log, notebooks strangers can run |
-| 7. Blogs, docs, social | Blog post + thread, brief, recipe README |
-
-| What they need to see | Where it shows up |
-|---|---|
-| Hugging Face, PyTorch, Ollama, vLLM (SGLang optional) | Calculator (Hub API), validation (PyTorch memory APIs), recipes and benchmarks |
-| Python in notebooks | Kaggle validation notebook, results notebook |
-| Inference, evaluation, deployment, GPU acceleration | Memory math, precision formats, KV cache, tensor parallel, benchmarks |
-| Technical writing | Brief, blog, recipe README |
+| Enablement and launch readiness with model builders | Readiness checklist + recipes; issues or PRs filed upstream |
+| Track releases; summarize capabilities, hardware needs, ecosystem impact | Nemotron brief + a one-off radar of recent releases |
+| Requirements, launch plans, checklists | Readiness checklist; requirements table |
+| Inference, evaluation, deployment | vLLM/Ollama recipes, benchmarks, quality check, pinned containers |
+| Feedback → recurring issues → requirements | Hand-reviewed issues → requirements table |
+| Test developer workflows, notebooks, Python | Quickstart audits, friction log, notebooks anyone can run |
+| Blogs, docs, social | Blog post + thread, brief, recipe README |
 
 ---
 
 ## 3. Ground rules
 
-- **Labeled numbers.** Every number is *measured* (GPU, driver, CUDA, engine version, model revision, date) or *projected* (with the formula). This is the one rule you can't cut.
+- **Labeled numbers.** Every number is *measured* (GPU, driver, CUDA, engine version, model revision, date) or *projected* (with the formula). This rule is not optional.
 - **Reproducible.** Lockfile; pinned engine versions and container tags; model revision hashes; one command per result.
 - **Raw data committed.** CSV/JSON next to every chart.
-- **Runs for strangers.** Notebooks pass "Run all" from a fresh session.
+- **Runs for new users.** Notebooks pass "Run all" from a fresh session.
 - **No weight downloads in the calculator.** config.json and safetensors headers only.
-- **No secrets in git.** Public data only; nothing from Saayam.
+- **No secrets in git.** Public data only.
 
 ---
 
@@ -71,8 +63,8 @@ One repo with five deliverables:
 
 | Where | Use it for | Cost |
 |---|---|---|
-| Your MacBook Air | All code; Ollama hands-on; writing | $0 |
-| Kaggle "GPU T4 x2" (2 × 16 GB, phone verification) | Memory validation, quickstart audits, dry runs of the benchmark script | $0 |
+| Development laptop (Mac) | All code; Ollama hands-on; writing | $0 |
+| Kaggle "GPU T4 x2" (2 × 16 GB) | Memory validation, quickstart audits, dry runs of the benchmark script | $0 |
 | Rented RTX 5090, 32 GB, Blackwell (~6–8 h) | Lightning benchmarks: NVFP4 in vLLM, GGUF in Ollama/llama.cpp | ~$5–10 |
 
 **Renting checklist:** Runpod or Vast.ai (per-minute billing) · on-demand, not spot · ~100 GB disk · CUDA 12.8+ image · set the spend cap first · download weights with `hf download` before starting the clock on benchmarks · copy results off before stopping. Rent only after the benchmark script has run end to end on Kaggle.
@@ -86,15 +78,11 @@ Mac numbers never go in published benchmarks.
 ### Phase 0: Setup ($0)
 
 - [x] Public repo `launchready` (Apache-2.0), Python 3.11+ with uv, ruff, pytest.
-- [x] Tokens: Hugging Face (accept Llama/Gemma licenses), Kaggle (verify phone; enable GPU + internet), GitHub.
+- [x] Tokens: Hugging Face (accept Llama/Gemma licenses), Kaggle (GPU + internet enabled), GitHub.
 - [x] Mac: install Ollama, run `ollama run llama3.1:8b --verbose`, note the eval rate.
-- [x] Save `BUILD_PLAN.md` and `CLAUDE.md`; create `docs/friction_log.md` from template 7.3.
+- [x] Add the roadmap and `CLAUDE.md`; create `docs/friction_log.md` from template 7.3.
 
-**Done when:** CI is green on a smoke test and Ollama answers on your Mac.
-
-```text
-Read BUILD_PLAN.md and CLAUDE.md. Scaffold a uv-managed Python 3.11 package `launchready` with a Typer CLI `launchready` (subcommands fit, brief, radar that print "not implemented"), ruff and pytest, one passing smoke test, a GitHub Actions ci.yml running ruff and pytest, an Apache-2.0 LICENSE, and a README with a one-paragraph description and a Status checklist mirroring the phases. Folders: launchready/ (hub.py, arch.py, memory.py, engines.py, brief.py, radar.py, cli.py, data/gpus.yaml), templates/, recipes/, bench/, notebooks/, briefs/, docs/, tests/. Docstrings only, no logic yet. Show me your plan first.
-```
+**Done when:** CI is green on a smoke test and Ollama answers on a local Mac.
 
 ### Phase 1: Memory calculator ($0)
 
@@ -109,10 +97,6 @@ Read BUILD_PLAN.md and CLAUDE.md. Scaffold a uv-managed Python 3.11 package `lau
 
 **Done when:** reference tests pass and `launchready fit` gives sensible tables for dense, MoE, hybrid Mamba and MLA models.
 
-```text
-Implement Phase 1 of BUILD_PLAN.md using the formulas in sections 6.1–6.5. Never download weights: use config.json and safetensors headers via huggingface_hub. Write the tests for section 6.5 first with saved config.json fixtures (no network in CI), then hub.py, arch.py, memory.py, data/gpus.yaml and `launchready fit`. Support dense GQA, MoE, MLA, sliding-window and hybrid Mamba layers; for any config field you can't interpret, warn and name it instead of guessing. Then run `launchready fit` on nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16, Qwen/Qwen3-4B, deepseek-ai/DeepSeek-V3 and ibm-granite/granite-4.0-h-tiny and show me the tables. Flag anything that looks wrong.
-```
-
 ### Phase 2: Engine readiness + the Nemotron brief ($0)
 
 **Goal:** `launchready brief <repo_id>` writes a one-page brief a leader or developer can act on.
@@ -120,14 +104,10 @@ Implement Phase 1 of BUILD_PLAN.md using the formulas in sections 6.1–6.5. Nev
 - [x] `engines.py`: shallow sparse clones of only the paths in 6.6, at `main` and the latest release tag, cached in `~/.cache/launchready`. Status per engine: `release`, `main-only`, `not-found`, `unknown`, with the matching file and line. Flag `auto_map` → "needs trust_remote_code".
 - [x] Variants: FP8, NVFP4 and GGUF derivatives (Hub filter `base_model:quantized:<repo_id>` plus the builder's org), with sizes.
 - [x] `brief.py`: render template 7.1 to `briefs/<org>__<model>.md`.
-- [x] Write the **Ecosystem impact** and **Open questions** sections yourself.
+- [x] Write the **Ecosystem impact** and **Open questions** sections by hand.
 - [x] `launchready radar --since 30d`: one-off list of recent root-model releases from the watchlist in 6.7, run by hand. No scheduling.
 
-**Done when:** the Lightning brief exists with your hand-written sections, every claim is sourced, and you have one radar digest.
-
-```text
-Implement Phase 2 of BUILD_PLAN.md. For engine support, use shallow sparse clones (git clone --depth 1 --filter=blob:none --sparse) of only the paths in section 6.6, check main and the latest release tag, cache under ~/.cache/launchready, and report each engine as release / main-only / not-found / unknown with the matching file and line. If a path has moved, find the new one and tell me. Add the quantized-variants lookup, build brief.py with Jinja2 from template 7.1, and wire `launchready brief`. Leave "Ecosystem impact" and "Open questions" as TODO sections. Then add `launchready radar --since 30d` that lists recent root models (skip quantized, GGUF, fine-tune and adapter repos) from the watchlist in 6.7 and writes radar/<date>.md. Generate the brief for nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16 and show it to me.
-```
+**Done when:** the Lightning brief exists with hand-written sections, every claim is sourced, and one radar digest exists.
 
 ### Phase 3: Validate on free GPUs + first-user audit ($0)
 
@@ -141,10 +121,6 @@ Implement Phase 2 of BUILD_PLAN.md. For engine support, use shallow sparse clone
 
 **Done when:** predicted vs measured is in a CSV and chart with misses explained (aim: weights within ~5%, KV capacity within ~10–15%), and at least 2 audits are logged.
 
-```text
-Create notebooks/01_memory_validation.ipynb for a Kaggle "GPU T4 x2" session with internet on. Cell 1 installs pinned versions (launchready from my GitHub repo, torch, vllm) and prints the environment (nvidia-smi, driver, CUDA, versions). For each model in BUILD_PLAN.md Phase 3: record launchready's projection; measure weights with Transformers and torch.cuda.max_memory_allocated; start vLLM with --dtype half (tensor parallel 2 when FP16 weights exceed ~13 GB), parse its KV-cache capacity and max-concurrency log lines, then shut it down and free memory. Save results/memory_validation.csv with a measured/projected column and plot predicted vs measured. Skip failing models with a logged reason instead of crashing. It must pass "Run all" from a fresh session.
-```
-
 ### Phase 4: Developer feedback → requirements ($0, by hand)
 
 - [x] Read ~30 recent GitHub issues and Hugging Face discussions about Nemotron 3.5 Lightning (or its architecture) in vllm-project/vllm, ggml-org/llama.cpp, ollama/ollama and the model's Hugging Face repo.
@@ -153,12 +129,12 @@ Create notebooks/01_memory_validation.ipynb for a Kaggle "GPU T4 x2" session wit
 
 **Done when:** the table has 5 requirements, each with linked evidence.
 
-No prompt needed. This is your PM work, and doing it by hand is the point. Claude Code can help you collect the links.
+This phase is done by hand on purpose: reading the threads is the work.
 
 ### Phase 5: Nemotron 3.5 Lightning launch kit (~$5–10)
 
-1. [x] **Readiness checklist** (template 7.2) for Lightning: what must be true before you'd call it "ready on NVIDIA GPUs."
-2. [x] **Gap check:** read NVIDIA's model card and recipes. Your kit adds independent measurements on a consumer GPU, first-user friction, cost per 1M tokens and plain-English guidance. Put that list at the top of the recipe README.
+1. [x] **Readiness checklist** (template 7.2) for Lightning: what must be true before it can be called "ready on NVIDIA GPUs."
+2. [x] **Gap check:** read NVIDIA's model card and recipes. The kit adds independent measurements on a consumer GPU, first-user friction, cost per 1M tokens and plain-English guidance. Put that list at the top of the recipe README.
 3. [x] **Recipes** (`recipes/nemotron-3.5-lightning/`): `vllm.sh` (NVFP4) and `ollama.md` (GGUF via `ollama run hf.co/...`), each stating GPU, engine version and model revision. Start from the vLLM version NVIDIA's card uses.
 4. [x] **Benchmark + quality scripts** (`bench/`), per 6.9.
    - Changed 2026-11-03: GGUF is bartowski Q4_K_M (ggml-org has no Q4_K_M); its header says 6.19 bits/weight, so GGUF memory comes from the header, not 6.1. The card has no GSM8K/IFEval numbers, so quality compares NVFP4 (vLLM) with GGUF (llama.cpp) directly; thinking off for both.
@@ -169,22 +145,18 @@ No prompt needed. This is your PM work, and doing it by hand is the point. Claud
 
 **Done when:** both recipes are verified on the 5090, every number is labeled measured, and the checklist is green or each exception is explained.
 
-```text
-Implement Phase 5 steps 3–4 of BUILD_PLAN.md. Create recipes/nemotron-3.5-lightning/ (vllm.sh, ollama.md, README.md). Create bench/run_matrix.py that reads a small YAML matrix (section 6.9), starts and stops each server, waits for health, sends warm-up requests, runs AIPerf (confirm flags with `aiperf profile --help` for the pinned version), samples nvidia-smi every 500 ms, and writes one JSON per run plus results/summary.csv with the full environment. Compute TTFT and ITL p50/p99, output tokens/s per user and total, and $ per 1M output tokens from an --hourly-price argument. Create bench/quality.py running lm-eval GSM8K (250) and IFEval (200) against the OpenAI-compatible server. Then write run_session_5090.sh that runs everything unattended and prints where results are saved. Dry-run it against Qwen/Qwen3-4B on Kaggle first.
-```
-
 ### Phase 6: Publish ($0)
 
 - [ ] **Blog post:** "Running NVIDIA Nemotron 3.5 Lightning on an RTX 5090: what fits, how fast, and what broke." Include: the memory math in plain English, the predicted-vs-measured chart, recipes, benchmark charts, the quality check, cost per 1M tokens, and caveats.
-- [ ] Publish on your site and as a Hugging Face community article; post a LinkedIn/X thread with one chart.
+- [ ] Publish the post and a Hugging Face community article; share one chart in a short thread.
 - [ ] README: quickstart, results, links to the brief, blog and requirements table.
 
-**Done when:** the post is live and a stranger can reproduce one result from the README.
+**Done when:** the post is live and a new user can reproduce one result from the README.
 
 ### Optional extras (only if they come cheap)
 
 - **SGLang** recipe and benchmark on the same 5090 session.
-- **72-hour drill:** if a notable model drops while you're building, run `launchready brief`, verify a recipe and publish a short post within 72 hours. Great interview story.
+- **72-hour drill:** if a notable model is released during the project, run `launchready brief`, verify a recipe and publish a short post within 72 hours.
 - **H100 session** (~$10) for a data-center comparison.
 
 ---
@@ -217,7 +189,7 @@ Implement Phase 5 steps 3–4 of BUILD_PLAN.md. Create recipes/nemotron-3.5-ligh
 
 - `KV budget = VRAM × 0.90 (vLLM default gpu_memory_utilization) − weights − runtime reserve` (start at 2 GiB; calibrate in Phase 3).
 - `Max users at context C = floor(KV budget ÷ per-sequence memory at C)`.
-- Compute in bytes, display GiB, and take VRAM from `nvidia-smi` for GPUs you measure.
+- Compute in bytes, display GiB, and take VRAM from `nvidia-smi` for measured GPUs.
 
 ### 6.4 GPU catalog (starter `gpus.yaml`; verify against NVIDIA spec pages)
 
@@ -289,7 +261,7 @@ aiperf profile \
   --isl 512 --osl 256
 ```
 
-(Confirm flags for your pinned version with `aiperf profile --help`.)
+(Confirm flags for the pinned version with `aiperf profile --help`.)
 Changed 2026-11-03: AIPerf 0.13.0 spells it `--warmup-request-count`; `bench/run_matrix.py` builds the command from flags checked against 0.13.0.
 
 ---
@@ -362,66 +334,19 @@ Who it competes with · which developer segment · what it means for NVIDIA
 
 ---
 
-## 8. `CLAUDE.md` starter (save to the repo root)
-
-~~~markdown
-# LaunchReady
-
-Small open-source launch-readiness kit for open-weight LLMs on NVIDIA GPUs: sizes hardware needs, checks engine support, writes model briefs, and benchmarks NVIDIA Nemotron 3.5 Lightning. Full plan: BUILD_PLAN.md (read the current phase before starting).
-
-## Audience
-Developers and researchers: Hugging Face users, local-model users, ML engineers serving models. Write every output for them.
-
-## Rules
-- Never download model weights in the calculator; use config.json and safetensors headers only.
-- Label every number "measured" (GPU, driver, CUDA, engine version, model revision, date) or "projected" (with the formula).
-- When a config field can't be interpreted, warn and name it. Never guess silently.
-- Pin versions and record the environment with every result.
-- No secrets in git: read HF_TOKEN and GITHUB_TOKEN from the environment.
-- Keep scope lean: don't add features beyond the current phase.
-- When something breaks, add an entry to docs/friction_log.md before fixing it.
-
-## Stack
-Python 3.11+, uv, Typer, huggingface_hub, Jinja2, PyYAML, pytest, ruff. Benchmarks: AIPerf, lm-evaluation-harness. Tests use saved fixtures; CI has no network.
-
-## Commands
-- `uv run launchready fit <repo_id> --context 32768 --users 8`
-- `uv run launchready brief <repo_id>`
-- `uv run launchready radar --since 30d`
-- `uv run pytest` and `uv run ruff check .`
-
-## Conventions
-- Small commits; update README Status when a phase's "Done when" passes.
-- Compute in bytes, display GiB.
-~~~
-
----
-
-## 9. When it ships: resume bullets
-
-Fill the brackets with real results only.
-
-**LaunchReady: Open-Model Launch Readiness on NVIDIA GPUs** | Python, Hugging Face, PyTorch, vLLM, Ollama, AIPerf
-
-- Projected GPU memory within [X]% of measured across [N] open models by building an open-source tool that sizes weights, KV cache and Mamba state at BF16, FP8 and NVFP4 from Hugging Face configs and checks engine support.
-- Published a launch kit for NVIDIA Nemotron 3.5 Lightning with vLLM and Ollama recipes verified on an RTX 5090, benchmarks ([X] tokens/s at [Y] users, [Z] ms p99 TTFT) and an NVFP4 quality check within [Δ] of BF16.
-- Turned [N] developer issues into 5 prioritized requirements and filed [N] upstream issues or PRs from first-user testing.
-
----
-
-## 10. Gotchas
+## 8. Gotchas
 
 - **T4:** no BF16 (`--dtype half`); some FP8, FP4, Mamba and MoE kernels need newer GPUs. Log and move on.
 - **Version pins:** some vLLM releases have broken on T4; record the version that works.
-- **Kaggle:** phone verification; ~30 GPU-hours/week; check disk with `df -h`; keep tokens in Kaggle Secrets.
+- **Kaggle:** ~30 GPU-hours/week; check disk with `df -h`; keep tokens in Kaggle Secrets.
 - **Gated repos** (Llama, Gemma): need token + license acceptance; report "gated" instead of crashing.
-- **RTX 5090:** needs CUDA 12.8+ and recent engine builds; expect NVFP4 friction. Friction is content.
+- **RTX 5090:** needs CUDA 12.8+ and recent engine builds; expect NVFP4 friction; log it.
 - **Units:** don't mix GB and GiB in one table.
 - **Licenses:** cite each model's license (NVIDIA OpenMDW for Lightning).
 
 ---
 
-## 11. Glossary
+## 9. Glossary
 
 | Term | Plain meaning |
 |---|---|
@@ -437,7 +362,7 @@ Fill the brackets with real results only.
 
 ---
 
-## 12. Sources (checked November 2, 2026)
+## 10. Sources (checked November 2, 2026)
 
 - Nemotron 3.5 Lightning: [NGC model card](https://catalog.ngc.nvidia.com/orgs/nim/nvidia/models/nemotron-3.5-lightning) · [Hugging Face NVFP4 card](https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4) · [Interfaze model page](https://interfaze.ai/models/nvidianvidia-nemotron-35-lightning-30b-a3b-bf16)
 - AIPerf: [NVIDIA blog](https://developer.nvidia.com/blog/benchmarking-llm-inference-at-scale-with-aiperf) · [docs](https://docs.nvidia.com/aiperf/getting-started/ai-perf-comprehensive-llm-benchmarking)
@@ -445,4 +370,3 @@ Fill the brackets with real results only.
 - Free GPUs: [GPU Per Hour](https://gpuperhour.com/blog/free-cloud-gpus-and-credits) · [Kaggle T4 x2 guide](https://logicity.in/en/blog/how-to-run-70b-llms-free-using-kaggle-s-hidden-gpu-tier)
 - GPU prices: [ComputePrices](https://computeprices.com/gpu) · [GPU Per Hour](https://gpuperhour.com/)
 - [vLLM crash on T4 (microsoft/fara #57)](https://github.com/microsoft/fara/issues/57)
-- [Claude Code memory and CLAUDE.md](https://code.claude.com/docs/en/memory)

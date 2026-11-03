@@ -1,4 +1,4 @@
-# Dry run of the RTX 5090 session on Kaggle "GPU T4 x2" with Qwen/Qwen3-4B (BUILD_PLAN Phase 5
+# Dry run of the RTX 5090 session on Kaggle "GPU T4 x2" with Qwen/Qwen3-4B (roadmap Phase 5
 # step 5). Same shape as rtx5090_lightning.yaml: a startup-only "card" server with a passing and
 # a failing variant, a benchmark server that falls back from FP8 KV, speculative decoding on/off
 # (ngram stands in for DSpark), llama-server -np 8, Ollama at concurrency 1, and a small quality

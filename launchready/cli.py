@@ -289,7 +289,7 @@ def radar(
     since: str = typer.Option("30d", help="Look-back window, e.g. 30d or 2w."),
     out: str = typer.Option("radar", help="Directory to write radar/<date>.md to."),
 ):
-    """List recent root-model releases from the watchlist orgs (BUILD_PLAN 6.7). Run by hand."""
+    """List recent root-model releases from the watchlist orgs (roadmap 6.7). Run by hand."""
     try:
         parse_since(since)
     except ValueError as e:

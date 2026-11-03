@@ -1,4 +1,4 @@
-# NVIDIA GPU catalog used by `launchready fit` (BUILD_PLAN.md section 6.4).
+# NVIDIA GPU catalog used by `launchready fit` (docs/roadmap.md section 6.4).
 #
 # memory_gib: marketed capacity read as GiB (an RTX 5090's "32 GB" shows as ~31.8 GiB in
 #   nvidia-smi). Phase 3 calibrates this against measured values.

@@ -111,7 +111,7 @@ From the Hub filter `base_model:quantized:nvidia/NVIDIA-Nemotron-3.5-Lightning-3
 
 **Where the ecosystem is today (2026-11-02):** the architecture is registered in the latest release of vLLM, SGLang, llama.cpp (so Ollama via GGUF) and Transformers. Quantized variants already exist for every major path: NVFP4 from nvidia (~1.0M downloads), FP8 from RedHatAI, GGUF from ggml-org, unsloth and bartowski, MLX from TensorFold. Builders outside NVIDIA shipped these, which suggests the community is treating it as a first-class model.
 
-**What it means for NVIDIA:** it shows Blackwell's NVFP4 path working on a single consumer GPU, with drafter models (DSpark, DFlash) for speculative decoding published alongside. The open license (openmdw-1.1) and no gating remove the usual access friction.
+**What it means for NVIDIA:** at NVFP4 it is projected to fit on a 32 GiB RTX 5090, but it has not been measured on one yet. Drafter models (DSpark, DFlash) for speculative decoding are published alongside. The open license (openmdw-1.1) and no gating remove the usual access friction.
 
 **Not covered here:** how it compares in quality or speed with similar-size open models. That needs measured benchmarks and will be covered in phase 5 of this repo.
 
@@ -129,7 +129,7 @@ From the Hub filter `base_model:quantized:nvidia/NVIDIA-Nemotron-3.5-Lightning-3
 1. Hugging Face repo and model info at this revision: https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16/tree/a9904d24bcc1d289a1950fa9d2b978c47cf903b9
 2. config.json: https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16/blob/a9904d24bcc1d289a1950fa9d2b978c47cf903b9/config.json
 3. safetensors headers (parameter counts by dtype, via huggingface_hub.get_safetensors_metadata): https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16/tree/a9904d24bcc1d289a1950fa9d2b978c47cf903b9
-4. launchready memory formulas (BUILD_PLAN.md sections 6.1-6.3): https://github.com/Tanmaypathak18/launchready/blob/main/BUILD_PLAN.md
+4. launchready memory formulas (docs/roadmap.md sections 6.1-6.3): https://github.com/Tanmaypathak18/launchready/blob/main/docs/roadmap.md
 5. vLLM registry at v0.32.0: https://github.com/vllm-project/vllm/blob/v0.32.0/vllm/model_executor/models/registry.py#L180
 6. SGLang registry at v0.5.23: https://github.com/sgl-project/sglang/blob/v0.5.23/python/sglang/srt/models/nemotron_h.py#L1361
 7. llama.cpp registry at v0.8.0: https://github.com/ggml-org/llama.cpp/blob/v0.8.0/conversion/nemotron.py#L423

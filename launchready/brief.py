@@ -1,4 +1,4 @@
-"""Model brief rendering (Phase 2; BUILD_PLAN.md template 7.1).
+"""Model brief rendering (Phase 2; docs/roadmap.md template 7.1).
 
 Renders templates/brief.md.j2 with Jinja2 to briefs/<org>__<model>.md, combining hub metadata,
 projected hardware requirements, engine readiness and available quantized variants. The
@@ -321,8 +321,8 @@ def build_context(
             "url": tree_url,
         },
         {
-            "label": "launchready memory formulas (BUILD_PLAN.md sections 6.1-6.3)",
-            "url": "https://github.com/Tanmaypathak18/launchready/blob/main/BUILD_PLAN.md",
+            "label": "launchready memory formulas (docs/roadmap.md sections 6.1-6.3)",
+            "url": "https://github.com/Tanmaypathak18/launchready/blob/main/docs/roadmap.md",
         },
     ]
     sources += [

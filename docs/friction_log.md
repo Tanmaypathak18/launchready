@@ -138,9 +138,9 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 - Filed: not filed: both defects are already tracked (unsloth GGUF #1, llama.cpp#30894, fixed in #30960)
 - Requirement this implies: requirement 1(b)–(c): GGUF names and cards state actual tensor types and bits/weight; the calculator should read GGUF headers before projecting GGUF memory.
 
-### BUILD_PLAN's AIPerf example uses a flag AIPerf 0.13.0 doesn't have
+### The roadmap's AIPerf example uses a flag AIPerf 0.13.0 doesn't have
 - When / where: 2026-11-03 · MacBook Air (no GPU) · aiperf 0.13.0 via `uvx --python 3.12` · against `bench/mock_server.py`
-- Exact command: `aiperf profile --help` (BUILD_PLAN 6.9 example uses `--warmup-requests 10`)
+- Exact command: `aiperf profile --help` (roadmap 6.9 example uses `--warmup-requests 10`)
 - What happened: 0.13.0 has `--warmup-request-count` (alias `--num-warmup-requests`); `--isl`/`--osl` exist as aliases of `--prompt-input-tokens-mean`/`--prompt-output-tokens-mean`; `--osl` only caps `max_completion_tokens`, so outputs can be shorter unless the server honors `ignore_eos`.
 - Root cause: the plan's example predates the pinned version.
 - Fix or workaround: `bench/run_matrix.py` builds the command from flags checked against `aiperf profile --help` for 0.13.0, adds `--isl-stddev 0 --osl-stddev 0`, sends `ignore_eos` to vLLM and llama-server, and flags any run whose mean output length is more than 10% off the request (Ollama ignores `ignore_eos`).
@@ -270,13 +270,13 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 - When / where: 2026-11-02 · no GPU · git 2.50.1 · ggml-org/llama.cpp · n/a
 - Exact command: `git clone --depth 1 --filter=blob:none --sparse --branch main https://github.com/ggml-org/llama.cpp.git`
 - What happened (error excerpt): `fatal: Remote branch main not found in upstream origin`; llama.cpp showed as `unknown` in the readiness table.
-- Root cause: BUILD_PLAN says "check main", but llama.cpp's development branch is `master`.
+- Root cause: the roadmap says "check main", but llama.cpp's development branch is `master`.
 - Fix or workaround: clone the remote's default branch (no `--branch`) and label it with its real name, e.g. `master @ abc1234`.
 - Severity: blocks (no llama.cpp/Ollama readiness)
 - Filed: not filed: our assumption, not an upstream bug
 - Requirement this implies: never hard-code branch names; read the default branch from the remote.
 
-### Two engine registry paths in BUILD_PLAN 6.6 have moved
+### Two engine registry paths in roadmap 6.6 have moved
 - When / where: 2026-11-02 · no GPU · driver n/a · CUDA n/a · llama.cpp main and v0.8.0; Transformers main and v5.22.1 · n/a
 - Exact command: `gh api repos/ggml-org/llama.cpp/contents/convert_hf_to_gguf.py` and `gh api repos/huggingface/transformers/contents/src/transformers/models/auto/configuration_auto.py`
 - What happened (error excerpt): `convert_hf_to_gguf.py` is now a 14 KB entry point that does `from conversion import ModelBase, ...`; the `@ModelBase.register("...")` decorators live in `conversion/*.py` (one file per family). `configuration_auto.py` now does `from .auto_mappings import CONFIG_MAPPING_NAMES`; the mapping is in the auto-generated `models/auto/auto_mappings.py`. A checker that greps only the 6.6 paths would report every architecture as not supported.
@@ -309,7 +309,7 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 ### Lightning has 32.9B parameters, not the nominal 30B
 - When / where: 2026-11-02 · no GPU · driver n/a · CUDA n/a · huggingface_hub `get_safetensors_metadata` · nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16 @ a9904d2
 - Exact command: `uv run launchready fit nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16 --json`
-- What happened (error excerpt): safetensors headers count 32,913,266,240 parameters (BF16 32,913,263,168 + F32 3,072). BUILD_PLAN 6.5 used the nominal ~30B (BF16 ~60 GB, NVFP4 ~17 GB); real figures are BF16 ~65.8 GB and NVFP4 ~18.5 GB before the BF16 share.
+- What happened (error excerpt): safetensors headers count 32,913,266,240 parameters (BF16 32,913,263,168 + F32 3,072). roadmap 6.5 used the nominal ~30B (BF16 ~60 GB, NVFP4 ~17 GB); real figures are BF16 ~65.8 GB and NVFP4 ~18.5 GB before the BF16 share.
 - Root cause: the "30B" in the model name is a rounded label; the count includes untied embeddings and lm_head (~0.7B) and the multi-token-prediction layer.
 - Fix or workaround: always size from safetensors headers, never the model name. Updated 6.5 and its test to 32.9B.
 - Severity: cosmetic (BF16 still doesn't fit a 5090), but it moves every weight number by ~10%

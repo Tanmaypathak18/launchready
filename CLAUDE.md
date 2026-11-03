@@ -1,6 +1,6 @@
 # LaunchReady
 
-Small open-source launch-readiness kit for open-weight LLMs on NVIDIA GPUs: sizes hardware needs, checks engine support, writes model briefs, and benchmarks NVIDIA Nemotron 3.5 Lightning. Full plan: BUILD_PLAN.md (read the current phase before starting). Read docs/progress.md at session start to see what's done and what's next.
+Small open-source launch-readiness kit for open-weight LLMs on NVIDIA GPUs: sizes hardware needs, checks engine support, writes model briefs, and benchmarks NVIDIA Nemotron 3.5 Lightning. Roadmap: docs/roadmap.md (read the current phase before starting). Read docs/progress.md at session start to see what's done and what's next.
 
 ## Audience
 Developers and researchers: Hugging Face users, local-model users, ML engineers serving models. Write every output for them.

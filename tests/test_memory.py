@@ -1,4 +1,4 @@
-"""BUILD_PLAN.md section 6.5 reference values, plus the 6.2 state and 6.3 fit formulas.
+"""docs/roadmap.md section 6.5 reference values, plus the 6.2 state and 6.3 fit formulas.
 
 KV values are exact: no tolerances.
 """
