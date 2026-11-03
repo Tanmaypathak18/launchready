@@ -18,6 +18,16 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Wrap-up: tree guard caught a model-invented email in raw samples, after a bad check chain pushed anyway
+- When / where: 2026-11-03 · MacBook Air (no GPU) · branch phase5-wrapup · `scripts/check_site.py`
+- Exact command: `uv run python scripts/check_site.py`
+- What happened (error excerpt): `FAIL results/dryrun_kaggle/run3_20261103/quality/.../samples_ifeval_...jsonl: email address`; `test_public_tree_is_clean` failed too. Qwen3-4B had written `info[at]softguard.com` (masked here too) as contact details in a sample diaper advert (IFEval doc 11, twice).
+- Root cause: raw model output goes into the tree. Separately, the commit command piped pytest into `tail` and joined the guard with `;`, so failures didn't stop it, and 6 commits were pushed with the guard red.
+- Fix or workaround: masked as `info[at]softguard.com` in that one file and said so in the dry-run README; the guard is unchanged. The address is still in the history of commit `fdcedc0` on this unmerged branch. Checks now run with `pipefail` and gate each commit.
+- Severity: slows
+- Filed: not filed: our process
+- Requirement this implies: run the guard on raw results before committing them; never pipe a gate into `tail` without `pipefail`.
+
 ### Dry run 3: nothing broke; the fixes held, and `partial` never triggered
 - When / where: 2026-11-03 · Kaggle 2× Tesla T4 (1 used) · driver 580.178.04 · CUDA 13.0 · launchready 8b4ca32 · session dryrun_kaggle_qwen3_4b_20261103T2220Z · vLLM 0.32.0 · llama.cpp v0.8.0 · Ollama 0.40.14 · Qwen/Qwen3-4B @ 1cfa9a7
 - Exact command: `MATRIX=bench/matrices/kaggle_qwen3_4b.yaml HOURLY_PRICE=0 MAX_HOURS=3 bash bench/run_session_5090.sh` (notebook 04)
