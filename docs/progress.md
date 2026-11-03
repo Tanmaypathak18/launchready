@@ -2,6 +2,12 @@
 
 One "Done so far" entry per phase, newest first: what shipped, decisions made, what's next.
 
+## Phase 3: Validate on free GPUs (in progress, 2026-11-03)
+
+- **Shipped:** `notebooks/01_memory_validation.ipynb` ran on Kaggle 2× T4 (driver 580.178.04, CUDA 13.0, vLLM 0.32.0); raw results in `results/` (CSV, environment, logs; chart rebuilt from the CSV with the fixed plot cell). Weights (vLLM "Model loading") within 1% for all three models; KV budget and concurrency within 4–6% for Qwen3-4B and OLMoE; granite-4.0-h-tiny concurrency +133% (budget ×1.72, per-sequence ×1.36). `launchready fit` now warns about the hybrid gap; 80 tests.
+- **Decisions:** vLLM's "Model loading" line is the weights measurement; the Transformers stage crashed on our own bug (friction log), was fixed but not rerun on a GPU, and is optional and off by default. No retune from one hybrid model. Hybrid KV-token counts marked not comparable. vLLM timeout 30 min (granite took 951 s, mostly Mamba2 kernel warmup).
+- **Next:** 2–3 quickstart audits logged in docs/friction_log.md; confirm the per-sequence cause for hybrids (page padding / 'align' cache mode) on a second hybrid model before changing the fit model; then tick Phase 3.
+
 ## Phase 2: Engine readiness + Nemotron brief (2026-11-02)
 
 - **Shipped:** engines.py (shallow sparse clones of vLLM, SGLang, llama.cpp, Transformers at latest stable tag + default branch; release / main-only / not-found / unknown with file:line), variants.py (quantized variants with real Hub file sizes), `launchready brief` (Jinja2 template 7.1) with the Lightning brief and its hand-written sections, `launchready radar --since 30d` with the 2026-11-02 digest; 78 offline tests.

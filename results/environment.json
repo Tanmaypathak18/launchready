@@ -1,0 +1,19 @@
+{
+  "python": "3.13.16",
+  "torch": "2.13.0+cu130",
+  "torch_cuda": "13.0",
+  "cuda_available": true,
+  "gpu_count": 2,
+  "vllm": "0.32.0",
+  "transformers": "5.19.0",
+  "accelerate": "1.15.0",
+  "launchready": "0.0.1",
+  "launchready_commit": "689821dd3c9275702563c4c13f5b976f6bdb4c0b",
+  "gpu": "Tesla T4",
+  "gpu_count_smi": 2,
+  "vram_mib": 15360,
+  "driver": "580.178.04",
+  "driver_cuda": "13.0",
+  "platform": "Linux-6.18.55+-x86_64-with-glibc2.39",
+  "date_utc": "2026-11-03T10:29:21+00:00"
+}

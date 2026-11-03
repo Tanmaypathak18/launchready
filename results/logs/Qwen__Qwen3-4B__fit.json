@@ -1,0 +1,88 @@
+{
+  "label": "projected",
+  "repo_id": "Qwen/Qwen3-4B",
+  "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "license": "apache-2.0",
+  "gated": false,
+  "created_at": "2025-04-27T03:41:29+00:00",
+  "architecture": {
+    "family": "dense",
+    "model_type": "qwen3",
+    "layers": 36,
+    "layer_counts": {
+      "full_attention": 36
+    },
+    "num_kv_heads": 8,
+    "head_dim": 128,
+    "max_context": 40960,
+    "sliding_window": null
+  },
+  "parameters": {
+    "total": 4022468096,
+    "active": 4022468096,
+    "source": "safetensors headers"
+  },
+  "assumptions": {
+    "bits_per_weight": {
+      "bf16": 16,
+      "fp8": 8,
+      "nvfp4": 4.5,
+      "gguf-q8_0": 8.5,
+      "gguf-q4_k_m": 4.85
+    },
+    "kv_dtype": "fp16",
+    "mamba_state_dtype": null,
+    "mamba_state_dtype_assumed": false,
+    "gpu_memory_utilization": 0.9,
+    "runtime_reserve_bytes": 2147483648,
+    "gpu_memory": "marketed capacity read as GiB"
+  },
+  "context": 4096,
+  "users": 1,
+  "weights_bytes": {
+    "bf16": 8044936192.0,
+    "fp8": 4022468096.0,
+    "nvfp4": 2262638304.0,
+    "gguf-q8_0": 4273872352.0,
+    "gguf-q4_k_m": 2438621283.2
+  },
+  "sequence": {
+    "kv_bytes_per_token": 147456,
+    "attention_bytes": 603979776,
+    "mamba_state_bytes": 0,
+    "total_bytes": 603979776
+  },
+  "fit": {
+    "tesla-t4": {
+      "bf16": {
+        "kv_budget_bytes": 5269462425.6,
+        "max_users": 8,
+        "native": false
+      },
+      "fp8": {
+        "kv_budget_bytes": 9291930521.6,
+        "max_users": 15,
+        "native": false
+      },
+      "nvfp4": {
+        "kv_budget_bytes": 11051760313.6,
+        "max_users": 18,
+        "native": false
+      },
+      "gguf-q8_0": {
+        "kv_budget_bytes": 9040526265.6,
+        "max_users": 14,
+        "native": true
+      },
+      "gguf-q4_k_m": {
+        "kv_budget_bytes": 10875777334.400002,
+        "max_users": 18,
+        "native": true
+      }
+    }
+  },
+  "warnings": [],
+  "notes": [
+    "Quantized sizes assume every tensor is quantized; real files keep embeddings, lm_head, norms and routers in BF16, so expect somewhat more"
+  ]
+}

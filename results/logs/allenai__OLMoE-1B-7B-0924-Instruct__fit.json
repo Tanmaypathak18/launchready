@@ -1,0 +1,88 @@
+{
+  "label": "projected",
+  "repo_id": "allenai/OLMoE-1B-7B-0924-Instruct",
+  "revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+  "license": "apache-2.0",
+  "gated": false,
+  "created_at": "2024-08-13T22:47:03+00:00",
+  "architecture": {
+    "family": "MoE",
+    "model_type": "olmoe",
+    "layers": 16,
+    "layer_counts": {
+      "full_attention": 16
+    },
+    "num_kv_heads": 16,
+    "head_dim": 128,
+    "max_context": 4096,
+    "sliding_window": null
+  },
+  "parameters": {
+    "total": 6919161856,
+    "active": 1282017280,
+    "source": "safetensors headers"
+  },
+  "assumptions": {
+    "bits_per_weight": {
+      "bf16": 16,
+      "fp8": 8,
+      "nvfp4": 4.5,
+      "gguf-q8_0": 8.5,
+      "gguf-q4_k_m": 4.85
+    },
+    "kv_dtype": "fp16",
+    "mamba_state_dtype": null,
+    "mamba_state_dtype_assumed": false,
+    "gpu_memory_utilization": 0.9,
+    "runtime_reserve_bytes": 2147483648,
+    "gpu_memory": "marketed capacity read as GiB"
+  },
+  "context": 4096,
+  "users": 1,
+  "weights_bytes": {
+    "bf16": 13838323712.0,
+    "fp8": 6919161856.0,
+    "nvfp4": 3892028544.0,
+    "gguf-q8_0": 7351609472.0,
+    "gguf-q4_k_m": 4194741875.2
+  },
+  "sequence": {
+    "kv_bytes_per_token": 131072,
+    "attention_bytes": 536870912,
+    "mamba_state_bytes": 0,
+    "total_bytes": 536870912
+  },
+  "fit": {
+    "tesla-t4": {
+      "bf16": {
+        "kv_budget_bytes": -523925094.3999996,
+        "max_users": 0,
+        "native": false
+      },
+      "fp8": {
+        "kv_budget_bytes": 6395236761.6,
+        "max_users": 11,
+        "native": false
+      },
+      "nvfp4": {
+        "kv_budget_bytes": 9422370073.6,
+        "max_users": 17,
+        "native": false
+      },
+      "gguf-q8_0": {
+        "kv_budget_bytes": 5962789145.6,
+        "max_users": 11,
+        "native": true
+      },
+      "gguf-q4_k_m": {
+        "kv_budget_bytes": 9119656742.400002,
+        "max_users": 16,
+        "native": true
+      }
+    }
+  },
+  "warnings": [],
+  "notes": [
+    "Quantized sizes assume every tensor is quantized; real files keep embeddings, lm_head, norms and routers in BF16, so expect somewhat more"
+  ]
+}

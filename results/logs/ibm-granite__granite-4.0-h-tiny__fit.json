@@ -1,0 +1,90 @@
+{
+  "label": "projected",
+  "repo_id": "ibm-granite/granite-4.0-h-tiny",
+  "revision": "791e0d3d28c86e106c9b6e0b4cecdee0375b6124",
+  "license": "apache-2.0",
+  "gated": false,
+  "created_at": "2025-09-16T19:51:16+00:00",
+  "architecture": {
+    "family": "hybrid Mamba MoE",
+    "model_type": "granitemoehybrid",
+    "layers": 40,
+    "layer_counts": {
+      "full_attention": 4,
+      "mamba": 36
+    },
+    "num_kv_heads": 4,
+    "head_dim": 128,
+    "max_context": 131072,
+    "sliding_window": null
+  },
+  "parameters": {
+    "total": 6939037248,
+    "active": 1465470528,
+    "source": "safetensors headers"
+  },
+  "assumptions": {
+    "bits_per_weight": {
+      "bf16": 16,
+      "fp8": 8,
+      "nvfp4": 4.5,
+      "gguf-q8_0": 8.5,
+      "gguf-q4_k_m": 4.85
+    },
+    "kv_dtype": "fp16",
+    "mamba_state_dtype": "float32",
+    "mamba_state_dtype_assumed": true,
+    "gpu_memory_utilization": 0.9,
+    "runtime_reserve_bytes": 2147483648,
+    "gpu_memory": "marketed capacity read as GiB"
+  },
+  "context": 4096,
+  "users": 1,
+  "weights_bytes": {
+    "bf16": 13878074496.0,
+    "fp8": 6939037248.0,
+    "nvfp4": 3903208452.0,
+    "gguf-q8_0": 7372727076.0,
+    "gguf-q4_k_m": 4206791331.6
+  },
+  "sequence": {
+    "kv_bytes_per_token": 8192,
+    "attention_bytes": 33554432,
+    "mamba_state_bytes": 58060800,
+    "total_bytes": 91615232
+  },
+  "fit": {
+    "tesla-t4": {
+      "bf16": {
+        "kv_budget_bytes": -563675878.3999996,
+        "max_users": 0,
+        "native": false
+      },
+      "fp8": {
+        "kv_budget_bytes": 6375361369.6,
+        "max_users": 69,
+        "native": false
+      },
+      "nvfp4": {
+        "kv_budget_bytes": 9411190165.6,
+        "max_users": 102,
+        "native": false
+      },
+      "gguf-q8_0": {
+        "kv_budget_bytes": 5941671541.6,
+        "max_users": 64,
+        "native": true
+      },
+      "gguf-q4_k_m": {
+        "kv_budget_bytes": 9107607286.0,
+        "max_users": 99,
+        "native": true
+      }
+    }
+  },
+  "warnings": [],
+  "notes": [
+    "Mamba state dtype not in config: assumed float32 (engines may keep it smaller)",
+    "Quantized sizes assume every tensor is quantized; real files keep embeddings, lm_head, norms and routers in BF16, so expect somewhat more"
+  ]
+}
