@@ -1,1 +1,1 @@
-launchready @ git+https://github.com/Tanmaypathak18/launchready@REPLACE_WITH_PUSHED_COMMIT
+launchready @ git+https://github.com/Tanmaypathak18/launchready@db4e928965091bf46b99f3d8272a5b413864e718

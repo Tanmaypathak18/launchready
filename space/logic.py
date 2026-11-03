@@ -40,7 +40,7 @@ KV_DTYPE = "fp16"
 GITHUB = "https://github.com/Tanmaypathak18/launchready"
 RAW = "https://raw.githubusercontent.com/Tanmaypathak18/launchready"
 # Saved results, briefs and recipes don't change with the code, so links stay on this commit.
-RESULTS_COMMIT = "768eed8691339d24bf61dfe38b8e85dda368bf31"
+RESULTS_COMMIT = "db4e928965091bf46b99f3d8272a5b413864e718"
 LIGHTNING = "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16"
 DEFAULT_CONTEXT = 32_768
 DEFAULT_USERS = 8
