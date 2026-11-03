@@ -6,9 +6,9 @@ Recipes, benchmark scripts and a quality check for [NVIDIA Nemotron 3.5 Lightnin
 
 ## What this kit adds to NVIDIA's model card
 
-NVIDIA's [NVFP4 card](https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4) gives vLLM recipes for DGX Spark, H100, GB200 and Ampere, an Ollama command, a llama.cpp command, and a BF16-vs-NVFP4 accuracy table. This kit adds:
+NVIDIA's [NVFP4 card](../../results/evidence/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4__README__bee7596.md) (saved at `bee7596`) gives vLLM recipes for DGX Spark, H100, GB200 and Ampere, TensorRT-LLM and SGLang recipes, partner-provided Ollama, llama.cpp and LM Studio commands, and a BF16-vs-NVFP4 accuracy table. This kit adds:
 
-1. **A consumer-GPU recipe, verified on the GPU.** The card has no RTX 5090 row. Two community reports say its FP8-KV recipe crashes on SM12x. The session runs the card's command as written, then without `--kv-cache-dtype fp8`, and records both.
+1. **A consumer-GPU recipe, verified on the GPU.** The card lists the RTX 5090 as supported, but its hardware matrix says `_no recipe published_`, with the compute path and validated context marked `_confirm_`. Two community reports say its FP8-KV recipe crashes on SM12x. The session runs the card's command as written, then without `--kv-cache-dtype fp8`, and records both.
 2. **Independent measurements** of TTFT, inter-token latency, tokens/s per user and in total, and GPU memory and power, at 1, 8 and 32 users plus one 32K-token prompt, with the DSpark drafter on and off. Every number carries the GPU, driver, CUDA, engine version, model revision and date.
 3. **Cost per 1M output tokens** at the rented GPU's real hourly price.
 4. **What's really inside the GGUF.** The "Q4_K_M" files store 6.1–6.2 bits per weight (experts fall back to Q5_0/Q8_0), and all four repos checked carry the wrong pre-tokenizer tag. The card says neither.
@@ -19,7 +19,7 @@ NVIDIA's [NVFP4 card](https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightnin
 
 | | Version | Why |
 |---|---|---|
-| GPU | 1× RTX 5090, 32 GB, Blackwell SM120, CUDA 12.8+ driver | consumer Blackwell; NVFP4 is native |
+| GPU | 1× RTX 5090, 32 GB, Blackwell SM120, CUDA 12.8+ driver | consumer Blackwell. The card confirms FP4 hardware but not which compute path vLLM uses here; on DGX Spark, `marlin` runs W4A16 |
 | vLLM | `vllm/vllm-openai:v0.27.1` | the version NVIDIA's card uses; decode speed moved 16% between v0.28 and v0.29 on one Blackwell device ([vllm#59770](https://github.com/vllm-project/vllm/issues/59770)) |
 | NVFP4 model | `nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4` @ `bee7596` | |
 | DSpark drafter | `…-NVFP4-DSpark` @ `6d127b5` | NVIDIA's speculative-decoding drafter |
@@ -53,8 +53,11 @@ Formula (BUILD_PLAN 6.2–6.3): KV budget = 32 GiB × 0.85 − weights − 2 GiB
 | llama-server GGUF | chat at 1, 8 and 32 users × 3 reps; one 32K point | `-np 8`, `cache_prompt: false`; at 32 users, 24 requests queue |
 | Ollama GGUF | chat at 1 user × 3 reps | one slot is forced; thinking on (Ollama default); output length as written by the model |
 | Quality | GSM8K (250, 5-shot) + IFEval (200) on vLLM NVFP4 and llama-server GGUF | greedy, thinking off, chat template applied |
+| Recipes as written | `vllm.sh`, the `llama-server` command and `ollama run` from [`ollama.md`](ollama.md), run unedited after the benchmarks | startup check only. A pod can't run Docker, so `vllm.sh` uses `RUNNER=local`; llama.cpp comes from `bench/build_llamacpp.sh` |
 
 Every prompt in a run is unique, so no engine gets prompt-cache hits. Every run samples `nvidia-smi` every 500 ms and writes one JSON as soon as it finishes. A run that lost requests is marked `partial`, with the count in its note. `$ per 1M output tokens = hourly price ÷ (total output tokens/s × 3,600) × 1,000,000`. Headline numbers are the median of 3 reps (min and max kept).
+
+**Not tested by the session:** chat template (system prompt, multi-turn), tool calling, an 8-hour soak, the tokenizer against Hugging Face, and drafter output. See the [checklist](../../docs/readiness_checklist.md#not-tested-by-the-5090-session).
 
 ## How long the 5090 session takes (estimate)
 
@@ -63,11 +66,11 @@ Every prompt in a run is unique, so no engine gets prompt-cache hits. Every run 
 | Pod start, `uv sync`, tool installs | 10–15 min | |
 | Downloads (~74 GB: NVFP4 21.6 GB, DSpark 1.3 GB, GGUF 25.5 GB, Ollama's own copy of the GGUF 25.5 GB) | 10–25 min | depends on the pod's network |
 | llama.cpp CUDA build | 20–35 min | **Took 27.5 min on Kaggle** (dry run, `prepare-3`: 1,654 s). Depends on the pod's CPU cores; longer if the image needs `nvcc` installed |
-| vLLM startups (5 of them: 2 card checks, benchmark, DSpark, any fallback) | 30–90 min | **vLLM starts slowly on Mamba hybrids:** model load + kernel warmup + torch.compile + CUDA graphs. granite-4.0-h-tiny took 16 min on a T4. The card's 1M-token default context adds to it |
+| vLLM startups (6 of them: 2 card checks, benchmark, DSpark, the `vllm.sh` recipe, any fallback) | 35–105 min | **vLLM starts slowly on Mamba hybrids:** model load + kernel warmup + torch.compile + CUDA graphs. granite-4.0-h-tiny took 16 min on a T4. The card's 1M-token default context adds to it |
 | Benchmarks (~35 AIPerf runs) | 45–75 min | llama.cpp at 32 users is the slowest |
 | Quality (2 engines × 450 prompts) | 30–60 min | IFEval allows 1,280 output tokens |
 | Pack + copy off | 10 min | |
-| **Total** | **~2.5–5.5 h** | `MAX_HOURS=8` hard stop. At ~$0.90/h that's ~$2.50–5; the hard stop caps it at ~$7.20 |
+| **Total** | **~2.75–5.75 h** | `MAX_HOURS=8` hard stop. At ~$0.90/h that's ~$2.50–5.20; the hard stop caps it at ~$7.20 |
 
 ## Rent the GPU and run the session (click by click)
 

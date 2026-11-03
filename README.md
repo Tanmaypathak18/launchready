@@ -10,7 +10,7 @@ LaunchReady is a small, open-source launch-readiness kit for open-weight LLMs on
 - [x] Phase 3: Validation on free GPUs + first-user audits
 - [x] Phase 4: Developer feedback → requirements
 - [ ] Phase 5: Nemotron 3.5 Lightning launch kit (recipes, benchmarks, quality check)
-  - Steps 1–5 done: [readiness checklist](docs/readiness_checklist.md) (1 ready, 5 not ready, 20 unknown), gap check, [recipes](recipes/nemotron-3.5-lightning/README.md), bench scripts, Kaggle dry run
+  - Steps 1–5 done: [readiness checklist](docs/readiness_checklist.md) (1 ready, 5 not ready, 21 unknown), gap check, [recipes](recipes/nemotron-3.5-lightning/README.md), bench scripts, Kaggle dry run
   - Left: rented RTX 5090 session (nothing is measured on a 5090 yet), results notebook
 - [ ] Phase 6: Publish (blog post, README quickstart and results)
 
