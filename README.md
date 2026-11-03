@@ -5,7 +5,7 @@ LaunchReady is a small, open-source launch-readiness kit for open-weight LLMs on
 ## Status
 
 - [x] Phase 0: Setup (repo, CI, smoke test)
-- [ ] Phase 1: Memory calculator (`launchready fit`)
+- [x] Phase 1: Memory calculator (`launchready fit`)
 - [ ] Phase 2: Engine readiness + Nemotron brief (`launchready brief`, `launchready radar`)
 - [ ] Phase 3: Validation on free GPUs + first-user audits
 - [ ] Phase 4: Developer feedback → requirements
@@ -16,7 +16,8 @@ LaunchReady is a small, open-source launch-readiness kit for open-weight LLMs on
 
 ```bash
 uv sync
-uv run launchready --help
+uv run launchready fit Qwen/Qwen3-4B --context 32768 --users 8
+uv run launchready fit nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16 --gpu rtx-5090 --json
 uv run ruff check .
 uv run pytest
 ```
