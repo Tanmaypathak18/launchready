@@ -157,8 +157,8 @@ No prompt needed. This is your PM work, and doing it by hand is the point. Claud
 
 ### Phase 5: Nemotron 3.5 Lightning launch kit (~$5–10)
 
-1. [ ] **Readiness checklist** (template 7.2) for Lightning: what must be true before you'd call it "ready on NVIDIA GPUs."
-2. [ ] **Gap check:** read NVIDIA's model card and recipes. Your kit adds independent measurements on a consumer GPU, first-user friction, cost per 1M tokens and plain-English guidance. Put that list at the top of the recipe README.
+1. [x] **Readiness checklist** (template 7.2) for Lightning: what must be true before you'd call it "ready on NVIDIA GPUs."
+2. [x] **Gap check:** read NVIDIA's model card and recipes. Your kit adds independent measurements on a consumer GPU, first-user friction, cost per 1M tokens and plain-English guidance. Put that list at the top of the recipe README.
 3. [x] **Recipes** (`recipes/nemotron-3.5-lightning/`): `vllm.sh` (NVFP4) and `ollama.md` (GGUF via `ollama run hf.co/...`), each stating GPU, engine version and model revision. Start from the vLLM version NVIDIA's card uses.
 4. [x] **Benchmark + quality scripts** (`bench/`), per 6.9.
    - Changed 2026-11-03: GGUF is bartowski Q4_K_M (ggml-org has no Q4_K_M); its header says 6.19 bits/weight, so GGUF memory comes from the header, not 6.1. The card has no GSM8K/IFEval numbers, so quality compares NVFP4 (vLLM) with GGUF (llama.cpp) directly; thinking off for both.

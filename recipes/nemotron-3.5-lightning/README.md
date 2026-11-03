@@ -2,7 +2,7 @@
 
 Recipes, benchmark scripts and a quality check for [NVIDIA Nemotron 3.5 Lightning](https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16) (32.9B total / ~3B active hybrid Mamba-Transformer MoE) on a single consumer Blackwell GPU.
 
-**Status (2026-11-03):** scripts dry-run on Kaggle T4 with Qwen3-4B ([raw output, not headline](../../results/dryrun_kaggle/README.md)); fixes made after that dry run are tested offline but not re-run on a GPU. RTX 5090 session **not yet run**. Every performance number below is *projected* until the 5090 session replaces it with *measured* values.
+**Status (2026-11-03):** scripts dry-run on Kaggle T4 with Qwen3-4B ([raw output, not headline](../../results/dryrun_kaggle/README.md)); fixes made after that dry run are tested offline but not re-run on a GPU. RTX 5090 session **not yet run**. See the [readiness checklist](../../docs/readiness_checklist.md) for what's ready, not ready and unknown. Every performance number below is *projected* until the 5090 session replaces it with *measured* values.
 
 ## What this kit adds to NVIDIA's model card
 
