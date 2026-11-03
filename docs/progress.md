@@ -2,11 +2,12 @@
 
 One "Done so far" entry per phase, newest first: what shipped, decisions made, what's next.
 
-## Phase 5 (in progress): steps 3–4, recipes + bench scripts (2026-11-03)
+## Phase 5 (in progress): steps 3–5, recipes, bench scripts, Kaggle dry run (2026-11-03)
 
-- **Shipped:** `recipes/nemotron-3.5-lightning/` (vllm.sh, ollama.md, README with gap check, time estimate, Runpod checklist, troubleshooting), `bench/` (run_matrix.py, quality.py, gguf_check.py, mock_server.py, matrices for the 5090, Kaggle and a no-GPU smoke test, run_session_5090.sh with a MAX_HOURS hard stop), notebook 04 for the Kaggle dry run; 102 offline tests. Mock session ran end to end on the Mac (no GPU, no weights).
+- **Shipped:** `recipes/nemotron-3.5-lightning/` (vllm.sh, ollama.md, README with gap check, time estimate, Runpod checklist, troubleshooting), `bench/` (run_matrix.py, quality.py, gguf_check.py, mock_server.py, matrices for the 5090, Kaggle and a no-GPU smoke test, run_session_5090.sh with a MAX_HOURS hard stop), notebook 04 for the Kaggle dry run. Mock session ran end to end on the Mac (no GPU, no weights).
 - **Decisions:** vLLM pinned to the card's `vllm/vllm-openai:v0.27.1`; card command tested as written, then without FP8 KV; benchmarks use BF16 KV, prefix caching off, thinking off; Ollama at concurrency 1 only, `llama-server -np 8` for concurrent GGUF; bartowski Q4_K_M (header: 6.19 bits/weight, `tokenizer.ggml.pre = pixtral`, so llama.cpp v0.8.0 with the Tekken fix).
-- **Next:** push `phase5-bench`, run notebook 04 on Kaggle T4 x2 and fix what breaks (step 5); then rent the 5090 (step 6).
+- **Dry run (step 5):** second Kaggle run finished all servers and all 10 runs; raw output in `results/dryrun_kaggle/` (labeled not headline). It exposed vLLM null `content` with `deepseek_r1` (false 0.0 quality), prompt-cache hits on llama-server and Ollama, and 2 lost requests at 32 users; fixed with 116 offline tests, not re-run on a GPU. Merged to main.
+- **Next:** decide whether to re-run notebook 04 on Kaggle to confirm the vLLM quality fix (free), then rent the 5090 (step 6), then the results notebook (step 7).
 
 ## Phase 4: Developer feedback → requirements (2026-11-03)
 
