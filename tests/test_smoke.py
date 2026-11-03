@@ -14,7 +14,7 @@ def test_help_lists_subcommands():
         assert command in result.output
 
 
-def test_fit_not_implemented():
-    result = runner.invoke(app, ["fit", "Qwen/Qwen3-4B"])
+def test_brief_not_implemented():
+    result = runner.invoke(app, ["brief", "Qwen/Qwen3-4B"])
     assert result.exit_code == 1
     assert "not implemented" in result.output
