@@ -33,6 +33,8 @@ packages = ["launchready"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# Raw results and verbatim third-party snippets (quickstart audits) must not be reformatted.
+extend-exclude = ["results"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

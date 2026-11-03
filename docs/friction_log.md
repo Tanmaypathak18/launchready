@@ -18,6 +18,16 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### CI fails because ruff format checks verbatim card snippets in results/
+- When / where: 2026-11-03 · GitHub Actions ubuntu-latest · ruff 0.17.3 · launchready main @ 4295256
+- Exact command: `uv run ruff format --check .` (CI step "Ruff format")
+- What happened (error excerpt): `results/quickstart_audit/1a_mac_snippet.py:7:46: unformatted` · `results/quickstart_audit/1a_snippet.py:7:46: unformatted` · `results/quickstart_audit/card_README.md:58:46: unformatted` · `3 files would be reformatted` → exit 1
+- Root cause: our process. The quickstart audits commit the model card and its snippets byte-for-byte as evidence, and ruff's default file discovery includes them (Python files and code blocks in Markdown). Before pushing I ran `ruff check .` but not `ruff format --check .`.
+- Fix or workaround: exclude `results/` from ruff in pyproject.toml (it holds raw data and third-party text that must stay verbatim), and run both ruff commands before every push.
+- Severity: blocks (CI red on main)
+- Filed: not filed: our config
+- Requirement this implies: raw evidence directories stay out of linters and formatters; pre-push checks mirror CI exactly.
+
 ### Qwen3-4B's vLLM one-liner fails on `--enable-reasoning` in vLLM 0.32.0 (quickstart audit 1b, Kaggle)
 - When / where: 2026-11-03 · 2× Tesla T4 (Kaggle) · driver 580.178.04 · CUDA 13.0 · Python 3.13.16, vllm 0.32.0, torch 2.13.0, transformers 5.19.0 · card: Qwen/Qwen3-4B @ 1cfa9a7 ("## Quickstart", vLLM line)
 - Exact command (verbatim from the card; `notebooks/03_quickstart_audit.ipynb`, log in `results/quickstart_audit/1b_vllm.log`): `vllm serve Qwen/Qwen3-4B --enable-reasoning --reasoning-parser deepseek_r1`
