@@ -13,3 +13,8 @@ def test_help_lists_subcommands():
     for command in ("fit", "brief", "radar"):
         assert command in result.output
 
+
+def test_radar_rejects_bad_since():
+    result = runner.invoke(app, ["radar", "--since", "30"])
+    assert result.exit_code == 2
+    assert "30d" in result.output

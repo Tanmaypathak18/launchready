@@ -24,6 +24,8 @@ from launchready.memory import (
 from launchready.memory import (
     fit as fit_users,
 )
+from launchready.radar import parse_since
+from launchready.radar import run as run_radar
 
 app = typer.Typer(
     help="Launch-readiness kit for open-weight LLMs on NVIDIA GPUs.",
@@ -271,7 +273,16 @@ def brief(
 
 
 @app.command()
-def radar(since: str = typer.Option("30d", help="Look-back window, e.g. 30d.")):
-    """List recent root-model releases from the watchlist (Phase 2)."""
-    typer.echo("not implemented")
-    raise typer.Exit(code=1)
+def radar(
+    since: str = typer.Option("30d", help="Look-back window, e.g. 30d or 2w."),
+    out: str = typer.Option("radar", help="Directory to write radar/<date>.md to."),
+):
+    """List recent root-model releases from the watchlist orgs (BUILD_PLAN 6.7). Run by hand."""
+    try:
+        parse_since(since)
+    except ValueError as e:
+        _fail(str(e), 2)
+    path, kept = run_radar(since, Path(out))
+    for org, releases in kept.items():
+        typer.echo(f"{org:<12} {len(releases):>3} root-model repos")
+    typer.echo(f"wrote {path}")
