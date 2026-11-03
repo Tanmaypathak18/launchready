@@ -8,6 +8,6 @@
 - `lm_eval_results.json`: hand-written in the shape of lm-evaluation-harness 0.4.x `results_*.json`.
 - `lm_eval_samples_vllm_null_content.jsonl`, `lm_eval_samples_llamacpp.jsonl`: first 4 rows, trimmed to the
   fields used, of the real lm-eval samples from Kaggle dry run 2 (2026-11-03). vLLM's answers were all empty
-  (`deepseek_r1` parser with thinking off); llama-server's weren't. Full files: `results/dryrun_kaggle/quality/`.
+  (`deepseek_r1` parser with thinking off); llama-server's weren't. Full files: `results/dryrun_kaggle/run2_20261103/quality/`.
 - `vllm_null_content_response.json`: **reconstructed**, see its `_source` field. The dry run saved no raw
   response; the startup check now records one.

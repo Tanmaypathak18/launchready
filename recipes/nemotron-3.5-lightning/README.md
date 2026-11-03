@@ -2,7 +2,7 @@
 
 Recipes, benchmark scripts and a quality check for [NVIDIA Nemotron 3.5 Lightning](https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16) (32.9B total / ~3B active hybrid Mamba-Transformer MoE) on a single consumer Blackwell GPU.
 
-**Status (2026-11-03):** scripts dry-run on Kaggle T4 with Qwen3-4B ([raw output, not headline](../../results/dryrun_kaggle/README.md)); fixes made after that dry run are tested offline but not re-run on a GPU. RTX 5090 session **not yet run**. See the [readiness checklist](../../docs/readiness_checklist.md) for what's ready, not ready and unknown. Every performance number below is *projected* until the 5090 session replaces it with *measured* values.
+**Status (2026-11-03):** scripts dry-run on Kaggle T4 with Qwen3-4B ([raw output, not headline](../../results/dryrun_kaggle/README.md)); dry run 3 confirmed the quality and prompt-cache fixes from dry run 2. RTX 5090 session **not yet run**. See the [readiness checklist](../../docs/readiness_checklist.md) for what's ready, not ready and unknown. Every performance number below is *projected* until the 5090 session replaces it with *measured* values.
 
 ## What this kit adds to NVIDIA's model card
 
@@ -65,7 +65,7 @@ Every prompt in a run is unique, so no engine gets prompt-cache hits. Every run 
 |---|---|---|
 | Pod start, `uv sync`, tool installs | 10–15 min | |
 | Downloads (~74 GB: NVFP4 21.6 GB, DSpark 1.3 GB, GGUF 25.5 GB, Ollama's own copy of the GGUF 25.5 GB) | 10–25 min | depends on the pod's network |
-| llama.cpp CUDA build | 20–35 min | **Took 27.5 min on Kaggle** (dry run, `prepare-3`: 1,654 s). Depends on the pod's CPU cores; longer if the image needs `nvcc` installed |
+| llama.cpp CUDA build | 20–35 min | **Took 27.5 and 30.7 min on Kaggle** (dry runs 2 and 3, `prepare-3`: 1,654 s and 1,843 s). Depends on the pod's CPU cores; longer if the image needs `nvcc` installed |
 | vLLM startups (6 of them: 2 card checks, benchmark, DSpark, the `vllm.sh` recipe, any fallback) | 35–105 min | **vLLM starts slowly on Mamba hybrids:** model load + kernel warmup + torch.compile + CUDA graphs. granite-4.0-h-tiny took 16 min on a T4. The card's 1M-token default context adds to it |
 | Benchmarks (~35 AIPerf runs) | 45–75 min | llama.cpp at 32 users is the slowest |
 | Quality (2 engines × 450 prompts) | 30–60 min | IFEval allows 1,280 output tokens |

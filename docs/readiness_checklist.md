@@ -27,7 +27,7 @@ Template: roadmap 7.2. Checked 2026-11-03 using only evidence committed in this 
 | # | Check | Status | Evidence | What closes it |
 |---|---|---|---|---|
 | 2.1 | System prompt and multi-turn are correct | unknown | Never tested. All four GGUFs embed a chat template (headers: [bartowski](../results/bench/gguf/bartowski__Lightning-Q4_K_M.json), [unsloth](../results/bench/gguf/unsloth__Lightning-UD-Q4_K_M.json), [AtomicChat](../results/bench/gguf/AtomicChat__Lightning-Q4_K_M.json), [ggml-org](../results/bench/gguf/ggml-org__Lightning-Q4_0.json)), but that only shows it exists. | **Not tested** |
-| 2.2 | With thinking off, the answer arrives in `content` | unknown | `nemotron_v3` looks right from reading vLLM v0.27.1 source; not run ([friction log](friction_log.md#dry-run-2-vllm-quality-scored-exactly-00-because-every-answer-came-back-in-reasoning-not-content)). The Qwen3-4B null-content fix hasn't been re-run in the repo's results either. | 5090 session (startup check fails if not) |
+| 2.2 | With thinking off, the answer arrives in `content` | unknown | `nemotron_v3` looks right from reading vLLM v0.27.1 source; not run ([friction log](friction_log.md#dry-run-2-vllm-quality-scored-exactly-00-because-every-answer-came-back-in-reasoning-not-content)). The same fix for Qwen3-4B's `qwen3` parser is [confirmed on T4](../results/dryrun_kaggle/README.md#what-each-fix-changed), which doesn't test `nemotron_v3`. | 5090 session (startup check fails if not) |
 | 2.3 | Tool calling works | unknown | Never tested. Reported on Lightning: `qwen3_coder` drops trailing newlines in string arguments, and multi-turn harnesses truncate ([below the cut](requirements.md#below-the-cut)). | **Not tested** |
 
 ## 3. Each precision verified on its target GPU; memory within tolerance
@@ -47,7 +47,7 @@ Template: roadmap 7.2. Checked 2026-11-03 using only evidence committed in this 
 
 | # | Check | Status | Evidence | What closes it |
 |---|---|---|---|---|
-| 4.1 | NVFP4 quality measured | unknown | Not run. BF16 at ~61 GiB [doesn't fit a 5090](../briefs/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md#hardware-requirements), and [requirement 4](requirements.md#requirements) reports kernels that give fluent wrong output. The [dry run](../results/dryrun_kaggle/README.md)'s vLLM 0.0 is invalid ([friction log](friction_log.md#dry-run-2-vllm-quality-scored-exactly-00-because-every-answer-came-back-in-reasoning-not-content)). | 5090 session |
+| 4.1 | NVFP4 quality measured | unknown | Not run. BF16 at ~61 GiB [doesn't fit a 5090](../briefs/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md#hardware-requirements), and [requirement 4](requirements.md#requirements) reports kernels that give fluent wrong output. Dry run 2's vLLM 0.0 is invalid; [dry run 3](../results/dryrun_kaggle/README.md) gives real scores, but for Qwen3-4B at n=20 ([friction log](friction_log.md#dry-run-2-vllm-quality-scored-exactly-00-because-every-answer-came-back-in-reasoning-not-content)). | 5090 session |
 | 4.2 | GGUF quality measured | unknown | Not run. Dry-run scores are Qwen3-4B on 20 examples. | 5090 session |
 | 4.3 | The gap is agreed | **not ready** | No threshold exists. [NVIDIA's accuracy table](../results/evidence/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4__README__bee7596.md#L138) has neither GSM8K nor IFEval, so the session compares NVFP4 with GGUF, not with BF16. | Your decision: set a threshold and baseline |
 
@@ -56,7 +56,7 @@ Template: roadmap 7.2. Checked 2026-11-03 using only evidence committed in this 
 | # | Check | Status | Evidence | What closes it |
 |---|---|---|---|---|
 | 5.1 | Lightning benchmarks exist | unknown | None run. | 5090 session |
-| 5.2 | Scripts reproduce a run with its environment | unknown | Worked end to end for Qwen3-4B on T4 ([dry run](../results/dryrun_kaggle/README.md)), with the environment on every row. Fixes since then ([unique prompts](friction_log.md#dry-run-2-prefix-caching-off-wasnt-true-for-llama-server-or-ollama), [failed-request labels](friction_log.md#dry-run-2-llama-server-at-32-users-lost-2-of-64-requests-but-the-run-said-ok)) are tested offline only. | 5090 session |
+| 5.2 | Scripts reproduce a run with its environment | unknown | Worked end to end for Qwen3-4B on T4 ([dry runs](../results/dryrun_kaggle/README.md)), with the environment on every row. Dry run 3 confirmed [unique prompts](friction_log.md#dry-run-2-prefix-caching-off-wasnt-true-for-llama-server-or-ollama). [Failed-request labels](friction_log.md#dry-run-2-llama-server-at-32-users-lost-2-of-64-requests-but-the-run-said-ok) never triggered there, so they're tested offline only. | 5090 session |
 
 ## 6. Recipes copy-paste runnable on a fresh machine
 
