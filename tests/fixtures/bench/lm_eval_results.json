@@ -2,6 +2,7 @@
   "results": {
     "gsm8k": {
       "alias": "gsm8k",
+      "sample_len": 250,
       "exact_match,strict-match": 0.884,
       "exact_match_stderr,strict-match": 0.0203,
       "exact_match,flexible-extract": 0.892,

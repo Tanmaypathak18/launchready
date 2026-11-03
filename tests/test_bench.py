@@ -359,7 +359,7 @@ def test_parse_lm_eval_results():
     assert scores["exact_match,strict-match"] == 0.884
     assert scores["exact_match,flexible-extract"] == 0.892
     assert "exact_match_stderr,strict-match" in scores
-    assert "alias" not in scores
+    assert "alias" not in scores and "sample_len" not in scores
     assert quality.parse_lm_eval(data, "ifeval") == {}
 
 
@@ -390,3 +390,12 @@ def test_find_lm_eval_results_file(tmp_path):
     nested.write_text("{}")
     assert quality.find_results(tmp_path) == nested
     assert quality.find_results(tmp_path / "missing") is None
+
+
+def test_resolve_vars_chains_and_env_wins(monkeypatch):
+    monkeypatch.setenv("MODELS_DIR", "/override")
+    monkeypatch.delenv("NVFP4_DIR", raising=False)
+    out = run_matrix.resolve_vars(
+        {"MODELS_DIR": "/workspace/models", "NVFP4_DIR": "${MODELS_DIR}/n"}
+    )
+    assert out == {"MODELS_DIR": "/override", "NVFP4_DIR": "/override/n"}

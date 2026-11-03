@@ -110,7 +110,11 @@ def find_results(out_dir: Path) -> Path | None:
 def parse_lm_eval(data: dict, task: str) -> dict:
     """Metric → value for one task (e.g. 'exact_match,strict-match')."""
     scores = data.get("results", {}).get(task, {})
-    return {k: v for k, v in scores.items() if k != "alias" and isinstance(v, int | float)}
+    return {
+        k: v
+        for k, v in scores.items()
+        if k not in ("alias", "sample_len") and isinstance(v, int | float)
+    }
 
 
 def run_task(
@@ -198,7 +202,7 @@ def run_quality(
                 **record,
                 "metric": k,
                 "value": v,
-                "stderr": r["scores"].get(k.replace(",", "_stderr,", 1)),
+                "stderr": r["scores"].get(k.replace(",", "_stderr,", 1)) if "," in k else None,
                 "env_gpu": environment.get("gpu"),
                 "env_driver": environment.get("driver"),
                 "env_cuda": environment.get("cuda"),
@@ -266,9 +270,9 @@ def main(
         if server_name not in matrix["servers"]:
             raise typer.BadParameter(f"--server must be one of {list(matrix['servers'])}")
         cfg = matrix["servers"][server_name]
-        variables = matrix.get("vars", {})
+        variables = rm.resolve_vars(matrix.get("vars", {}))
         environment = rm.collect_environment(matrix, 0.0)
-        results = Path(matrix.get("results_dir", results))
+        results = Path(rm.render_cmd([matrix.get("results_dir", str(results))], variables)[0])
         for variant in cfg["variants"]:
             log = results / "quality" / matrix["session"] / f"{server_name}__server.log"
             server = rm.Server(server_name, cfg, variant, variables, log)

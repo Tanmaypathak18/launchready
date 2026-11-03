@@ -1,0 +1,46 @@
+# Smoke test for bench/run_matrix.py on any machine: no GPU, no model, no weights.
+# Exercises variant fallback (the first variant exits at once), a startup-only server,
+# repetitions, per-run JSON + summary.csv, and the headline medians. Never published.
+#
+#   uv run python -m bench.run_matrix --matrix bench/matrices/mock_smoke.yaml --hourly-price 1.0
+session: mock_smoke
+results_dir: ${MOCK_RESULTS_DIR}
+vars:
+  MOCK_RESULTS_DIR: /tmp/launchready_mock
+  PY: python3
+defaults:
+  warmup_requests: 2
+workloads:
+  chat: {isl: 64, osl: 32}
+  long: {isl: 512, osl: 16}
+servers:
+  mock-card:
+    engine: mock
+    port: 18100
+    model: mock-model
+    startup_only: true
+    try_all_variants: true
+    startup_timeout: 30
+    variants:
+      - {name: card, cmd: [no-such-binary-for-smoke-test]}
+      - {name: card-fixed, cmd: ["${PY}", bench/mock_server.py, --port, "18100"]}
+  mock:
+    engine: mock
+    port: 18101
+    model: mock-model
+    tokenizer: builtin
+    version_path: /version
+    extra_inputs: {ignore_eos: true}
+    startup_timeout: 30
+    notes: {8: "mock: more users than slots"}
+    quality: true
+    variants:
+      - {name: broken, cmd: ["${PY}", -c, "raise SystemExit(3)"]}
+      - {name: ok, cmd: ["${PY}", bench/mock_server.py, --port, "18101", --token-delay-ms, "1"]}
+runs:
+  - {server: mock, workload: chat, concurrency: [1, 8], reps: 2, request_count: {1: 10, 8: 40}}
+  - {server: mock, workload: long, concurrency: [1], request_count: 5}
+quality:
+  tasks: {gsm8k: 3, ifeval: 3}
+  num_concurrent: 2
+  thinking: "n/a (mock server)"

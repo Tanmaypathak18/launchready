@@ -162,6 +162,15 @@ def expand_runs(matrix: dict, server: str) -> list[RunSpec]:
     return specs
 
 
+def resolve_vars(raw: dict) -> dict:
+    """Matrix vars in order; each may use earlier ones and ${ENV}. The environment wins."""
+    resolved: dict[str, str] = {}
+    for key, value in raw.items():
+        rendered = Template(str(value)).safe_substitute({**os.environ, **resolved})
+        resolved[key] = os.environ.get(key, rendered)
+    return resolved
+
+
 def render_cmd(cmd: list[str], variables: dict) -> list[str]:
     """Substitute ${VAR} from the matrix's vars, then the environment; JSON braces stay intact."""
     mapping = {**os.environ, **{k: str(v) for k, v in variables.items()}}
@@ -300,8 +309,9 @@ def io_lines(text: str) -> list[str]:
 class GpuSampler:
     """`nvidia-smi ... -lms 500` into a CSV for the duration of a run; no-op without a GPU."""
 
-    def __init__(self, path: Path, interval_ms: int = 500):
+    def __init__(self, path: Path, interval_ms: int = 500, gpu_index: int | None = None):
         self.path, self.interval_ms, self.proc, self.file = path, interval_ms, None, None
+        self.gpu_index = gpu_index
 
     def __enter__(self):
         if _which("nvidia-smi"):
@@ -312,6 +322,7 @@ class GpuSampler:
                     f"--query-gpu={SMI_QUERY}",
                     "--format=csv,noheader,nounits",
                     f"-lms={self.interval_ms}",
+                    *([f"--id={self.gpu_index}"] if self.gpu_index is not None else []),
                 ],
                 stdout=self.file,
                 stderr=subprocess.DEVNULL,
@@ -497,6 +508,7 @@ class Server:
         self.env = {k: Template(v).safe_substitute(self.env) for k, v in self.env.items()}
         self.base = f"http://127.0.0.1:{cfg['port']}"
         self.log_path, self.proc, self.log = log_path, None, None
+        self.start_error: str | None = None
         self.variables = variables
 
     def start(self) -> None:
@@ -504,13 +516,18 @@ class Server:
         self.log = self.log_path.open("w")
         self.log.write(f"$ {shlex.join(self.cmd)}\n")
         self.log.flush()
-        self.proc = subprocess.Popen(
-            self.cmd,
-            stdout=self.log,
-            stderr=subprocess.STDOUT,
-            env=self.env,
-            start_new_session=True,
-        )
+        try:
+            self.proc = subprocess.Popen(
+                self.cmd,
+                stdout=self.log,
+                stderr=subprocess.STDOUT,
+                env=self.env,
+                start_new_session=True,
+            )
+        except OSError as e:  # e.g. llama-server not built: record it, don't crash the session
+            self.log.write(f"failed to start: {type(e).__name__}: {e}\n")
+            self.log.flush()
+            self.start_error = f"{type(e).__name__}: {e}"
 
     def alive(self) -> bool:
         return self.proc is not None and self.proc.poll() is None
@@ -518,6 +535,8 @@ class Server:
     def wait_healthy(self, timeout: float) -> tuple[bool, float, str]:
         t0 = time.monotonic()
         path = self.cfg.get("health_path", "/health")
+        if self.start_error:
+            return False, 0.0, f"could not start: {self.start_error}"
         while time.monotonic() - t0 < timeout:
             if not self.alive():
                 return False, time.monotonic() - t0, f"exited with code {self.proc.returncode}"
@@ -699,7 +718,7 @@ def run_one(spec: RunSpec, server: Server, out_dir: Path, ctx: dict) -> dict:
     if note := server.cfg.get("notes", {}).get(spec.concurrency):
         row["note"] = note
     t0 = time.monotonic()
-    with GpuSampler(out_dir / "gpu" / f"{rid}.csv") as sampler:
+    with GpuSampler(out_dir / "gpu" / f"{rid}.csv", gpu_index=ctx.get("gpu_index")) as sampler:
         with (art / "aiperf_stdout.log").open("w") as log:
             proc = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
     row["duration_s"] = round(time.monotonic() - t0, 1)
@@ -760,16 +779,23 @@ def main(
     dry_print: Annotated[
         bool, typer.Option(help="Print commands and exit; start nothing.")
     ] = False,
+    print_prepare: Annotated[
+        bool, typer.Option(help="Print the matrix's prepare commands, one per line, and exit.")
+    ] = False,
 ) -> None:
     matrix = load_matrix(matrix_path)
-    variables = matrix.get("vars", {})
+    variables = resolve_vars(matrix.get("vars", {}))
     session = os.environ.get("SESSION") or matrix["session"]
-    results = Path(matrix.get("results_dir", "results"))
+    results = Path(render_cmd([matrix.get("results_dir", "results")], variables)[0])
     out_dir = results / "bench" / session
     defaults = matrix.get("defaults", {})
     warmup = int(defaults.get("warmup_requests", 10))
     servers = [s for s in matrix["servers"] if not only or s in only]
 
+    if print_prepare:
+        for step in matrix.get("prepare", []):
+            print(render_cmd([step], variables)[0])
+        return
     if dry_print:
         for name in servers:
             cfg = matrix["servers"][name]
@@ -824,6 +850,7 @@ def main(
                     "engine_version": rec.get("engine_version"),
                     "meta": rec["meta"],
                     "environment": environment,
+                    "gpu_index": defaults.get("gpu_index"),
                 }
                 for spec in specs:
                     if _deadline_passed(deadline):
@@ -836,6 +863,8 @@ def main(
                     write_json(out_dir / "runs" / f"{row['run_id']}.json", row)
                     append_summary(summary_path, {**row, **env_flat})
                     all_rows.append(row)
+                    heads = headline([r for r in all_rows if r.get("status") == "ok"])
+                    write_json(out_dir / "headline.json", {"label": "measured", "rows": heads})
                     print(
                         f"[{name}] {row['run_id']}: {row['status']} "
                         f"tps={row.get('output_tps_total')} ttft_p50={row.get('ttft_ms_p50')}",
@@ -859,9 +888,6 @@ def main(
         if not chosen and not startup_only:
             print(f"[{name}] no variant passed; nothing benchmarked (see startup/ JSONs)")
 
-    if all_rows:
-        heads = headline([r for r in all_rows if r.get("status") == "ok"])
-        write_json(out_dir / "headline.json", {"label": "measured", "rows": heads})
     print(f"Results: {out_dir} (runs/, startup/, logs/, gpu/) and {summary_path}")
 
 
