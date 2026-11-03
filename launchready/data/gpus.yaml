@@ -1,0 +1,4 @@
+# NVIDIA GPU catalog used by `launchready fit` (BUILD_PLAN.md section 6.4).
+# Each entry: name, memory, architecture, native low-precision formats.
+# Populated in Phase 1; verify every value against NVIDIA spec pages.
+gpus: []
