@@ -18,6 +18,56 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Dry run 3: nothing broke; the fixes held, and `partial` never triggered
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 (1 used) · driver 580.178.04 · CUDA 13.0 · launchready 8b4ca32 · session dryrun_kaggle_qwen3_4b_20261103T2220Z · vLLM 0.32.0 · llama.cpp v0.8.0 · Ollama 0.40.14 · Qwen/Qwen3-4B @ 1cfa9a7
+- Exact command: `MATRIX=bench/matrices/kaggle_qwen3_4b.yaml HOURLY_PRICE=0 MAX_HOURS=3 bash bench/run_session_5090.sh` (notebook 04)
+- What happened: all 6 stages exited 0; 10 of 10 runs `ok`, with no `errors/` folder. vLLM quality is real (0 empty answers; the saved `first_response` shows `content: "42"`). TTFT is flat per request on llama-server and Ollama. The 2 lost requests at llama-server c32 didn't recur (64 of 64). The llama.cpp build took 1,843 s, against 1,654 s in run 2.
+- Root cause: n/a
+- Fix or workaround: none needed. `partial` hasn't run on a GPU, since no request failed; it's tested offline only. The disconnect from run 2 is still undiagnosed.
+- Severity: cosmetic
+- Filed: not filed
+- Requirement this implies: none.
+
+### Dry run 3 finding: `vllm-bench-spec` log has an `EngineDeadError` traceback at shutdown
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 (1 used) · driver 580.178.04 · CUDA 13.0 · launchready 8b4ca32 · session dryrun_kaggle_qwen3_4b_20261103T2220Z · vLLM 0.32.0
+- Exact command: `vllm serve Qwen/Qwen3-4B ... --speculative-config '{"method": "ngram", ...}' ...`, stopped by `Server.stop()`
+- What happened (error excerpt): `AsyncLLM output_handler failed.` · `vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue.` at 23:18:39, right after `[shutdown] EngineCore: trigger received signal=SIGTERM` and `force killing remaining process EngineCore`. Run 2's log for this server had no traceback.
+- Root cause: our SIGTERM. The run ended at the same second (started 23:16:25, 133.7 s), with 8 of 8 requests and 0 errors, so it's shutdown noise, not a failed run. Why it appeared in only one of the two runs isn't known.
+- Fix or workaround: none needed
+- Severity: cosmetic
+- Filed: not filed: happens only as we stop the server
+- Requirement this implies: when scanning logs, compare a traceback's time with the run's end before calling it a failure.
+
+### Dry run 3 finding: GSM8K strict-match measures answer format as much as the answer
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 (1 used) · driver 580.178.04 · CUDA 13.0 · launchready 8b4ca32 · session dryrun_kaggle_qwen3_4b_20261103T2220Z · lm-eval 0.4.13
+- Exact command: `lm_eval --model local-chat-completions ... --tasks gsm8k --limit 20`
+- What happened: vLLM scored 0.40 strict and 0.70 flexible; llama-server scored 0.65 on both. The strict filter couldn't read 11 of vLLM's 20 answers (7 with no `####`, 4 like `#### Answer: $18` or `#### \$460`) and 2 of llama-server's.
+- Root cause: `strict-match` needs a bare number right after `####`. Why the two engines' answers differ in format isn't established: they use different weights (FP16 and Q4_K_M), and n=20.
+- Fix or workaround: none in code; `quality_summary.csv` already keeps both filters. Report both, and don't compare engines on strict alone.
+- Severity: slows (a misleading headline if strict is quoted alone)
+- Filed: not filed: expected filter behavior
+- Requirement this implies: name the GSM8K filter next to every score.
+
+### Dry run 3 finding: FP8 KV cache fails on T4, same as run 2
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 (1 used) · driver 580.178.04 · CUDA 13.0 · launchready 8b4ca32 · session dryrun_kaggle_qwen3_4b_20261103T2220Z · vLLM 0.32.0 · Qwen/Qwen3-4B @ 1cfa9a7
+- Exact command: `vllm serve Qwen/Qwen3-4B --revision 1cfa9a7... --served-model-name qwen3-4b --dtype half --kv-cache-dtype fp8 --max-model-len 8192 --no-enable-prefix-caching --reasoning-parser qwen3 --default-chat-template-kwargs '{"enable_thinking": false}'`
+- What happened (error excerpt): raised at `vllm/v1/attention/backends/triton_attn.py`, line 496, while building the model: `ValueError: FP8 KV cache is not supported by the Triton attention backend on Tesla T4 (compute capability 7.5); native FP8 (fp8e4nv) requires SM89+. Re-run with --kv-cache-dtype float16.` Then `RuntimeError: Engine core initialization failed`, and exit 1 within 50 s.
+- Root cause: this is a finding, not a bug. vLLM's Triton attention backend needs SM89+ for FP8; T4 is SM75.
+- Fix or workaround: the matrix fell back to `no-fp8-kv`, which passed.
+- Severity: cosmetic (expected)
+- Filed: not filed: expected behavior, with a clear error
+- Requirement this implies: none. This limit doesn't apply to the 5090 (SM120), so it says nothing about the FP8 KV crash reported on SM12x.
+
+### Dry run 3 finding: Qwen3-4B's card command still fails on `--enable-reasoning`
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 (1 used) · driver 580.178.04 · CUDA 13.0 · launchready 8b4ca32 · session dryrun_kaggle_qwen3_4b_20261103T2220Z · vLLM 0.32.0 · Qwen/Qwen3-4B @ 1cfa9a7
+- Exact command: `vllm serve Qwen/Qwen3-4B --revision 1cfa9a7... --enable-reasoning --reasoning-parser deepseek_r1 --dtype half --served-model-name qwen3-4b --max-model-len 8192`
+- What happened (error excerpt): `vllm: error: unrecognized arguments: --enable-reasoning`, exit 2, third reproduction after audit 1b and run 2. Without the flag, the same line passed in 195 s.
+- Root cause: this is a finding, not a bug in the kit. The card's flag no longer exists in vLLM 0.32.0.
+- Fix or workaround: the matrix records the failure and goes on to `card-no-enable-reasoning`.
+- Severity: blocks (card command as written)
+- Filed: not filed: still the owner's call (see audit 1b)
+- Requirement this implies: model-card commands name a tested engine version, not just a minimum.
+
 ### `hub_cache` never blocked the network, despite its docstring
 - When / where: 2026-11-03 · no GPU · `tests/conftest.py` on branch `space-app`
 - Exact command: `uv run pytest`
@@ -84,7 +134,7 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 - What happened (error excerpt): vLLM gsm8k 0.0, ifeval 0.0; llama-server 0.65 and 0.75 on identical prompts. All 60 vLLM samples have `resps: [[""]]` (`filtered_resps: "[invalid]"`), and lm-eval logged, for every request, `API returned null content. Content filled with LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = . Check reasoning_content field or generation limits.`
 - Root cause: `deepseek_r1` doesn't handle thinking off. With `enable_thinking=false`, Qwen3's template ends the prompt with `<think>\n\n</think>\n\n`, so the model's output has no `</think>`. vLLM's `BaseThinkingReasoningParser.extract_reasoning` (`vllm/reasoning/basic_parsers.py`, read at v0.32.0) then does `if self.end_token not in model_output: return model_output, None`: the whole answer becomes `reasoning` and `content` is null. Streaming isn't affected, because the serving layer sets `reasoning_ended` from the prompt tokens; that's why AIPerf (streaming) saw 256 normal output tokens. The raw HTTP response wasn't recorded; this rests on the samples, the lm-eval warning and the source.
 - Why we missed it: two bugs of ours. `Server.chat()` joined `content` + `reasoning`, so the startup check passed on "42" and "Paris." with content actually null. `quality.py` reported 60 empty answers as status `ok`, score 0.0.
-- Fix or workaround: Kaggle matrix uses `--reasoning-parser qwen3`, which returns `(None, model_output)` when `enable_thinking` is false. The startup check now requires non-empty `content` when thinking is off, and saves the first raw response. `quality.py` counts empty answers; above 5% the task is `invalid`, with no score in the CSV. **The parser fix can only be verified by a new Kaggle run.** It wasn't re-run, by instruction; the guards are tested offline.
+- Fix or workaround: Kaggle matrix uses `--reasoning-parser qwen3`, which returns `(None, model_output)` when `enable_thinking` is false. The startup check now requires non-empty `content` when thinking is off, and saves the first raw response. `quality.py` counts empty answers; above 5% the task is `invalid`, with no score in the CSV. Confirmed by dry run 3: 0 empty answers and real scores. The startup and `quality.py` guards didn't need to fire there, so they're tested offline only.
 - Lightning: the 5090 matrix uses `nemotron_v3`, not `deepseek_r1`. By reading v0.27.1 (not running it): the server default reaches `NemotronV3Parser` through `chat_template_kwargs`, `Qwen3Parser.extract_reasoning` returns `(None, model_output)` with thinking off, and `--default-chat-template-kwargs` exists there. An attempt to run vLLM's parsers locally was blocked (it would execute downloaded source). If this reading is wrong, the new startup check fails in the first 8 requests, before any benchmark.
 - Severity: wrong output (a false 0.0 with status ok)
 - Filed: not filed: `deepseek_r1` isn't Qwen3's parser; our matrix copied it from the card line
@@ -95,7 +145,7 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 - Exact command: the AIPerf runs in `bench/matrices/kaggle_qwen3_4b.yaml`
 - What happened: per-request TTFT is bimodal. llama-server long: 4,871, 5,075, then 991, 957 ms. llama-server chat: ~430 ms, last two 142, 140. Ollama chat: ~430, last two 188, 186. vLLM long stayed flat at ~16,350 ms. The llama-server log shows `selected slot by LCP similarity, f_sim_best = 1.000` and `n_past = 524`.
 - Root cause: AIPerf generated as many prompts as `--request-count`, used the first ones for warmup, then repeated them at the end of the run; llama-server's `cache_prompt` (on by default) reused them. Our label "off (no prompt reuse...; synthetic prompts)" was wrong. It flatters TTFT p50 and p99 for GGUF against vLLM.
-- Fix or workaround: `--num-dataset-entries` = requests + warmup, so every prompt is unique; llama-server also gets `cache_prompt: false` per request. Ollama has no equivalent setting here, so unique prompts are what protect it. Needs a new run to verify.
+- Fix or workaround: `--num-dataset-entries` = requests + warmup, so every prompt is unique; llama-server also gets `cache_prompt: false` per request. Ollama has no equivalent setting here, so unique prompts are what protect it. Confirmed by dry run 3: TTFT is flat per request.
 - Severity: wrong output (comparison skewed in GGUF's favor)
 - Filed: not filed: our setup
 - Requirement this implies: "cache off" has to be shown per engine; look at per-request TTFT, not only percentiles.
