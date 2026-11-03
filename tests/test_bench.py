@@ -3,7 +3,10 @@
 import csv
 import io
 import json
+import os
 import struct
+import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -399,3 +402,102 @@ def test_resolve_vars_chains_and_env_wins(monkeypatch):
         {"MODELS_DIR": "/workspace/models", "NVFP4_DIR": "${MODELS_DIR}/n"}
     )
     assert out == {"MODELS_DIR": "/override", "NVFP4_DIR": "/override/n"}
+
+
+# --- GPU paths with a fake nvidia-smi (the Kaggle dry run crashed here; the Mac has no GPU) ----
+
+FAKE_SMI = """#!/bin/sh
+echo "$@" >> "$FAKE_SMI_ARGS"
+case "$*" in
+  *-lms*)
+    i=0
+    while true; do
+      echo "2026/11/03 10:00:00.000, 0, $((20000 + i)), 400.5, 97"
+      i=$((i + 1))
+      sleep 0.05
+    done ;;
+  *) echo "1000" ;;
+esac
+"""
+
+FAKE_AIPERF = """import shutil, sys, time
+time.sleep(0.4)  # long enough for a few fake nvidia-smi samples
+out = sys.argv[sys.argv.index("--artifact-dir") + 1]
+shutil.copy(sys.argv[1], out + "/profile_export_aiperf.json")
+"""
+
+
+@pytest.fixture
+def fake_smi(tmp_path, monkeypatch):
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    smi = bin_dir / "nvidia-smi"
+    smi.write_text(FAKE_SMI)
+    smi.chmod(0o755)
+    args = tmp_path / "smi_args.txt"
+    monkeypatch.setenv("FAKE_SMI_ARGS", str(args))
+    monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
+    return args
+
+
+class _FakeServer:
+    variant = {"name": "v", "thinking": "off"}
+    cmd = ["serve"]
+
+    def __init__(self, cfg):
+        self.cfg = cfg
+
+    def alive(self):
+        return True
+
+
+def _ctx(tmp_path, aiperf):
+    return {
+        "session": "t",
+        "warmup": 0,
+        "aiperf": aiperf,
+        "hourly_price": 0.89,
+        "engine_version": "x",
+        "meta": {"engine": "vllm"},
+        "environment": {"gpu": "fake"},
+        "gpu_index": 0,
+    }
+
+
+def test_gpu_sampler_creates_its_directory_and_reads_samples(fake_smi, tmp_path):
+    path = tmp_path / "out" / "gpu" / "run.csv"  # gpu/ doesn't exist yet
+    with run_matrix.GpuSampler(path, interval_ms=500, gpu_index=0) as sampler:
+        time.sleep(0.4)
+    s = sampler.summary()
+    assert path.exists()
+    assert s["samples"] >= 2
+    assert s["mem_used_mib_peak"] >= 20001
+    assert s["power_w_mean"] == pytest.approx(400.5)
+    assert "-lms=500" in fake_smi.read_text() and "--id=0" in fake_smi.read_text()
+
+
+def test_run_one_end_to_end_with_fake_gpu_and_fake_aiperf(fake_smi, tmp_path):
+    fake = tmp_path / "fake_aiperf.py"
+    fake.write_text(FAKE_AIPERF)
+    export = FIXTURES / "aiperf_profile_export.json"
+    spec = run_matrix.RunSpec("a", "chat", 8, 1, 20, 64, 32)
+    server = _FakeServer({"port": 1, "model": "m", "notes": {}})
+    out = tmp_path / "session"
+    row = run_matrix.run_one(
+        spec, server, out, _ctx(tmp_path, [sys.executable, str(fake), str(export)])
+    )
+    assert row["status"] == "ok", row.get("note")
+    assert row["gpu_samples"] >= 1
+    assert row["gpu_mem_used_mib_peak"] >= 20000
+    assert row["output_tps_total"] == pytest.approx(1669.8926, rel=1e-6)
+    assert (out / "gpu" / f"{row['run_id']}.csv").exists()
+
+
+def test_safe_run_one_turns_unexpected_errors_into_failed_rows(fake_smi, tmp_path):
+    spec = run_matrix.RunSpec("a", "chat", 1, 1, 5, 64, 32)
+    server = _FakeServer({"model": "m"})  # no "port": aiperf_command raises KeyError
+    row = run_matrix.safe_run_one(spec, server, tmp_path / "s", _ctx(tmp_path, ["aiperf"]))
+    assert row["status"] == "failed"
+    assert "KeyError" in row["note"]
+    assert row["run_id"] == "a__v__chat__c1__r1"
+    assert row["traceback"]

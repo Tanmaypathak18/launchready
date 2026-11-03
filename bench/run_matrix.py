@@ -23,6 +23,7 @@ import statistics
 import subprocess
 import sys
 import time
+import traceback
 import urllib.error
 import urllib.request
 from dataclasses import asdict, dataclass
@@ -327,9 +328,13 @@ class GpuSampler:
 
     def __enter__(self):
         if _which("nvidia-smi"):
+            self.path.parent.mkdir(parents=True, exist_ok=True)
             self.file = self.path.open("w")
+            # Line-buffer nvidia-smi so samples reach the file before it's terminated.
+            prefix = ["stdbuf", "-oL"] if _which("stdbuf") else []
             self.proc = subprocess.Popen(
                 [
+                    *prefix,
                     "nvidia-smi",
                     f"--query-gpu={SMI_QUERY}",
                     "--format=csv,noheader,nounits",
@@ -765,6 +770,29 @@ def run_one(spec: RunSpec, server: Server, out_dir: Path, ctx: dict) -> dict:
     return row
 
 
+def safe_run_one(spec: RunSpec, server: Server, out_dir: Path, ctx: dict) -> dict:
+    """run_one, but any unexpected error becomes a failed row so the matrix keeps going."""
+    try:
+        return run_one(spec, server, out_dir, ctx)
+    except Exception as e:  # record everything; SystemExit and Ctrl+C still stop
+        return {
+            "run_id": run_id(spec, server.variant["name"]),
+            "label": "measured",
+            "session": ctx["session"],
+            **asdict(spec),
+            "variant": server.variant["name"],
+            "thinking": server.variant.get("thinking"),
+            "engine_version": ctx["engine_version"],
+            "hourly_price_usd": ctx["hourly_price"],
+            "started_utc": _now(),
+            **ctx["meta"],
+            "status": "failed",
+            "note": f"bench error: {type(e).__name__}: {e}"[:500],
+            "traceback": traceback.format_exc().splitlines()[-20:],
+            "environment": ctx["environment"],
+        }
+
+
 def write_json(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".tmp")
@@ -873,7 +901,7 @@ def main(
                     if not server.alive():
                         print(f"[{name}] server died; skipping remaining runs")
                         break
-                    row = run_one(spec, server, out_dir, ctx)
+                    row = safe_run_one(spec, server, out_dir, ctx)
                     write_json(out_dir / "runs" / f"{row['run_id']}.json", row)
                     append_summary(summary_path, {**row, **env_flat})
                     all_rows.append(row)
@@ -897,6 +925,16 @@ def main(
                         environment,
                         deadline,
                     )
+            except Exception as e:  # one broken server must not end the session
+                err = {
+                    "server": name,
+                    "variant": variant["name"],
+                    "error": f"{type(e).__name__}: {e}",
+                    "traceback": traceback.format_exc().splitlines()[-30:],
+                    "date_utc": _now(),
+                }
+                write_json(out_dir / "errors" / f"{name}__{variant['name']}.json", err)
+                print(f"[{name}] {variant['name']}: error, moving on: {err['error']}", flush=True)
             finally:
                 server.stop()
         if not chosen and not startup_only:
