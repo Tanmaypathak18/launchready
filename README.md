@@ -24,6 +24,8 @@ uv run ruff check .
 uv run pytest
 ```
 
+`launchready radar`: dates are Hub repo-creation dates; a repo published later than it was created can look older than its public release. Use `--since 90d` for a wider look.
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
