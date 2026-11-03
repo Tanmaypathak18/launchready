@@ -147,9 +147,9 @@ Create notebooks/01_memory_validation.ipynb for a Kaggle "GPU T4 x2" session wit
 
 ### Phase 4: Developer feedback → requirements ($0, by hand)
 
-- [ ] Read ~30 recent GitHub issues and Hugging Face discussions about Nemotron 3.5 Lightning (or its architecture) in vllm-project/vllm, ggml-org/llama.cpp, ollama/ollama and the model's Hugging Face repo.
-- [ ] Group them into themes (install/dependency, driver/CUDA, out of memory, chat template/tool calling, quantization, performance, correctness, docs gap).
-- [ ] Write `docs/requirements.md` from template 7.4: top 5 themes → requirements with acceptance criteria.
+- [x] Read ~30 recent GitHub issues and Hugging Face discussions about Nemotron 3.5 Lightning (or its architecture) in vllm-project/vllm, ggml-org/llama.cpp, ollama/ollama and the model's Hugging Face repo.
+- [x] Group them into themes (install/dependency, driver/CUDA, out of memory, chat template/tool calling, quantization, performance, correctness, docs gap).
+- [x] Write `docs/requirements.md` from template 7.4: top 5 themes → requirements with acceptance criteria.
 
 **Done when:** the table has 5 requirements, each with linked evidence.
 
