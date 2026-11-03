@@ -1,0 +1,19 @@
+0.04.985.486 I srv  llama_server: initializing ...
+0.05.447.131 E common_download_get_hf_plan: no GGUF files found in repository ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF
+0.05.447.140 I Available GGUF files:
+0.05.447.152 I  - NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.gguf
+0.05.447.157 I  - NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_0.gguf
+0.05.447.157 I  - NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q8_0.gguf
+0.05.447.157 I  - mtp-NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.gguf
+0.05.447.157 I  - mtp-NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_0.gguf
+0.05.447.158 I  - mtp-NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q8_0.gguf
+0.05.447.172 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.05.447.832 I srv  init_listene: The UI is disabled
+0.05.447.834 I srv  init_listene: Use --ui/--no-ui (or deprecated --webui/--no-webui) to enable/disable
+0.05.448.054 W srv  server_setup: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+0.05.449.822 I srv    load_model: loading model 'ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF:Q4_K_M'
+0.05.449.943 E llama_model_load_from_file_impl: exactly one out metadata, path_model, and file must be defined
+0.05.449.947 E cmn  common_init_: failed to load model ''
+0.05.449.948 E srv    load_model: failed to load model, ''
+0.05.449.950 I srv    operator(): operator(): cleaning up before exit...
+0.05.450.330 E srv  server_run_i: exiting due to model loading error

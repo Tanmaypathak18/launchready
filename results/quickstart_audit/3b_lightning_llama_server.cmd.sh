@@ -1,0 +1,11 @@
+llama-server \
+  -hf ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF:Q4_K_M \
+  --temp 1.0 --top-p 0.95 \
+  -np 1 \
+  -c 40960 \
+  --port 8000 \
+  -ngl 99 \
+  -fa on \
+  --jinja \
+  --no-webui \
+  --fit off

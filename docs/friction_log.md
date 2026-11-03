@@ -18,6 +18,17 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Lightning's llama.cpp recipe asks for a Q4_K_M file that doesn't exist (quickstart audit 3b)
+- When / where: 2026-11-03 · MacBook Air M4, 16 GB, macOS 26.6.2 · Metal · llama.cpp 0.8.0 (build 11960, 8642541b2, Homebrew) · card: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4 @ bee7596 ("Local AI → llama.cpp → Full server recipe"); weights repo ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF @ 8cd0821
+- Exact command (verbatim from the card; saved in `results/quickstart_audit/`): `llama-server -hf ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF:Q4_K_M --temp 1.0 --top-p 0.95 -np 1 -c 40960 --port 8000 -ngl 99 -fa on --jinja --no-webui --fit off`
+- What happened (error excerpt): exits after 6 s, nothing downloaded:
+  `E common_download_get_hf_plan: no GGUF files found in repository ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF` · `I Available GGUF files: … BF16.gguf, … Q4_0.gguf, … Q8_0.gguf, mtp-…` · `E llama_model_load_from_file_impl: exactly one out metadata, path_model, and file must be defined` · `E srv load_model: failed to load model, ''`. Also `Use --ui/--no-ui (or deprecated --webui/--no-webui)`.
+- Root cause: the card's tag `:Q4_K_M` doesn't match any file; the official GGUF repo ships `Q4_0` (18.9 GB), `Q8_0` (33.6 GB) and `BF16` (63.2 GB). llama.cpp's first error line says "no GGUF files found" even though it lists six, and the last lines blame an empty model path, so the real cause (wrong quant tag) is easy to miss.
+- Fix or workaround: use `:Q4_0`, the only 4-bit file in the repo (not run: an 18.9 GB download that also exceeds this Mac's 16 GB). Replace the deprecated `--no-webui` with `--no-ui`.
+- Severity: blocks (the card's recommended local recipe fails on its first line)
+- Filed: not filed yet: candidate fix to the NVFP4 card (`:Q4_K_M` → `:Q4_0`, or publish a Q4_K_M) and a candidate llama.cpp issue for the misleading message; waiting for the owner's OK before filing on someone else's repo
+- Requirement this implies: every quant tag in a model card's recipe must resolve against the linked weights repo at publish time (a tag-exists check is cheap and needs no download).
+
 ### granite-4.0-h-tiny serves 2.3× fewer users in vLLM than projected
 - When / where: 2026-11-03 · 2× Tesla T4 (Kaggle) · driver 580.178.04 · CUDA 13.0 · vLLM 0.32.0, torch 2.13.0+cu130 · ibm-granite/granite-4.0-h-tiny @ 791e0d3
 - Exact command: `vllm serve ibm-granite/granite-4.0-h-tiny --revision 791e0d3d28c86e106c9b6e0b4cecdee0375b6124 --dtype half --max-model-len 4096 --gpu-memory-utilization 0.9 --tensor-parallel-size 2`
