@@ -2,6 +2,12 @@
 
 One "Done so far" entry per phase, newest first: what shipped, decisions made, what's next.
 
+## Phase 5 (in progress): steps 3–4, recipes + bench scripts (2026-11-03)
+
+- **Shipped:** `recipes/nemotron-3.5-lightning/` (vllm.sh, ollama.md, README with gap check, time estimate, Runpod checklist, troubleshooting), `bench/` (run_matrix.py, quality.py, gguf_check.py, mock_server.py, matrices for the 5090, Kaggle and a no-GPU smoke test, run_session_5090.sh with a MAX_HOURS hard stop), notebook 04 for the Kaggle dry run; 102 offline tests. Mock session ran end to end on the Mac (no GPU, no weights).
+- **Decisions:** vLLM pinned to the card's `vllm/vllm-openai:v0.27.1`; card command tested as written, then without FP8 KV; benchmarks use BF16 KV, prefix caching off, thinking off; Ollama at concurrency 1 only, `llama-server -np 8` for concurrent GGUF; bartowski Q4_K_M (header: 6.19 bits/weight, `tokenizer.ggml.pre = pixtral`, so llama.cpp v0.8.0 with the Tekken fix).
+- **Next:** push `phase5-bench`, run notebook 04 on Kaggle T4 x2 and fix what breaks (step 5); then rent the 5090 (step 6).
+
 ## Phase 4: Developer feedback → requirements (2026-11-03)
 
 - **Shipped:** `docs/requirements.md`: 36 GitHub issues and Hugging Face discussions (Aug 1 – Nov 3, 2026; vLLM, llama.cpp, Ollama, NVIDIA's Lightning repos, ggml-org and Unsloth GGUF repos), read by hand and grouped into 5 requirements with acceptance criteria and owners: GGUF contents vs labels (8), NVFP4 crashes on Blackwell/Jetson (5), hybrid Mamba speed features (9), wrong-output kernels (4), install/docs gaps (6). All 38 links checked against the GitHub and Hugging Face APIs on 2026-11-03 (dates and states match).

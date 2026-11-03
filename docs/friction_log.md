@@ -18,6 +18,36 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Every Lightning "Q4_K_M" GGUF is ~6.2 bits/weight and tagged with the wrong pre-tokenizer
+- When / where: 2026-11-03 · no GPU (GGUF headers read over HTTP range requests; no weights downloaded) · `bench/gguf_check.py` · bartowski @ f0eec22, unsloth @ f2d3fe3 (UD-Q4_K_M), AtomicChat @ 14571e1, ggml-org @ 8cd0821 (Q4_0)
+- Exact command: `uv run python -m bench.gguf_check hf://bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF@f0eec22…/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M.gguf` (and the same for the other three)
+- What happened: bartowski Q4_K_M = 6.19 bits/weight (Q5_0 63% of bytes, Q8_0 33%, Q4_K 0.3%); unsloth UD-Q4_K_M = 6.14 (Q5_0/Q5_1/Q8_0); AtomicChat Q4_K_M = 6.08; ggml-org Q4_0 = 4.79. All four: `tokenizer.ggml.pre = pixtral`. Per-layer `head_count_kv` matched the attn/ssm tensors in all four (no llama.cpp#27718-style zeroed blocks).
+- Root cause: expert rows (1856, 2688) aren't divisible by 256, so K-quants fall back to Q5_0 (unsloth GGUF #1); the converter's tokenizer hash matches Pixtral's (llama.cpp#30894). `launchready fit` assumes 4.85 bits/weight for Q4_K_M and projects 18.58 GiB, 22% under the 23.73 GiB file.
+- Fix or workaround: GGUF memory in the recipes comes from the file size and the header, not the 6.1 table; llama.cpp pinned to v0.8.0, which includes PR #30960 (pixtral → Tekken regex); `tokenizer.ggml.pre` is recorded with every GGUF result.
+- Severity: wrong output (tokenizer, non-Latin scripts) + slows (memory projection)
+- Filed: not filed: both defects are already tracked (unsloth GGUF #1, llama.cpp#30894, fixed in #30960)
+- Requirement this implies: requirement 1(b)–(c): GGUF names and cards state actual tensor types and bits/weight; the calculator should read GGUF headers before projecting GGUF memory.
+
+### BUILD_PLAN's AIPerf example uses a flag AIPerf 0.13.0 doesn't have
+- When / where: 2026-11-03 · MacBook Air (no GPU) · aiperf 0.13.0 via `uvx --python 3.12` · against `bench/mock_server.py`
+- Exact command: `aiperf profile --help` (BUILD_PLAN 6.9 example uses `--warmup-requests 10`)
+- What happened: 0.13.0 has `--warmup-request-count` (alias `--num-warmup-requests`); `--isl`/`--osl` exist as aliases of `--prompt-input-tokens-mean`/`--prompt-output-tokens-mean`; `--osl` only caps `max_completion_tokens`, so outputs can be shorter unless the server honors `ignore_eos`.
+- Root cause: the plan's example predates the pinned version.
+- Fix or workaround: `bench/run_matrix.py` builds the command from flags checked against `aiperf profile --help` for 0.13.0, adds `--isl-stddev 0 --osl-stddev 0`, sends `ignore_eos` to vLLM and llama-server, and flags any run whose mean output length is more than 10% off the request (Ollama ignores `ignore_eos`).
+- Severity: cosmetic (caught before any GPU time)
+- Filed: not filed: our plan
+- Requirement this implies: pin the benchmark tool and check its flags at that version; record actual output lengths with every throughput number.
+
+### `run_session_5090.sh` needs GNU `timeout`, which macOS doesn't ship
+- When / where: 2026-11-03 · MacBook Air · testing the session script on the mock matrix
+- Exact command: `BENCH_ALLOW_NO_GPU=1 MATRIX=bench/matrices/mock_smoke.yaml HOURLY_PRICE=0.89 bash bench/run_session_5090.sh`
+- What happened: `timeout: command not found`
+- Root cause: the hard `MAX_HOURS` limit uses coreutils `timeout`; Linux GPU pods and Kaggle have it, macOS doesn't.
+- Fix or workaround: the script uses `timeout` or `gtimeout` and stops with a clear message if neither exists; the Mac test used a small stand-in in the scratch directory.
+- Severity: cosmetic (the script targets Linux GPU machines)
+- Filed: not filed: our script
+- Requirement this implies: none beyond documenting that the session script runs on Linux.
+
 ### CI fails because ruff format checks verbatim card snippets in results/
 - When / where: 2026-11-03 · GitHub Actions ubuntu-latest · ruff 0.17.3 · launchready main @ 4295256
 - Exact command: `uv run ruff format --check .` (CI step "Ruff format")
