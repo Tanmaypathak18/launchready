@@ -16,7 +16,7 @@ The session's own `.tar.gz` isn't kept here; it duplicated these files.
 
 ## Known problems in these results
 
-All three were found by reading this output and are written up in [`docs/friction_log.md`](../../docs/friction_log.md). They're fixed in the code that came after `88a53fd`, but **that code has not been re-run**, so this folder still shows the problems.
+All three were found by reading this output and are written up in [`docs/friction_log.md`](../../../docs/friction_log.md). They're fixed in the code that came after `88a53fd`, and [run 3](../README.md) confirmed the fixes. This folder still shows the problems.
 
 1. **vLLM quality is invalid.** `vllm-bench` shows gsm8k 0.0 and ifeval 0.0, with status `ok`. Those aren't scores: all 60 answers were empty, because the `deepseek_r1` parser put them in `reasoning` and left `content` null. llama-server's 0.65 and 0.75 are real but come from only 20 examples.
 2. **GGUF TTFT is flattered.** llama-server and Ollama hit their prompt cache on repeated prompts (long: 5,075 → 957 ms; chat: ~430 → ~140 ms), while vLLM ran with prefix caching off. Don't compare TTFT across engines here.
