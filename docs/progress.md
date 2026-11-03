@@ -2,6 +2,12 @@
 
 One "Done so far" entry per phase, newest first: what shipped, decisions made, what's next.
 
+## Phase 2: Engine readiness + Nemotron brief (2026-11-02)
+
+- **Shipped:** engines.py (shallow sparse clones of vLLM, SGLang, llama.cpp, Transformers at latest stable tag + default branch; release / main-only / not-found / unknown with file:line), variants.py (quantized variants with real Hub file sizes), `launchready brief` (Jinja2 template 7.1) with the Lightning brief and its hand-written sections, `launchready radar --since 30d` with the 2026-11-02 digest; 78 offline tests.
+- **Decisions:** registries located by symbol, so moved paths are reported (llama.cpp → `conversion/*.py`, Transformers → `auto_mappings.py`); rc and per-build prerelease tags skipped; drafters (DFlash, DSpark) split from variants; brief fits use real Hub sizes when they exist (NVFP4 20.08 GiB vs 17.24 projected); radar keeps same-org fine-tunes, skips other orgs' fine-tunes, and filters on repo-creation dates (caveat in the digest footer).
+- **Next:** Phase 3, validate projections on Kaggle T4 x2 (weights, KV capacity, Mamba state) and run 2–3 quickstart audits. Open gaps: active-parameter estimate runs high (~3.70B vs "A3B"); "registered" isn't "works" until Phase 5.
+
 ## Phase 1: Memory calculator (2026-11-02)
 
 - **Shipped:** `launchready fit` (weights per precision, KV + Mamba state per sequence, max users per GPU) from config.json and safetensors headers only; hub.py with a JSON cache, arch.py for dense GQA, MoE, MLA, sliding-window and hybrid Mamba configs, memory.py, gpus.yaml; 34 offline tests incl. exact 6.5 KV values.
