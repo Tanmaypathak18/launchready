@@ -100,12 +100,12 @@ Read BUILD_PLAN.md and CLAUDE.md. Scaffold a uv-managed Python 3.11 package `lau
 
 **Goal:** `launchready fit <repo_id>` shows memory at each precision and which NVIDIA GPUs fit, without downloading weights.
 
-- [ ] `hub.py`: config.json (handle nested `text_config`), model info (date, license, gated), safetensors parameter counts (`huggingface_hub.get_safetensors_metadata`), file sizes. Cache on disk.
-- [ ] `arch.py`: normalize into an `Architecture` dataclass: layers and layer types (full attention, sliding window, Mamba), heads, KV heads, head_dim, context, MoE fields (total vs active), MLA fields, Mamba fields. Unknown fields → warning naming the field.
-- [ ] `memory.py`: weights per precision (6.1), KV/state per sequence (6.2), fit model (6.3), `--kv-dtype fp16|fp8`.
-- [ ] `data/gpus.yaml` from 6.4.
-- [ ] CLI: `launchready fit <id> [--context 32768] [--users 8] [--gpu rtx-5090] [--json]`, every output labeled "projected".
-- [ ] Tests first, using 6.5 and saved config fixtures.
+- [x] `hub.py`: config.json (handle nested `text_config`), model info (date, license, gated), safetensors parameter counts (`huggingface_hub.get_safetensors_metadata`), file sizes. Cache on disk.
+- [x] `arch.py`: normalize into an `Architecture` dataclass: layers and layer types (full attention, sliding window, Mamba), heads, KV heads, head_dim, context, MoE fields (total vs active), MLA fields, Mamba fields. Unknown fields → warning naming the field.
+- [x] `memory.py`: weights per precision (6.1), KV/state per sequence (6.2), fit model (6.3), `--kv-dtype fp16|fp8`.
+- [x] `data/gpus.yaml` from 6.4.
+- [x] CLI: `launchready fit <id> [--context 32768] [--users 8] [--gpu rtx-5090] [--json]`, every output labeled "projected".
+- [x] Tests first, using 6.5 and saved config fixtures.
 
 **Done when:** reference tests pass and `launchready fit` gives sensible tables for dense, MoE, hybrid Mamba and MLA models.
 
@@ -117,11 +117,11 @@ Implement Phase 1 of BUILD_PLAN.md using the formulas in sections 6.1–6.5. Nev
 
 **Goal:** `launchready brief <repo_id>` writes a one-page brief a leader or developer can act on.
 
-- [ ] `engines.py`: shallow sparse clones of only the paths in 6.6, at `main` and the latest release tag, cached in `~/.cache/launchready`. Status per engine: `release`, `main-only`, `not-found`, `unknown`, with the matching file and line. Flag `auto_map` → "needs trust_remote_code".
-- [ ] Variants: FP8, NVFP4 and GGUF derivatives (Hub filter `base_model:quantized:<repo_id>` plus the builder's org), with sizes.
-- [ ] `brief.py`: render template 7.1 to `briefs/<org>__<model>.md`.
-- [ ] Write the **Ecosystem impact** and **Open questions** sections yourself.
-- [ ] `launchready radar --since 30d`: one-off list of recent root-model releases from the watchlist in 6.7, run by hand. No scheduling.
+- [x] `engines.py`: shallow sparse clones of only the paths in 6.6, at `main` and the latest release tag, cached in `~/.cache/launchready`. Status per engine: `release`, `main-only`, `not-found`, `unknown`, with the matching file and line. Flag `auto_map` → "needs trust_remote_code".
+- [x] Variants: FP8, NVFP4 and GGUF derivatives (Hub filter `base_model:quantized:<repo_id>` plus the builder's org), with sizes.
+- [x] `brief.py`: render template 7.1 to `briefs/<org>__<model>.md`.
+- [x] Write the **Ecosystem impact** and **Open questions** sections yourself.
+- [x] `launchready radar --since 30d`: one-off list of recent root-model releases from the watchlist in 6.7, run by hand. No scheduling.
 
 **Done when:** the Lightning brief exists with your hand-written sections, every claim is sourced, and you have one radar digest.
 
