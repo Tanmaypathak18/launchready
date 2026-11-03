@@ -1,0 +1,238 @@
+# RTX 5090 session for NVIDIA Nemotron 3.5 Lightning (BUILD_PLAN Phase 5 step 6, section 6.9).
+# Run it through bench/run_session_5090.sh, which downloads, builds, benchmarks and packs results.
+#
+# Plan changes from docs/requirements.md ("What this changes in LaunchReady") built in here:
+#  2. vllm-card runs NVIDIA's card command as written (with --kv-cache-dtype fp8), then the same
+#     command without it, and records both. Benchmarks use a BF16 KV cache.
+#  3. Ollama forces one parallel slot for nemotron_h_moe (ollama#18938), so Ollama runs at
+#     concurrency 1 only. Concurrent GGUF points use llama-server -np 8.
+#  4. Prefix caching off for every benchmark (vllm#60008); vLLM pinned to the card's v0.27.1.
+#  5. The GGUF's tokenizer.ggml.pre is recorded with every row (header says "pixtral";
+#     llama.cpp v0.8.0 includes the fix that maps it to Tekken, PR #30960).
+session: rtx5090_lightning
+results_dir: results
+vars:
+  MODELS_DIR: /workspace/models
+  NVFP4_REPO: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4
+  NVFP4_REV: bee7596271d1495f6992ae224aefde4410e816b8
+  NVFP4_DIR: ${MODELS_DIR}/Lightning-NVFP4
+  DSPARK_REPO: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DSpark
+  DSPARK_REV: 6d127b50ecd98562cea85d0087680b7d86091fb0
+  DSPARK_DIR: ${MODELS_DIR}/Lightning-NVFP4-DSpark
+  # bartowski's Q4_K_M: plain llama-quantize output. Header (results/bench/gguf/): 6.19 bits per
+  # weight, experts in Q5_0 (63% of bytes) and Q8_0 (33%); almost nothing is Q4_K.
+  GGUF_REPO: bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF
+  GGUF_REV: f0eec2267ae843d9eb21ea3926ab0046da0a8628
+  GGUF_NAME: NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M.gguf
+  GGUF_DIR: ${MODELS_DIR}/gguf
+  GGUF_FILE: ${GGUF_DIR}/${GGUF_NAME}
+  OLLAMA_MODEL: hf.co/bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF:Q4_K_M
+  LLAMA_CPP_TAG: v0.8.0
+  LLAMA_CPP_DIR: /workspace/llama.cpp
+  LLAMA_SERVER: ${LLAMA_CPP_DIR}/build/bin/llama-server
+  OLLAMA_VERSION: 0.40.14
+  TOKENIZER: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16
+  TOKENIZER_REV: a9904d24bcc1d289a1950fa9d2b978c47cf903b9
+  RESULTS_DIR: results
+defaults:
+  warmup_requests: 10
+  gpu_index: 0
+
+# Run once, in order, by run_session_5090.sh before the matrix (one shell command per line).
+prepare:
+  - uv run hf download ${NVFP4_REPO} --revision ${NVFP4_REV} --local-dir ${NVFP4_DIR}
+  - uv run hf download ${DSPARK_REPO} --revision ${DSPARK_REV} --local-dir ${DSPARK_DIR}
+  - uv run hf download ${GGUF_REPO} ${GGUF_NAME} --revision ${GGUF_REV} --local-dir ${GGUF_DIR}
+  - bash bench/build_llamacpp.sh ${LLAMA_CPP_TAG} ${LLAMA_CPP_DIR}
+  - bash bench/install_ollama.sh ${OLLAMA_VERSION}
+  - uv run python -m bench.gguf_check ${GGUF_FILE} --out ${RESULTS_DIR}/bench/${SESSION}/gguf_check.json
+
+workloads:
+  chat: {isl: 512, osl: 256}
+  long: {isl: 32768, osl: 512}
+
+servers:
+  # NVIDIA's DGX Spark DSpark recipe from the NVFP4 card, token for token, with the model paths
+  # pointed at the pinned local downloads and --served-model-name added (naming only). The card
+  # has no 5090 recipe; this is its closest single-GPU Blackwell one. Startup check only.
+  vllm-card:
+    engine: vllm
+    port: 8000
+    model: nemotron-lightning
+    model_repo: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4
+    model_revision: bee7596271d1495f6992ae224aefde4410e816b8
+    prefix_caching: "on (card)"
+    health_path: /health
+    version_path: /version
+    startup_timeout: 2400
+    startup_only: true
+    try_all_variants: true
+    variants:
+      - name: card
+        cmd: [vllm, serve, --model, "${NVFP4_DIR}", --served-model-name, nemotron-lightning,
+              --moe-backend, marlin, --kv-cache-dtype, fp8, --enable-prefix-caching,
+              --gpu-memory-utilization, "0.85", --speculative_config.num_speculative_tokens, "3",
+              --mamba-backend, flashinfer, --mamba-cache-mode, align,
+              --reasoning-parser, nemotron_v3, --speculative_config.model, "${DSPARK_DIR}",
+              --tool-call-parser, qwen3_coder, --enable-auto-tool-choice]
+      - name: card-no-fp8-kv
+        cmd: [vllm, serve, --model, "${NVFP4_DIR}", --served-model-name, nemotron-lightning,
+              --moe-backend, marlin, --enable-prefix-caching,
+              --gpu-memory-utilization, "0.85", --speculative_config.num_speculative_tokens, "3",
+              --mamba-backend, flashinfer, --mamba-cache-mode, align,
+              --reasoning-parser, nemotron_v3, --speculative_config.model, "${DSPARK_DIR}",
+              --tool-call-parser, qwen3_coder, --enable-auto-tool-choice]
+
+  # Benchmark config: the card's flags minus FP8 KV, prefix caching off, no drafter, 40,960-token
+  # max model length (same as llama.cpp's card recipe), thinking off on the server.
+  vllm-nvfp4:
+    engine: vllm
+    port: 8000
+    model: nemotron-lightning
+    model_repo: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4
+    model_revision: bee7596271d1495f6992ae224aefde4410e816b8
+    tokenizer: ${TOKENIZER}
+    tokenizer_revision: a9904d24bcc1d289a1950fa9d2b978c47cf903b9
+    prefix_caching: "off"
+    health_path: /health
+    version_path: /version
+    startup_timeout: 2400
+    extra_inputs: {ignore_eos: true}
+    quality: true
+    variants:
+      - name: no-fp8-kv
+        thinking: "off (--default-chat-template-kwargs enable_thinking=false)"
+        cmd: [vllm, serve, --model, "${NVFP4_DIR}", --served-model-name,
+              nemotron-lightning, --moe-backend, marlin, --no-enable-prefix-caching,
+              --gpu-memory-utilization, "0.85", --mamba-backend, flashinfer,
+              --max-model-len, "40960", --reasoning-parser, nemotron_v3,
+              --tool-call-parser, qwen3_coder, --enable-auto-tool-choice,
+              --default-chat-template-kwargs, '{"enable_thinking": false}']
+      # vllm#55406: CUDA-graph replay crashes on some Blackwell parts; eager mode avoids it.
+      - name: no-fp8-kv-eager
+        thinking: "off (--default-chat-template-kwargs enable_thinking=false)"
+        cmd: [vllm, serve, --model, "${NVFP4_DIR}", --served-model-name, nemotron-lightning,
+              --moe-backend, marlin, --no-enable-prefix-caching, --gpu-memory-utilization, "0.85",
+              --mamba-backend, flashinfer, --max-model-len, "40960",
+              --reasoning-parser, nemotron_v3, --tool-call-parser, qwen3_coder,
+              --enable-auto-tool-choice, --enforce-eager,
+              --default-chat-template-kwargs, '{"enable_thinking": false}']
+      # Only if this vLLM build rejects --default-chat-template-kwargs: thinking stays on.
+      - name: no-fp8-kv-thinking-default
+        thinking: "on (model default)"
+        cmd: [vllm, serve, --model, "${NVFP4_DIR}", --served-model-name, nemotron-lightning,
+              --moe-backend, marlin, --no-enable-prefix-caching, --gpu-memory-utilization, "0.85",
+              --mamba-backend, flashinfer, --max-model-len, "40960",
+              --reasoning-parser, nemotron_v3, --tool-call-parser, qwen3_coder,
+              --enable-auto-tool-choice]
+
+  # Same as vllm-nvfp4 plus NVIDIA's DSpark drafter (3 speculative tokens, as on the card).
+  vllm-nvfp4-dspark:
+    engine: vllm
+    port: 8000
+    model: nemotron-lightning
+    model_repo: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4 + -NVFP4-DSpark@6d127b5
+    model_revision: bee7596271d1495f6992ae224aefde4410e816b8
+    tokenizer: ${TOKENIZER}
+    tokenizer_revision: a9904d24bcc1d289a1950fa9d2b978c47cf903b9
+    prefix_caching: "off"
+    health_path: /health
+    version_path: /version
+    startup_timeout: 2400
+    extra_inputs: {ignore_eos: true}
+    variants:
+      - name: no-fp8-kv
+        thinking: "off (--default-chat-template-kwargs enable_thinking=false)"
+        cmd: [vllm, serve, --model, "${NVFP4_DIR}", --served-model-name, nemotron-lightning,
+              --moe-backend, marlin, --no-enable-prefix-caching, --gpu-memory-utilization, "0.85",
+              --mamba-backend, flashinfer, --max-model-len, "40960",
+              --speculative_config.model, "${DSPARK_DIR}",
+              --speculative_config.num_speculative_tokens, "3",
+              --reasoning-parser, nemotron_v3, --tool-call-parser, qwen3_coder,
+              --enable-auto-tool-choice,
+              --default-chat-template-kwargs, '{"enable_thinking": false}']
+      - name: no-fp8-kv-eager
+        thinking: "off (--default-chat-template-kwargs enable_thinking=false)"
+        cmd: [vllm, serve, --model, "${NVFP4_DIR}", --served-model-name, nemotron-lightning,
+              --moe-backend, marlin, --no-enable-prefix-caching, --gpu-memory-utilization, "0.85",
+              --mamba-backend, flashinfer, --max-model-len, "40960",
+              --speculative_config.model, "${DSPARK_DIR}",
+              --speculative_config.num_speculative_tokens, "3",
+              --reasoning-parser, nemotron_v3, --tool-call-parser, qwen3_coder,
+              --enable-auto-tool-choice, --enforce-eager,
+              --default-chat-template-kwargs, '{"enable_thinking": false}']
+
+  # llama.cpp directly, 8 parallel slots × 40,960 tokens each (-c is the total across slots).
+  llamacpp-gguf:
+    engine: llama.cpp
+    port: 8001
+    model: nemotron-lightning-gguf
+    model_repo: bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF
+    model_revision: f0eec2267ae843d9eb21ea3926ab0046da0a8628
+    gguf_file: ${GGUF_FILE}
+    gguf_sha256: b520a8992e94c4d61e6a0833edffc499a46f42522df446c290d75dc5787a9158
+    tokenizer: ${TOKENIZER}
+    tokenizer_revision: a9904d24bcc1d289a1950fa9d2b978c47cf903b9
+    prefix_caching: "off (no prompt reuse across requests; synthetic prompts)"
+    health_path: /health
+    version_cmd: ["${LLAMA_SERVER}", --version]
+    startup_timeout: 900
+    extra_inputs: {ignore_eos: true}
+    quality: true
+    notes:
+      32: "llama-server -np 8: 24 of 32 requests queue; this point measures queueing past 8 slots"
+    variants:
+      - name: np8
+        thinking: "off (--chat-template-kwargs enable_thinking=false)"
+        cmd: ["${LLAMA_SERVER}", -m, "${GGUF_FILE}", --alias, nemotron-lightning-gguf,
+              --host, 127.0.0.1, --port, "8001", -np, "8", -c, "327680", -ngl, "99",
+              -fa, "on", --jinja, --no-webui, --fit, "off",
+              --chat-template-kwargs, '{"enable_thinking": false}']
+      - name: np8-thinking-default
+        thinking: "on (model default)"
+        cmd: ["${LLAMA_SERVER}", -m, "${GGUF_FILE}", --alias, nemotron-lightning-gguf,
+              --host, 127.0.0.1, --port, "8001", -np, "8", -c, "327680", -ngl, "99",
+              -fa, "on", --jinja, --no-webui, --fit, "off"]
+
+  # Ollama: concurrency 1 only (one slot is forced for nemotron_h_moe). Ollama ignores
+  # ignore_eos, so output lengths are whatever the model writes (recorded per run).
+  ollama-gguf:
+    engine: ollama
+    port: 11434
+    model: ${OLLAMA_MODEL}
+    model_repo: bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF (via ollama pull hf.co/...)
+    model_revision: "latest at pull time (digest in the server log)"
+    tokenizer: ${TOKENIZER}
+    tokenizer_revision: a9904d24bcc1d289a1950fa9d2b978c47cf903b9
+    prefix_caching: "n/a"
+    health_path: /api/version
+    version_cmd: [ollama, --version]
+    startup_timeout: 300
+    aiperf_args: [--use-legacy-max-tokens]
+    setup:
+      - [ollama, pull, "${OLLAMA_MODEL}"]
+      - [ollama, show, "${OLLAMA_MODEL}"]
+      - [ollama, list]
+    variants:
+      - name: default
+        thinking: "on (Ollama default)"
+        cmd: [ollama, serve]
+        env:
+          OLLAMA_HOST: 127.0.0.1:11434
+          OLLAMA_MODELS: ${MODELS_DIR}/ollama
+          OLLAMA_CONTEXT_LENGTH: "40960"
+          OLLAMA_KEEP_ALIVE: "-1"
+
+runs:
+  - {server: vllm-nvfp4, workload: chat, concurrency: [1, 8, 32], reps: 3,
+     request_count: {1: 40, 8: 160, 32: 320}}
+  - {server: vllm-nvfp4, workload: long, concurrency: [1], request_count: 10}
+  - {server: vllm-nvfp4-dspark, workload: chat, concurrency: [1], reps: 3, request_count: 40}
+  - {server: llamacpp-gguf, workload: chat, concurrency: [1, 8, 32], reps: 3,
+     request_count: {1: 40, 8: 160, 32: 320}}
+  - {server: llamacpp-gguf, workload: long, concurrency: [1], request_count: 10}
+  - {server: ollama-gguf, workload: chat, concurrency: [1], reps: 3, request_count: 40}
+
+quality:
+  tasks: {gsm8k: 250, ifeval: 200}
+  num_concurrent: 8

@@ -1,0 +1,194 @@
+# Dry run of the RTX 5090 session on Kaggle "GPU T4 x2" with Qwen/Qwen3-4B (BUILD_PLAN Phase 5
+# step 5). Same shape as rtx5090_lightning.yaml: a startup-only "card" server with a passing and
+# a failing variant, a benchmark server that falls back from FP8 KV, speculative decoding on/off
+# (ngram stands in for DSpark), llama-server -np 8, Ollama at concurrency 1, and a small quality
+# subset. One GPU (CUDA_VISIBLE_DEVICES=0), small request counts, one rep.
+# Results are a dry run of the scripts, never published numbers.
+#
+#   MATRIX=bench/matrices/kaggle_qwen3_4b.yaml HOURLY_PRICE=0 MAX_HOURS=3 \
+#       bash bench/run_session_5090.sh
+session: dryrun_kaggle_qwen3_4b
+results_dir: results_dryrun
+vars:
+  MODELS_DIR: /tmp/models
+  MODEL: Qwen/Qwen3-4B
+  MODEL_REV: 1cfa9a7208912126459214e8b04321603b3df60c
+  GGUF_REPO: Qwen/Qwen3-4B-GGUF
+  GGUF_REV: bc640142c66e1fdd12af0bd68f40445458f3869b
+  GGUF_NAME: Qwen3-4B-Q4_K_M.gguf
+  GGUF_DIR: ${MODELS_DIR}/gguf
+  GGUF_FILE: ${GGUF_DIR}/${GGUF_NAME}
+  OLLAMA_MODEL: hf.co/Qwen/Qwen3-4B-GGUF:Q4_K_M
+  LLAMA_CPP_TAG: v0.8.0
+  LLAMA_CPP_DIR: /tmp/llama.cpp
+  LLAMA_SERVER: ${LLAMA_CPP_DIR}/build/bin/llama-server
+  OLLAMA_VERSION: 0.40.14
+  RESULTS_DIR: results_dryrun
+defaults:
+  warmup_requests: 2
+  gpu_index: 0
+
+prepare:
+  - uv run hf download ${MODEL} --revision ${MODEL_REV}
+  - uv run hf download ${GGUF_REPO} ${GGUF_NAME} --revision ${GGUF_REV} --local-dir ${GGUF_DIR}
+  - bash bench/build_llamacpp.sh ${LLAMA_CPP_TAG} ${LLAMA_CPP_DIR}
+  - bash bench/install_ollama.sh ${OLLAMA_VERSION}
+  - uv run python -m bench.gguf_check ${GGUF_FILE} --out ${RESULTS_DIR}/bench/${SESSION}/gguf_check.json
+
+workloads:
+  chat: {isl: 512, osl: 256}
+  long: {isl: 6144, osl: 256}
+
+servers:
+  # Qwen3-4B's card line (fails on vLLM 0.32.0: --enable-reasoning was removed; see the friction
+  # log), then the same line without it. --dtype half because T4 has no BF16.
+  vllm-card:
+    engine: vllm
+    port: 8000
+    model: qwen3-4b
+    model_repo: Qwen/Qwen3-4B
+    model_revision: 1cfa9a7208912126459214e8b04321603b3df60c
+    health_path: /health
+    version_path: /version
+    startup_timeout: 1200
+    startup_only: true
+    try_all_variants: true
+    variants:
+      - name: card
+        cmd: [vllm, serve, "${MODEL}", --revision, "${MODEL_REV}", --enable-reasoning,
+              --reasoning-parser, deepseek_r1, --dtype, half, --served-model-name, qwen3-4b,
+              --max-model-len, "8192"]
+        env: {CUDA_VISIBLE_DEVICES: "0"}
+      - name: card-no-enable-reasoning
+        cmd: [vllm, serve, "${MODEL}", --revision, "${MODEL_REV}",
+              --reasoning-parser, deepseek_r1, --dtype, half, --served-model-name, qwen3-4b,
+              --max-model-len, "8192"]
+        env: {CUDA_VISIBLE_DEVICES: "0"}
+
+  vllm-bench:
+    engine: vllm
+    port: 8000
+    model: qwen3-4b
+    model_repo: Qwen/Qwen3-4B
+    model_revision: 1cfa9a7208912126459214e8b04321603b3df60c
+    tokenizer: ${MODEL}
+    tokenizer_revision: 1cfa9a7208912126459214e8b04321603b3df60c
+    prefix_caching: "off"
+    health_path: /health
+    version_path: /version
+    startup_timeout: 1200
+    extra_inputs: {ignore_eos: true}
+    quality: true
+    variants:
+      - name: fp8-kv
+        thinking: "off (--default-chat-template-kwargs enable_thinking=false)"
+        cmd: [vllm, serve, "${MODEL}", --revision, "${MODEL_REV}", --served-model-name, qwen3-4b,
+              --dtype, half, --kv-cache-dtype, fp8, --max-model-len, "8192",
+              --no-enable-prefix-caching, --reasoning-parser, deepseek_r1,
+              --default-chat-template-kwargs, '{"enable_thinking": false}']
+        env: {CUDA_VISIBLE_DEVICES: "0"}
+      - name: no-fp8-kv
+        thinking: "off (--default-chat-template-kwargs enable_thinking=false)"
+        cmd: [vllm, serve, "${MODEL}", --revision, "${MODEL_REV}", --served-model-name, qwen3-4b,
+              --dtype, half, --max-model-len, "8192",
+              --no-enable-prefix-caching, --reasoning-parser, deepseek_r1,
+              --default-chat-template-kwargs, '{"enable_thinking": false}']
+        env: {CUDA_VISIBLE_DEVICES: "0"}
+
+  vllm-bench-spec:
+    engine: vllm
+    port: 8000
+    model: qwen3-4b
+    model_repo: Qwen/Qwen3-4B
+    model_revision: 1cfa9a7208912126459214e8b04321603b3df60c
+    tokenizer: ${MODEL}
+    tokenizer_revision: 1cfa9a7208912126459214e8b04321603b3df60c
+    prefix_caching: "off"
+    health_path: /health
+    version_path: /version
+    startup_timeout: 1200
+    extra_inputs: {ignore_eos: true}
+    variants:
+      - name: ngram
+        thinking: "off (--default-chat-template-kwargs enable_thinking=false)"
+        cmd: [vllm, serve, "${MODEL}", --revision, "${MODEL_REV}", --served-model-name, qwen3-4b,
+              --dtype, half, --max-model-len, "8192", --no-enable-prefix-caching,
+              --speculative-config,
+              '{"method": "ngram", "num_speculative_tokens": 3, "prompt_lookup_max": 4}',
+              --reasoning-parser, deepseek_r1,
+              --default-chat-template-kwargs, '{"enable_thinking": false}']
+        env: {CUDA_VISIBLE_DEVICES: "0"}
+
+  llamacpp-gguf:
+    engine: llama.cpp
+    port: 8001
+    model: qwen3-4b-gguf
+    model_repo: Qwen/Qwen3-4B-GGUF
+    model_revision: bc640142c66e1fdd12af0bd68f40445458f3869b
+    gguf_file: ${GGUF_FILE}
+    gguf_sha256: 7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5
+    tokenizer: ${MODEL}
+    tokenizer_revision: 1cfa9a7208912126459214e8b04321603b3df60c
+    prefix_caching: "off (no prompt reuse across requests; synthetic prompts)"
+    health_path: /health
+    version_cmd: ["${LLAMA_SERVER}", --version]
+    startup_timeout: 600
+    extra_inputs: {ignore_eos: true}
+    quality: true
+    notes:
+      32: "llama-server -np 8: 24 of 32 requests queue; this point measures queueing past 8 slots"
+    variants:
+      - name: np8
+        thinking: "off (--chat-template-kwargs enable_thinking=false)"
+        cmd: ["${LLAMA_SERVER}", -m, "${GGUF_FILE}", --alias, qwen3-4b-gguf,
+              --host, 127.0.0.1, --port, "8001", -np, "8", -c, "65536", -ngl, "99",
+              -fa, "on", --jinja, --no-webui,
+              --chat-template-kwargs, '{"enable_thinking": false}']
+        env: {CUDA_VISIBLE_DEVICES: "0"}
+      - name: np8-thinking-default
+        thinking: "on (model default)"
+        cmd: ["${LLAMA_SERVER}", -m, "${GGUF_FILE}", --alias, qwen3-4b-gguf,
+              --host, 127.0.0.1, --port, "8001", -np, "8", -c, "65536", -ngl, "99",
+              -fa, "on", --jinja, --no-webui]
+        env: {CUDA_VISIBLE_DEVICES: "0"}
+
+  ollama-gguf:
+    engine: ollama
+    port: 11434
+    model: ${OLLAMA_MODEL}
+    model_repo: Qwen/Qwen3-4B-GGUF (via ollama pull hf.co/...)
+    model_revision: "latest at pull time (digest in the server log)"
+    tokenizer: ${MODEL}
+    tokenizer_revision: 1cfa9a7208912126459214e8b04321603b3df60c
+    prefix_caching: "n/a"
+    health_path: /api/version
+    version_cmd: [ollama, --version]
+    startup_timeout: 300
+    aiperf_args: [--use-legacy-max-tokens]
+    setup:
+      - [ollama, pull, "${OLLAMA_MODEL}"]
+      - [ollama, show, "${OLLAMA_MODEL}"]
+      - [ollama, list]
+    variants:
+      - name: default
+        thinking: "on (Ollama default)"
+        cmd: [ollama, serve]
+        env:
+          CUDA_VISIBLE_DEVICES: "0"
+          OLLAMA_HOST: 127.0.0.1:11434
+          OLLAMA_MODELS: ${MODELS_DIR}/ollama
+          OLLAMA_CONTEXT_LENGTH: "8192"
+          OLLAMA_KEEP_ALIVE: "-1"
+
+runs:
+  - {server: vllm-bench, workload: chat, concurrency: [1, 8, 32], request_count: {1: 8, 8: 32, 32: 64}}
+  - {server: vllm-bench, workload: long, concurrency: [1], request_count: 4}
+  - {server: vllm-bench-spec, workload: chat, concurrency: [1], request_count: 8}
+  - {server: llamacpp-gguf, workload: chat, concurrency: [1, 8, 32],
+     request_count: {1: 8, 8: 32, 32: 64}}
+  - {server: llamacpp-gguf, workload: long, concurrency: [1], request_count: 4}
+  - {server: ollama-gguf, workload: chat, concurrency: [1], request_count: 8}
+
+quality:
+  tasks: {gsm8k: 20, ifeval: 20}
+  num_concurrent: 8

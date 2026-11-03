@@ -10,6 +10,9 @@ vars:
   PY: python3
 defaults:
   warmup_requests: 2
+prepare:
+  - echo "prepare step for session ${SESSION}"
+  - "false"
 workloads:
   chat: {isl: 64, osl: 32}
   long: {isl: 512, osl: 16}

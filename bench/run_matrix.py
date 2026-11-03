@@ -79,6 +79,7 @@ SUMMARY_FIELDS = [
     "gpu_power_w_mean",
     "gpu_util_pct_mean",
     "prefix_caching",
+    "thinking",
     "model_repo",
     "model_revision",
     "gguf_file",
@@ -175,6 +176,17 @@ def render_cmd(cmd: list[str], variables: dict) -> list[str]:
     """Substitute ${VAR} from the matrix's vars, then the environment; JSON braces stay intact."""
     mapping = {**os.environ, **{k: str(v) for k, v in variables.items()}}
     return [Template(str(arg)).safe_substitute(mapping) for arg in cmd]
+
+
+def render_tree(obj, variables: dict):
+    """render_cmd over every string in a nested matrix section (servers, quality)."""
+    if isinstance(obj, str):
+        return render_cmd([obj], variables)[0]
+    if isinstance(obj, list):
+        return [render_tree(x, variables) for x in obj]
+    if isinstance(obj, dict):
+        return {k: render_tree(v, variables) for k, v in obj.items()}
+    return obj
 
 
 def run_id(spec: RunSpec, variant: str) -> str:
@@ -708,6 +720,7 @@ def run_one(spec: RunSpec, server: Server, out_dir: Path, ctx: dict) -> dict:
         "session": ctx["session"],
         **asdict(spec),
         "variant": server.variant["name"],
+        "thinking": server.variant.get("thinking"),
         "engine_version": ctx["engine_version"],
         "hourly_price_usd": ctx["hourly_price"],
         "started_utc": _now(),
@@ -785,6 +798,7 @@ def main(
 ) -> None:
     matrix = load_matrix(matrix_path)
     variables = resolve_vars(matrix.get("vars", {}))
+    matrix["servers"] = render_tree(matrix["servers"], variables)
     session = os.environ.get("SESSION") or matrix["session"]
     results = Path(render_cmd([matrix.get("results_dir", "results")], variables)[0])
     out_dir = results / "bench" / session

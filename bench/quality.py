@@ -241,7 +241,7 @@ def run_for_server(matrix, name, server, results, meta, engine_version, environm
         meta=meta,
         engine_version=engine_version,
         environment=environment,
-        thinking=s["thinking"],
+        thinking=server.variant.get("thinking") or s["thinking"],
         deadline=deadline,
     )
 
@@ -271,6 +271,7 @@ def main(
             raise typer.BadParameter(f"--server must be one of {list(matrix['servers'])}")
         cfg = matrix["servers"][server_name]
         variables = rm.resolve_vars(matrix.get("vars", {}))
+        matrix["servers"] = rm.render_tree(matrix["servers"], variables)
         environment = rm.collect_environment(matrix, 0.0)
         results = Path(rm.render_cmd([matrix.get("results_dir", str(results))], variables)[0])
         for variant in cfg["variants"]:
