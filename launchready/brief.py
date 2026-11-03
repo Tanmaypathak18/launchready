@@ -29,16 +29,10 @@ from launchready.memory import (
     total_parameters,
     weight_bytes,
 )
-from launchready.variants import Variant, load_variants, real_sizes
+from launchready.report import PRECISION_LABELS, effective_weights, hub_file_sizes
+from launchready.variants import Variant, load_variants
 
 TEMPLATES = Path(__file__).resolve().parent.parent / "templates"
-PRECISION_LABELS = {
-    "bf16": "BF16",
-    "fp8": "FP8",
-    "nvfp4": "NVFP4",
-    "gguf-q8_0": "GGUF Q8_0",
-    "gguf-q4_k_m": "GGUF Q4_K_M",
-}
 CONTEXTS = (8_192, 32_768, 131_072)
 USER_COUNTS = (1, 8)
 HEADLINE_CONTEXT = 32_768
@@ -93,11 +87,9 @@ def build_context(
         active = arch.active_parameters(total)
 
     # Weights: projected for every precision, plus Hub file sizes where a repo exists.
-    real = real_sizes(variants, builder)
-    if model.safetensors_bytes and not model.config.get("quantization_config"):
-        real["bf16"] = (model.repo_id, model.safetensors_bytes)
+    real = hub_file_sizes(model, variants)
     projected = {p: weight_bytes(total, p) for p in BITS_PER_WEIGHT} if total else {}
-    effective = {p: real[p][1] if p in real else w for p, w in projected.items()}
+    effective = effective_weights(projected, real)
     weights = []
     for p, w in projected.items():
         row = {"label": PRECISION_LABELS[p], "bits": f"{BITS_PER_WEIGHT[p]:g}"}

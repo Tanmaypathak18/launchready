@@ -7,7 +7,6 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from launchready.arch import parse_config
 from launchready.brief import write_brief
 from launchready.hub import HubError, load_model
 from launchready.memory import (
@@ -18,37 +17,18 @@ from launchready.memory import (
     kv_bytes_per_token,
     load_gpus,
     sequence_bytes,
-    total_parameters,
-    weight_bytes,
-)
-from launchready.memory import (
-    fit as fit_users,
 )
 from launchready.radar import parse_since
 from launchready.radar import run as run_radar
+from launchready.report import PRECISION_LABELS, project
 
 app = typer.Typer(
     help="Launch-readiness kit for open-weight LLMs on NVIDIA GPUs.",
     no_args_is_help=True,
 )
 
-PRECISION_LABELS = {
-    "bf16": "BF16",
-    "fp8": "FP8",
-    "nvfp4": "NVFP4",
-    "gguf-q8_0": "GGUF Q8_0",
-    "gguf-q4_k_m": "GGUF Q4_K_M",
-}
 REFERENCE_CONTEXTS = (8_192, 32_768, 131_072)
 KV_DTYPES = ("fp16", "fp8")
-# Measured in notebooks/01_memory_validation.ipynb (results/memory_validation.csv). One model,
-# so the fit model is not retuned; we warn instead (docs/friction_log.md has the breakdown).
-HYBRID_VLLM_WARNING = (
-    "hybrid Mamba: vLLM concurrency can be far below this projection (measured: "
-    "ibm-granite/granite-4.0-h-tiny at 4,096 tokens on 2× Tesla T4, vLLM 0.32.0, 2026-11-03: "
-    "projected 118, measured 50.6); KV-cache token counts are not comparable to vLLM's for "
-    "hybrids, since vLLM shares pages between attention KV and Mamba state"
-)
 
 
 def _fail(message: str, code: int) -> None:
@@ -87,47 +67,12 @@ def fit(
 
     try:
         model = load_model(repo_id, refresh=refresh)
-        arch = parse_config(model.config)
+        report = project(model, context, kv_dtype, gpus)
     except (HubError, ValueError) as e:
         _fail(str(e), 1)
-
-    warnings = list(model.warnings) + list(arch.warnings)
-    notes = list(arch.notes)
-    total = active = None
-    if model.parameters:
-        total, param_warnings = total_parameters(model.parameters, model.config)
-        warnings += param_warnings
-        active = arch.active_parameters(total)
-    if model.license is None:
-        warnings.append("model card declares no license: check the repo before using it")
-    if arch.max_context and context > arch.max_context:
-        warnings.append(f"--context {context:,} exceeds max_position_embeddings")
-
-    weights = {p: weight_bytes(total, p) for p in BITS_PER_WEIGHT} if total else {}
-    seq = sequence_bytes(arch, context, kv_dtype)
+    arch, total, active, seq = report.arch, report.total, report.active, report.seq
+    weights, fits, warnings, notes = report.weights, report.fits, report.warnings, report.notes
     hybrid = seq.mamba.dtype is not None
-    if hybrid:
-        warnings.append(HYBRID_VLLM_WARNING)
-    if seq.mamba.assumed:
-        notes.append(
-            f"Mamba state dtype not in config: assumed {seq.mamba.dtype} "
-            "(engines may keep it smaller)"
-        )
-    if weights:
-        notes.append(
-            "Quantized sizes assume every tensor is quantized; real files keep embeddings, "
-            "lm_head, norms and routers in BF16, so expect somewhat more"
-        )
-    fits = {
-        g.id: {
-            p: {
-                **vars(fit_users(g.memory_bytes, w, seq.total)),
-                "native": g.is_native(p),
-            }
-            for p, w in weights.items()
-        }
-        for g in gpus
-    }
 
     if json_output:
         typer.echo(

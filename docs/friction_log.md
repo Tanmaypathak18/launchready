@@ -18,6 +18,56 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### `hub_cache` never blocked the network, despite its docstring
+- When / where: 2026-11-03 · no GPU · `tests/conftest.py` on branch `space-app`
+- Exact command: `uv run pytest`
+- What happened (error excerpt): nothing failed, and that was the problem. `hub_cache` set `HF_HUB_OFFLINE` after import, so a test that missed the cache called the Hub in silence (see the next entry).
+- Root cause: huggingface_hub reads the flag at import, and CI's "no network" rule was only a convention.
+- Fix or workaround: an autouse `no_network` fixture refuses sockets, DNS and `git`, loopback included, and fails the test at teardown even if the code swallowed the error. Removing the Space's variants stub now fails those tests instead of calling the Hub. The next entry's warning about `hub_cache` no longer applies.
+- Severity: slows (a hidden dependency on the network and on live Hub data)
+- Filed: not filed: our test setup
+- Requirement this implies: rules the suite depends on are enforced by the suite.
+
+### Space tests reached the live Hub, and the browser check found bugs the tests missed
+- When / where: 2026-11-03 · no GPU · gradio 6.31.0 · `tests/test_space.py` and `space/` on branch `space-app`. Written after the fixes, not before: the rule was missed here.
+- Exact command: `uv run pytest`; `python space/app.py`, then the browser pane at phone width
+- What happened (error excerpt): the `hub_cache` fixture sets `HF_HUB_OFFLINE` after huggingface_hub is imported, where it has no effect, so `load_variants` called the Hub and wrote three `__variants.json` files into `tests/fixtures/hub`. In the browser: `vLLM&#x27;s` shown literally, a page-tall Model box, table cells broken mid-word on a phone.
+- Root cause: the offline flag is read at import. `esc()` escaped the `#` inside the entity `html.escape` had made. Gradio defaults to a tall textbox and `overflow-wrap: anywhere` in tables.
+- Fix or workaround: Space tests stub `load_variants`, and the suite passes with sockets blocked; `html.escape(quote=False)`; one-line textbox; CSS that keeps words whole and scrolls tables. `hub_cache` still doesn't block the network, so any new test that misses the cache can reach the Hub.
+- Severity: slows (the test network use would fail in CI; the layout made the phone page unreadable)
+- Filed: not filed: our code
+- Requirement this implies: offline tests need a real network block, and front ends get checked at phone width.
+
+### Hub errors other than gated or not-found reach the user as raw exceptions
+- When / where: 2026-11-03 · no GPU · huggingface_hub 2.4.0 · launchready 0.0.1 `hub._fetch` · bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF
+- Exact command: `hub._fetch("bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF", None)`, the call behind `launchready fit`
+- What happened (error excerpt): `RemoteEntryNotFoundError 404 Client Error`: a GGUF-only repo has no config.json, and only `GatedRepoError` and `RepositoryNotFoundError` are caught. A 429 or other Hub HTTP error would escape the same way.
+- Root cause: `HubError` promises "gated, missing, or unreachable", but `_fetch` only wraps the first two cases.
+- Fix or workaround: wrap a missing config.json and Hub HTTP errors in `HubError`; add `GatedError(HubError)` so a front end without a token can word that case itself. The CLI's gated text doesn't change.
+- Severity: slows (a traceback instead of a message, on repos people will paste)
+- Filed: not filed: our code
+- Requirement this implies: every Hub failure gives a message that says what to do next.
+
+### Variants lookup crashes on repos with no org
+- When / where: 2026-11-03 · no GPU · launchready 0.0.1 `variants._fetch` · gpt2
+- Exact command: `load_variants("gpt2")`
+- What happened (error excerpt): `ValueError: not enough values to unpack`: `builder, name = repo_id.split("/")` needs an org, and canonical repos such as gpt2 have none.
+- Root cause: `_fetch` assumes every repo id is `org/name`.
+- Fix or workaround: the Space treats a failed variants lookup as non-fatal, warns, and uses projected sizes. `launchready brief` keeps its current behavior.
+- Severity: cosmetic for the CLI; blocks the Space without the workaround
+- Filed: not filed: our code
+- Requirement this implies: optional lookups never block the main answer.
+
+### Tesla T4 catalog capacity is 1 GiB above what we measured
+- When / where: 2026-11-03 · Tesla T4 · driver 580.178.04 · CUDA 13.0 · `launchready/data/gpus.yaml`
+- Exact command: compare `gpus.yaml` with `vram_mib` in `results/environment.json`
+- What happened (error excerpt): the catalog says 16 GiB; the Kaggle T4 reports 15,360 MiB, which is 15 GiB. `results/memory_validation.csv` used the real 15 GiB (`vram_bytes` 16106127360), so the published comparison is not affected, but `fit --gpu tesla-t4` overstates room by 0.9 GiB.
+- Root cause: the marketed "16 GB" was read as GiB, as for every entry, and Phase 3's calibration note was never applied to the catalog.
+- Fix or workaround: set the T4 to 15 GiB, from the measurement. Other entries stay marketed capacity read as GiB.
+- Severity: cosmetic for the validation; slows anyone sizing tightly on a T4
+- Filed: not filed: our data
+- Requirement this implies: catalog values that have a measurement use the measurement.
+
 ### Gap check said the card has "no RTX 5090 row"; it has one
 - When / where: 2026-11-03 · no GPU · NVFP4 card @ bee7596, saved verbatim in `results/evidence/`
 - Exact command: `curl -sfL https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4/resolve/bee7596271d1495f6992ae224aefde4410e816b8/README.md`

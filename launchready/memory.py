@@ -70,6 +70,7 @@ class Gpu:
     memory_gib: float
     architecture: str
     native: list[str]
+    unverified: str | None = None  # what the spec-page check couldn't confirm
 
     @property
     def memory_bytes(self) -> int:

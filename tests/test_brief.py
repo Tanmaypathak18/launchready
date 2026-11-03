@@ -3,8 +3,11 @@
 from typer.testing import CliRunner
 
 from launchready import brief as brief_module
+from launchready.brief import build_context
 from launchready.cli import app
 from launchready.engines import EngineStatus
+from launchready.hub import load_model
+from launchready.variants import load_variants
 
 LIGHTNING = "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16"
 runner = CliRunner()
@@ -33,6 +36,21 @@ FAKE_ENGINES = [
     EngineStatus("llama.cpp", "not-found", "v0.8.0", None, None, None, None, ["→ Ollama via GGUF"]),
     EngineStatus("Transformers", "unknown", None, None, None, None, None, ["clone failed"]),
 ]
+
+
+def _bf16_row(model):
+    variants = load_variants(LIGHTNING)
+    return build_context(model, variants, FAKE_ENGINES)["weights"][0]
+
+
+def test_brief_drops_a_base_file_far_from_the_bf16_projection(hub_cache):
+    """The 25% filter reaches the brief: no Hub size, and the fit uses the projection."""
+    model = load_model(LIGHTNING)
+    assert _bf16_row(model)["real"] is not None
+    model.safetensors_bytes *= 2
+    row = _bf16_row(model)
+    assert row["real"] is None and row["repo_link"] is None
+    assert row["projected"] == "61.31"
 
 
 def _render(hub_cache, monkeypatch, tmp_path):

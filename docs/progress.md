@@ -2,6 +2,13 @@
 
 One "Done so far" entry per phase, newest first: what shipped, decisions made, what's next.
 
+## Optional extra: Hugging Face Space, built locally, not deployed (2026-11-03)
+
+- **Shipped:** `space/` (Gradio page for non-developers: verdict, memory table, warnings, variants and links, formulas, measured results), `launchready/report.py` (the fit, now shared by the CLI, the brief's size rule and the Space), Hub errors wrapped in `HubError`.
+- **Decisions:** the Space's fit uses Hub file sizes where they exist, as the brief does, not the CLI's projection (it flips Lightning on a 4090 from 4 users to no fit); only precisions the GPU supports count; no engine cloning; the Space stays anonymous even if a token is added. T4 is 15 GiB, as measured. B200 and DGX Spark carry `unverified` notes, shown on the page.
+- **Base-repo filter:** `report.hub_file_sizes` ignores a base repo's own files when they are more than 25% from the BF16 projection (FP32 weights, or `consolidated.safetensors` beside the shards). This also affects `launchready brief`, which then shows no Hub size for BF16 and uses the projection; `launchready fit` is not affected.
+- **What's next:** merge, push, pin the pushed commit in `space/requirements.txt`, create the Space by hand. Outside the roadmap's phases (docs/roadmap.md); Phase 5's rented session is still the main next step.
+
 ## Phase 5 (in progress): steps 1–5, checklist, gap check, recipes, bench scripts, Kaggle dry run (2026-11-03)
 
 - **Shipped:** `recipes/nemotron-3.5-lightning/` (vllm.sh, ollama.md, README with gap check, time estimate, Runpod checklist, troubleshooting), `bench/` (run_matrix.py, quality.py, gguf_check.py, mock_server.py, matrices for the 5090, Kaggle and a no-GPU smoke test, run_session_5090.sh with a MAX_HOURS hard stop), notebook 04 for the Kaggle dry run. Mock session ran end to end on the Mac (no GPU, no weights).

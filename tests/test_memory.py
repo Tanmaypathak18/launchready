@@ -10,6 +10,7 @@ from launchready.memory import (
     GIB,
     fit,
     kv_bytes_per_token,
+    load_gpus,
     mamba_state_bytes,
     sequence_bytes,
     total_parameters,
@@ -143,3 +144,13 @@ def test_total_parameters_unexplained_u8_is_warned_not_doubled():
     total, warnings = total_parameters({"BF16": 1_000, "U8": 500}, {})
     assert total == 1_500
     assert any("U8" in w for w in warnings)
+
+
+def test_t4_catalog_uses_the_measured_capacity():
+    t4 = next(g for g in load_gpus() if g.id == "tesla-t4")
+    assert t4.memory_gib == 15  # results/environment.json: vram_mib 15360
+
+
+def test_unverified_catalog_entries_say_why():
+    unverified = {g.id: g.unverified for g in load_gpus() if g.unverified}
+    assert set(unverified) == {"b200", "dgx-spark"}

@@ -1,14 +1,15 @@
 # NVIDIA GPU catalog used by `launchready fit` (docs/roadmap.md section 6.4).
 #
 # memory_gib: marketed capacity read as GiB (an RTX 5090's "32 GB" shows as ~31.8 GiB in
-#   nvidia-smi). Phase 3 calibrates this against measured values.
+#   nvidia-smi), checked against NVIDIA spec pages on 2026-11-03. Where we have a measurement it
+#   wins: the T4 is marketed at 16 GB but reports 15,360 MiB (results/environment.json).
 # native: low-precision weight formats with hardware support. BF16 is listed only where the GPU
 #   has it (T4 runs FP16 instead, same size). GGUF runs on every GPU via llama.cpp kernels.
-# Verify every value against NVIDIA spec pages before publishing results.
+# unverified: what the 2026-11-03 check couldn't confirm; shown wherever the catalog is published.
 gpus:
   - id: tesla-t4
     name: Tesla T4 (Kaggle)
-    memory_gib: 16
+    memory_gib: 15
     architecture: Turing
     native: []
   - id: rtx-4090
@@ -56,8 +57,10 @@ gpus:
     memory_gib: 180
     architecture: Blackwell
     native: [bf16, fp8, nvfp4]
+    unverified: memory derived from DGX B200 (1,440 GB across 8 GPUs); no per-GPU spec found
   - id: dgx-spark
     name: DGX Spark (unified)
     memory_gib: 128
     architecture: Grace Blackwell
     native: [bf16, fp8, nvfp4]
+    unverified: NVFP4 support assumed from Blackwell; memory is shared with the CPU

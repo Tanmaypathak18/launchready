@@ -3,8 +3,8 @@
 Fetches config.json, model info (release date, license, gated status), safetensors parameter
 counts by dtype from file headers via `huggingface_hub.get_safetensors_metadata`, and total
 safetensors file size. Results are cached as JSON under ~/.cache/launchready/hub (override with
-LAUNCHREADY_CACHE). Reads HF_TOKEN from the environment for gated repos and raises HubError
-with a "gated" message instead of crashing.
+LAUNCHREADY_CACHE). Reads HF_TOKEN from the environment for gated repos and raises HubError (or
+a subclass, for front ends that word these cases themselves) instead of crashing.
 """
 
 import json
@@ -14,7 +14,10 @@ from pathlib import Path
 
 from huggingface_hub import HfApi, get_safetensors_metadata, hf_hub_download
 from huggingface_hub.errors import (
+    EntryNotFoundError,
     GatedRepoError,
+    HfHubHTTPError,
+    LocalEntryNotFoundError,
     NotASafetensorsRepoError,
     RepositoryNotFoundError,
 )
@@ -22,6 +25,18 @@ from huggingface_hub.errors import (
 
 class HubError(Exception):
     """A repo couldn't be read: gated, missing, or unreachable."""
+
+
+class GatedError(HubError):
+    """The repo needs a license click and a token."""
+
+
+class NoConfigError(HubError):
+    """The repo has no config.json: GGUF-only, or not a Transformers model."""
+
+
+class HubUnavailableError(HubError):
+    """The Hub couldn't answer: rate limited, down, or offline."""
 
 
 @dataclass
@@ -64,11 +79,20 @@ def _fetch(repo_id: str, revision: str | None) -> HubModel:
         info = HfApi(token=token).model_info(repo_id, revision=revision, files_metadata=True)
         config_path = hf_hub_download(repo_id, "config.json", revision=info.sha, token=token)
     except GatedRepoError as e:
-        raise HubError(
+        raise GatedError(
             f"{repo_id} is gated: accept its license on huggingface.co and set HF_TOKEN"
         ) from e
     except RepositoryNotFoundError as e:
         raise HubError(f"{repo_id} not found (or private without HF_TOKEN)") from e
+    except LocalEntryNotFoundError as e:
+        raise HubUnavailableError(f"couldn't reach the Hub for {repo_id}: {e}") from e
+    except EntryNotFoundError as e:
+        raise NoConfigError(
+            f"{repo_id} has no config.json, so it can't be sized: GGUF-only repos don't carry "
+            "one, use the original model's repo"
+        ) from e
+    except HfHubHTTPError as e:
+        raise HubUnavailableError(f"couldn't read {repo_id} from the Hub: {e}") from e
 
     warnings = []
     try:
@@ -77,6 +101,8 @@ def _fetch(repo_id: str, revision: str | None) -> HubModel:
     except NotASafetensorsRepoError:
         parameters = {}
         warnings.append("no safetensors files: parameter count and weight sizes unavailable")
+    except HfHubHTTPError as e:
+        raise HubUnavailableError(f"couldn't read {repo_id} from the Hub: {e}") from e
 
     card = info.card_data.to_dict() if info.card_data else {}
     license_ = card.get("license_name") or card.get("license")
