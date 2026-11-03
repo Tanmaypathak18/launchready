@@ -11,7 +11,7 @@
 | 2. Engine readiness + Nemotron brief | Done |
 | 3. Validate on free GPUs + first-user audits | Done |
 | 4. Developer feedback → requirements | Done |
-| 5. Nemotron 3.5 Lightning launch kit | In progress: steps 1–5 done; RTX 5090 session and results notebook left |
+| 5. Nemotron 3.5 Lightning launch kit | kit complete and validated by dry run on 2x T4 with Qwen3-4B; RTX 5090 Lightning run pending |
 | 6. Publish | Not started |
 
 Details of what shipped in each phase are in [progress.md](progress.md).
@@ -139,7 +139,7 @@ This phase is done by hand on purpose: reading the threads is the work.
 4. [x] **Benchmark + quality scripts** (`bench/`), per 6.9.
    - Changed 2026-11-03: GGUF is bartowski Q4_K_M (ggml-org has no Q4_K_M); its header says 6.19 bits/weight, so GGUF memory comes from the header, not 6.1. The card has no GSM8K/IFEval numbers, so quality compares NVFP4 (vLLM) with GGUF (llama.cpp) directly; thinking off for both.
 5. [x] **Dry run** everything on Kaggle against `Qwen/Qwen3-4B`. All servers and runs finished; raw output in `results/dryrun_kaggle/` (not headline).
-   - Quality documented, fix not re-run (2026-11-03): vLLM's 0.0 was a harness problem (`deepseek_r1` left `content` null), not a score. The Kaggle matrix now uses `qwen3`, and the startup check and `quality.py` catch empty answers, but a real vLLM quality score needs a GPU run. See docs/friction_log.md.
+   - Quality fixed (2026-11-03): vLLM's 0.0 in run 2 was a harness problem (`deepseek_r1` left `content` null), not a score. Run 3 at `8b4ca32` used `qwen3` and gave real scores with 0 empty answers. See results/dryrun_kaggle/README.md.
 6. [ ] **Rented RTX 5090 session:** NVFP4 in vLLM, GGUF in Ollama/llama.cpp, concurrency 1/8/32, one 32K-context point, drafter on/off at concurrency 1, quality subset, recipes run as written (`vllm.sh` and `ollama.md`, startup check). Not tested in this session: chat template, tool calling, soak, tokenizer comparison. NVIDIA's card points local devices to the GGUF, so if NVFP4 doesn't run on the 5090, that's a finding. Log it.
 7. [ ] **Results notebook** (`notebooks/02_launch_kit_nemotron.ipynb`) that rebuilds every chart from committed results.
 

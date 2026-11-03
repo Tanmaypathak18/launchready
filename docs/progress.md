@@ -2,6 +2,12 @@
 
 One "Done so far" entry per phase, newest first: what shipped, decisions made, what's next.
 
+## Phase 5: kit complete and validated by dry run on 2x T4 with Qwen3-4B; RTX 5090 Lightning run pending (2026-11-03)
+
+- **Shipped:** Kaggle dry run 3 at `8b4ca32` in `results/dryrun_kaggle/run3_20261103/`, run 2 moved to `run2_20261103/`, and a run 2 vs run 3 comparison in `results/dryrun_kaggle/README.md` (dry run, not headline). All stages exited 0 and 10 of 10 runs were `ok`. vLLM quality is real (GSM8K flexible 0.70, IFEval prompt strict 0.75, n=20, stderr ~0.1, 0 empty answers), and per-request TTFT is flat on llama-server and Ollama.
+- **Decisions:** Phase 5 stays open in the README until Lightning runs on a 5090. Report GSM8K flexible and strict together: the strict filter couldn't read 11 of vLLM's 20 answers. The two failures (card `--enable-reasoning`, FP8 KV on T4) are logged as findings. `partial` didn't trigger because no request failed, so it's tested offline only; the run 2 disconnect stays undiagnosed.
+- **Next:** set the quality threshold; rent the 5090 (step 6); results notebook (step 7). The dry run didn't touch NVFP4, `nemotron_v3`, DSpark, vLLM v0.27.1, the Runpod image or the recipes as written.
+
 ## Optional extra: Hugging Face Space, built locally, not deployed (2026-11-03)
 
 - **Shipped:** `space/` (Gradio page for non-developers: verdict, memory table, warnings, variants and links, formulas, measured results), `launchready/report.py` (the fit, now shared by the CLI, the brief's size rule and the Space), Hub errors wrapped in `HubError`.
