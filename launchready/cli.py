@@ -193,7 +193,8 @@ def fit(
     console.print(f"{context_text} · from safetensors headers and config.json\n")
 
     if weights:
-        table = Table(title="Weights (projected: params × bits/weight ÷ 8)", title_justify="left")
+        console.print("[bold]Weights[/] (projected: params × bits/weight ÷ 8)")
+        table = Table()
         table.add_column("Precision")
         table.add_column("Bits/weight", justify="right")
         table.add_column("GiB", justify="right")
@@ -201,33 +202,35 @@ def fit(
             table.add_row(PRECISION_LABELS[p], f"{BITS_PER_WEIGHT[p]:g}", _gib(w))
         console.print(table)
 
-    table = Table(
-        title=f"Per-sequence memory (projected, KV {kv_dtype.upper()}, "
-        f"Mamba state {seq.mamba.dtype or 'n/a'}"
-        f"{' assumed' if seq.mamba.assumed else ''})",
-        title_justify="left",
+    has_mamba = seq.mamba.dtype is not None
+    state_text = (
+        f", Mamba state {seq.mamba.dtype}{' (assumed)' if seq.mamba.assumed else ''}"
+        if has_mamba
+        else ""
     )
+    console.print(f"[bold]Per-sequence memory[/] (projected, KV {kv_dtype.upper()}{state_text})")
+    table = Table()
     table.add_column("Context", justify="right")
     table.add_column("KV cache GiB", justify="right")
-    table.add_column("Mamba state GiB", justify="right")
+    if has_mamba:
+        table.add_column("Mamba state GiB", justify="right")
     table.add_column("Total GiB", justify="right")
     contexts = sorted({c for c in REFERENCE_CONTEXTS if c <= (arch.max_context or c)} | {context})
     for c in contexts:
         s = sequence_bytes(arch, c, kv_dtype)
+        state = [_gib(s.mamba_bytes)] if has_mamba else []
         style = "bold" if c == context else None
-        table.add_row(
-            f"{c:,}", _gib(s.attention_bytes), _gib(s.mamba_bytes), _gib(s.total), style=style
-        )
+        table.add_row(f"{c:,}", _gib(s.attention_bytes), *state, _gib(s.total), style=style)
     console.print(table)
     console.print(f"KV per token: {kv_bytes_per_token(arch, kv_dtype):,} bytes\n")
 
     if weights:
-        table = Table(
-            title=f"Max concurrent users at {context:,} tokens (projected: "
+        console.print(
+            f"[bold]Max concurrent users at {context:,} tokens[/] (projected: "
             f"VRAM × {GPU_MEMORY_UTILIZATION:.2f} − weights − {RUNTIME_RESERVE_BYTES // GIB} GiB, "
-            "÷ per-sequence)",
-            title_justify="left",
+            "÷ per-sequence)"
         )
+        table = Table()
         table.add_column("GPU")
         table.add_column("GiB", justify="right")
         for p in weights:

@@ -57,7 +57,7 @@ gpus:
     architecture: Blackwell
     native: [bf16, fp8, nvfp4]
   - id: dgx-spark
-    name: DGX Spark (unified memory, shared with the OS)
+    name: DGX Spark (unified)
     memory_gib: 128
     architecture: Grace Blackwell
     native: [bf16, fp8, nvfp4]
