@@ -1,0 +1,166 @@
+[
+  {
+    "author": "nvidia",
+    "downloads": 1010739,
+    "format": "NVFP4",
+    "gguf": {},
+    "repo_id": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4",
+    "total_bytes": 21561882284
+  },
+  {
+    "author": "nvidia",
+    "downloads": 70488,
+    "format": "drafter",
+    "gguf": {},
+    "repo_id": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DSpark",
+    "total_bytes": 1349057504
+  },
+  {
+    "author": "nvidia",
+    "downloads": 1597,
+    "format": "drafter",
+    "gguf": {},
+    "repo_id": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DFlash",
+    "total_bytes": 1177089556
+  },
+  {
+    "author": "RedHatAI",
+    "downloads": 969304,
+    "format": "FP8",
+    "gguf": {},
+    "repo_id": "RedHatAI/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-FP8",
+    "total_bytes": 32293788600
+  },
+  {
+    "author": "ggml-org",
+    "downloads": 204958,
+    "format": "GGUF",
+    "gguf": {
+      "BF16": 67269353472,
+      "Q4_0": 20053999104,
+      "Q8_0": 35761208832
+    },
+    "repo_id": "ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+    "total_bytes": 0
+  },
+  {
+    "author": "unsloth",
+    "downloads": 51567,
+    "format": "GGUF",
+    "gguf": {
+      "BF16": 65852185056,
+      "IQ1_M": 19429059648,
+      "IQ2_M": 19432070208,
+      "IQ2_XXS": 19429059648,
+      "IQ3_S": 21155207232,
+      "IQ3_XXS": 19758307392,
+      "IQ4_NL": 21235202112,
+      "MXFP4": 23210817600,
+      "Q3_K_XL": 21235202112,
+      "Q4_K_M": 25266255936,
+      "Q4_K_S": 24468027456,
+      "Q4_K_XL": 25505724480,
+      "Q5_K_M": 30215272512,
+      "Q5_K_S": 26224130112,
+      "Q5_K_XL": 30414829632,
+      "Q6_K_XL": 35004643392,
+      "Q8_0": 35004643392,
+      "Q8_K_XL": 38615380032
+    },
+    "repo_id": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+    "total_bytes": 0
+  },
+  {
+    "author": "bartowski",
+    "downloads": 39091,
+    "format": "GGUF",
+    "gguf": {
+      "BF16": 65852184928,
+      "IQ2_M": 18854537184,
+      "IQ2_S": 18850408416,
+      "IQ2_XS": 18842150880,
+      "IQ2_XXS": 18838022112,
+      "IQ3_M": 20251953120,
+      "IQ3_XS": 19804669920,
+      "IQ3_XXS": 19798476768,
+      "IQ4_NL": 18922489824,
+      "IQ4_XS": 18918361056,
+      "Q2_K": 18913200096,
+      "Q2_K_L": 19089360864,
+      "Q3_K_L": 20249888736,
+      "Q3_K_M": 19819636704,
+      "Q3_K_S": 18941585376,
+      "Q3_K_XL": 20426049504,
+      "Q4_0": 20219807744,
+      "Q4_1": 20872031712,
+      "Q4_K_L": 25609524192,
+      "Q4_K_M": 25477403616,
+      "Q4_K_S": 23199183840,
+      "Q5_K_L": 27074279904,
+      "Q5_K_M": 26964179424,
+      "Q5_K_S": 24760277472,
+      "Q6_K": 34305161184,
+      "Q6_K_L": 34305161184,
+      "Q8_0": 37180356608
+    },
+    "repo_id": "bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+    "total_bytes": 0
+  },
+  {
+    "author": "TensorFold",
+    "downloads": 35056,
+    "format": "MLX",
+    "gguf": {},
+    "repo_id": "TensorFold/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-MLX-4bit",
+    "total_bytes": 18527064363
+  },
+  {
+    "author": "useful-quants",
+    "downloads": 24106,
+    "format": "other",
+    "gguf": {},
+    "repo_id": "useful-quants/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-W4A16",
+    "total_bytes": 17826201400
+  },
+  {
+    "author": "AtomicChat",
+    "downloads": 20783,
+    "format": "GGUF",
+    "gguf": {
+      "BF16": 67689574720,
+      "IQ4_NL": 42053398272,
+      "Q2_0": 26907012864,
+      "Q4_K_M": 25023583104,
+      "Q5_0": 28829382528,
+      "Q5_K_M": 26589149568,
+      "Q8_0": 35004642912
+    },
+    "repo_id": "AtomicChat/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+    "total_bytes": 0
+  },
+  {
+    "author": "mlasli",
+    "downloads": 4281,
+    "format": "GGUF",
+    "gguf": {
+      "Q4_K_M": 24515128896
+    },
+    "repo_id": "mlasli/Nemotron-3.5-Lightning-30B-A3B-Heretic-Uncensored-Q4_K_M-GGUF",
+    "total_bytes": 0
+  },
+  {
+    "author": "vcruz305",
+    "downloads": 2783,
+    "format": "GGUF",
+    "gguf": {
+      "IQ4_NL": 17977118592,
+      "MXFP4": 17980129152,
+      "Q2_0": 21494603520,
+      "Q4_0": 18058188672,
+      "Q5_0": 21960283008,
+      "Q8_0": 33585495936
+    },
+    "repo_id": "vcruz305/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+    "total_bytes": 0
+  }
+]

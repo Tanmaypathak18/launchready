@@ -23,3 +23,6 @@ Model info, safetensors parameter counts by dtype (from headers) and `config.jso
 format `launchready.hub` caches under `~/.cache/launchready/hub/`. Used to test `launchready fit`
 end to end offline. Same revisions as above for Qwen3-4B, granite-4.0-h-tiny, Nemotron 3.5
 Lightning and DeepSeek-V3.
+
+`nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16__variants.json` is the `launchready.variants`
+cache for Lightning (quantized variants and their Hub file sizes), saved 2026-11-02.
