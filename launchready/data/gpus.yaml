@@ -1,4 +1,63 @@
 # NVIDIA GPU catalog used by `launchready fit` (BUILD_PLAN.md section 6.4).
-# Each entry: name, memory, architecture, native low-precision formats.
-# Populated in Phase 1; verify every value against NVIDIA spec pages.
-gpus: []
+#
+# memory_gib: marketed capacity read as GiB (an RTX 5090's "32 GB" shows as ~31.8 GiB in
+#   nvidia-smi). Phase 3 calibrates this against measured values.
+# native: low-precision weight formats with hardware support. BF16 is listed only where the GPU
+#   has it (T4 runs FP16 instead, same size). GGUF runs on every GPU via llama.cpp kernels.
+# Verify every value against NVIDIA spec pages before publishing results.
+gpus:
+  - id: tesla-t4
+    name: Tesla T4 (Kaggle)
+    memory_gib: 16
+    architecture: Turing
+    native: []
+  - id: rtx-4090
+    name: RTX 4090
+    memory_gib: 24
+    architecture: Ada
+    native: [bf16, fp8]
+  - id: rtx-5090
+    name: RTX 5090
+    memory_gib: 32
+    architecture: Blackwell
+    native: [bf16, fp8, nvfp4]
+  - id: rtx-pro-6000
+    name: RTX PRO 6000 Blackwell
+    memory_gib: 96
+    architecture: Blackwell
+    native: [bf16, fp8, nvfp4]
+  - id: l40s
+    name: L40S
+    memory_gib: 48
+    architecture: Ada
+    native: [bf16, fp8]
+  - id: a100-40gb
+    name: A100 40GB
+    memory_gib: 40
+    architecture: Ampere
+    native: [bf16]
+  - id: a100-80gb
+    name: A100 80GB
+    memory_gib: 80
+    architecture: Ampere
+    native: [bf16]
+  - id: h100
+    name: H100 80GB
+    memory_gib: 80
+    architecture: Hopper
+    native: [bf16, fp8]
+  - id: h200
+    name: H200
+    memory_gib: 141
+    architecture: Hopper
+    native: [bf16, fp8]
+  - id: b200
+    name: B200
+    memory_gib: 180
+    architecture: Blackwell
+    native: [bf16, fp8, nvfp4]
+  - id: dgx-spark
+    name: DGX Spark (unified memory, shared with the OS)
+    memory_gib: 128
+    architecture: Grace Blackwell
+    native: [bf16, fp8, nvfp4]
