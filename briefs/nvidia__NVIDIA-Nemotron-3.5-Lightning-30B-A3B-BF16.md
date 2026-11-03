@@ -105,6 +105,8 @@ Checked against shallow sparse clones of each engine at its latest stable releas
 
 From the Hub filter `base_model:quantized:nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16` and a search of the nvidia org, most downloaded first (builder's own repos on top), on 2026-11-02. Sizes are file sizes on the Hub.
 
+## Ecosystem impact (hand-written)
+
 **Who it is for:** developers with one 32 GB-class GPU (RTX 5090) or Mac/local-model users. It stores 32.91B parameters but runs ~3.70B per token (estimated), and at NVFP4 it fits one RTX 5090 with room for ~28 × 32K-token sequences (projected).
 
 **Where the ecosystem is today (2026-11-02):** the architecture is registered in the latest release of vLLM, SGLang, llama.cpp (so Ollama via GGUF) and Transformers. Quantized variants already exist for every major path: NVFP4 from nvidia (~1.0M downloads), FP8 from RedHatAI, GGUF from ggml-org, unsloth and bartowski, MLX from TensorFold. Builders outside NVIDIA shipped these, which suggests the community is treating it as a first-class model.
@@ -113,7 +115,7 @@ From the Hub filter `base_model:quantized:nvidia/NVIDIA-Nemotron-3.5-Lightning-3
 
 **Not covered here:** how it compares in quality or speed with similar-size open models. That needs measured benchmarks and will be covered in phase 5 of this repo.
 
-**Open Questions and Risks:**
+## Open questions and risks (hand-written)
 
 - **NVFP4 memory is higher than projected.** The real NVFP4 repo is 20.08 GiB vs 17.24 GiB projected (+16%), so some tensors likely stay in higher precision. The ~28-user figure for an RTX 5090 uses the real size, but it is still projected, not measured.
 - **Mamba state is unmeasured.** The config says float32; vLLM may store or pad it differently. Phase 3 measures it.
