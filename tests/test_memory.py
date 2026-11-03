@@ -53,16 +53,24 @@ def test_70b_dense_weights():
     assert weight_bytes(params, "nvfp4") == 39.375e9
 
 
-def test_nemotron_lightning_nominal_30b_weights():
-    # 6.5 uses the nominal ~30B: BF16 ~60 GB, NVFP4 ~17 GB (before the BF16 share).
-    params = 30_000_000_000
-    assert weight_bytes(params, "bf16") == 60e9
-    assert weight_bytes(params, "nvfp4") == 16.875e9
+# Safetensors header count for Lightning @ a9904d2: BF16 32,913,263,168 + F32 3,072.
+LIGHTNING_PARAMS = 32_913_266_240
+
+
+def test_nemotron_lightning_parameter_count():
+    total, _ = total_parameters({"BF16": 32_913_263_168, "F32": 3_072}, {})
+    assert total == LIGHTNING_PARAMS
+
+
+def test_nemotron_lightning_weights():
+    # 6.5: BF16 ~65.8 GB, NVFP4 ~18.5 GB (before the BF16 share).
+    assert weight_bytes(LIGHTNING_PARAMS, "bf16") == 65_826_532_480
+    assert weight_bytes(LIGHTNING_PARAMS, "nvfp4") == 18_513_712_260
 
 
 def test_nemotron_lightning_bf16_does_not_fit_rtx_5090():
     arch = parse_config(load_config("nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16"))
-    params = 30_000_000_000
+    params = LIGHTNING_PARAMS
     per_seq = sequence_bytes(arch, 8192, "fp16").total
     assert fit(32 * GIB, weight_bytes(params, "bf16"), per_seq).max_users == 0
     assert fit(32 * GIB, weight_bytes(params, "nvfp4"), per_seq).max_users > 0

@@ -240,7 +240,7 @@ Implement Phase 5 steps 3–4 of BUILD_PLAN.md. Create recipes/nemotron-3.5-ligh
 | Llama 2 7B (32 KV heads, no GQA) | KV per token, FP16 | 524,288 bytes (4× Llama 3.1 8B) |
 | DeepSeek-V3 (61 layers, MLA 512 + 64) | KV per token, BF16 | 70,272 bytes |
 | Any 70B dense | Weights | BF16 140 GB · FP8 70 GB · NVFP4 ~39.4 GB |
-| Nemotron 3.5 Lightning (~30B) | Weights | BF16 ~60 GB (not on a 5090); NVFP4 ~17 GB + BF16 share |
+| Nemotron 3.5 Lightning (32.9B per safetensors headers; "30B" is nominal) | Weights | BF16 ~65.8 GB (not on a 5090); NVFP4 ~18.5 GB + BF16 share (real NVFP4 repo: 21.6 GB) |
 
 ### 6.6 Where engines register architectures (confirm at the release tag)
 
