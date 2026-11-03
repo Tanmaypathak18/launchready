@@ -41,3 +41,5 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# bench/ is a plain folder of scripts, imported by tests from the repo root.
+pythonpath = ["."]

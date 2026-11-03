@@ -1,0 +1,16 @@
+{
+  "results": {
+    "gsm8k": {
+      "alias": "gsm8k",
+      "exact_match,strict-match": 0.884,
+      "exact_match_stderr,strict-match": 0.0203,
+      "exact_match,flexible-extract": 0.892,
+      "exact_match_stderr,flexible-extract": 0.0197
+    }
+  },
+  "n-samples": {"gsm8k": {"original": 1319, "effective": 250}},
+  "config": {"model": "local-chat-completions", "limit": 250.0},
+  "versions": {"gsm8k": 3.0},
+  "lm_eval_version": "0.4.13",
+  "date": 1793700000.0
+}
