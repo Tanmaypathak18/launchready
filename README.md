@@ -4,7 +4,7 @@ LaunchReady is a small, open-source launch-readiness kit for open-weight LLMs on
 
 ## Status
 
-- [ ] Phase 0: Setup (repo, CI, smoke test)
+- [x] Phase 0: Setup (repo, CI, smoke test)
 - [ ] Phase 1: Memory calculator (`launchready fit`)
 - [ ] Phase 2: Engine readiness + Nemotron brief (`launchready brief`, `launchready radar`)
 - [ ] Phase 3: Validation on free GPUs + first-user audits
