@@ -18,6 +18,66 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Dry run: llama.cpp v0.8.0 CUDA build fails with "CUDA::cuda_driver ... target was not found"
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 654f459 · session dryrun_kaggle_qwen3_4b_20261103T1948Z · llama.cpp v0.8.0 (8642541) · nvcc 13.0.88
+- Exact command: `bash bench/build_llamacpp.sh v0.8.0 /tmp/llama.cpp` (prepare-3)
+- What happened (error excerpt): `CMake Error at ggml/src/ggml-cuda/CMakeLists.txt:181 (target_link_libraries): Target "ggml-cuda" links to: CUDA::cuda_driver but the target was not found.` CMake did find the toolkit (`Found CUDAToolkit: /usr/local/cuda/targets/x86_64-linux/include ... 13.0.88`).
+- Root cause: llama.cpp links `CUDA::cuda_driver` (libcuda.so, for virtual-memory pools) unless `GGML_CUDA_NO_VMM` is on. CMake's FindCUDAToolkit only creates that target when it finds a library named `libcuda.so` in the toolkit's lib dirs or their `stubs/` subdirectory. Kaggle's image has the toolkit but no `libcuda.so` there: the stub ships in the `cuda-driver-dev` package, and the driver itself provides only `libcuda.so.1`. Inferred from the error and the CMake source; the directory listing wasn't captured.
+- Fix or workaround: `build_llamacpp.sh` now looks for libcuda (toolkit `stubs/`, then the driver's `libcuda.so`/`libcuda.so.1` via ldconfig), installs `cuda-driver-dev-<ver>` if none is found, passes the path as `-DCUDA_cuda_driver_LIBRARY=...`, and only as a last resort builds with `-DGGML_CUDA_NO_VMM=ON` (recorded in `build/LAUNCHREADY_BUILD.txt`). It logs `cmake --version` and the libcuda it used. **Not verified yet**: needs the next Kaggle run (no GPU or CUDA toolkit here).
+- Severity: blocks (no llama-server, so no concurrent GGUF points)
+- Filed: not filed: environment packaging, not a llama.cpp bug
+- Requirement this implies: build scripts must not assume a full CUDA devel image; check for the driver stub and say which libcuda was linked.
+
+### Dry run: one missing directory aborted the whole matrix
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 654f459 · session dryrun_kaggle_qwen3_4b_20261103T1948Z · vLLM 0.32.0
+- Exact command: `uv run python -m bench.run_matrix --matrix bench/matrices/kaggle_qwen3_4b.yaml --hourly-price 0 --with-quality --deadline ...`
+- What happened (error excerpt): `FileNotFoundError: [Errno 2] No such file or directory: 'results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T1948Z/gpu/vllm-bench__no-fp8-kv__chat__c1__r1.csv'` in `GpuSampler.__enter__`, on the first benchmark run. The matrix exited 1, so no run, no quality task, and no llama.cpp, spec-decode or Ollama server was tried.
+- Root cause: our bug. `GpuSampler` opened `<session>/gpu/<run>.csv` without creating `gpu/`. The mock smoke test never reached that line because the Mac has no `nvidia-smi`, and nothing caught per-run errors.
+- Fix or workaround: the sampler creates parent directories; each run is wrapped so an unexpected error becomes a `failed` row (JSON + summary.csv) and the matrix continues; each server is wrapped the same way. New offline test puts a fake `nvidia-smi` on PATH so the sampler runs in CI.
+- Severity: blocks
+- Filed: not filed: our code
+- Requirement this implies: test the GPU-only code paths offline with fakes; one failure must never cost the rest of a paid session.
+
+### Dry run: notebook 04's check cell crashed on a missing summary.csv, so the zip cell never ran
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 654f459 · session dryrun_kaggle_qwen3_4b_20261103T1948Z
+- Exact command: notebook 04, "Check the outputs" cell (Run all)
+- What happened: `pd.read_csv("results_dryrun/summary.csv")` raised because no run finished; "Run all" stopped there, so `launchready_dryrun.zip` was never made and the whole `/kaggle/working` (repo, `.git`, `.venv`) was downloaded instead.
+- Root cause: our notebook assumed success.
+- Fix or workaround: zip first, then check; the check cell lists what exists and reads each file only if present.
+- Severity: slows
+- Filed: not filed: our notebook
+- Requirement this implies: result notebooks report partial results instead of failing on them.
+
+### Dry run: Ollama install says "systemd is not running" and "Unable to detect NVIDIA/AMD GPU"
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 654f459 · session dryrun_kaggle_qwen3_4b_20261103T1948Z · Ollama 0.40.14
+- Exact command: `bash bench/install_ollama.sh 0.40.14` (prepare-4)
+- What happened: `WARNING: systemd is not running` · `WARNING: Unable to detect NVIDIA/AMD GPU. Install lspci or lshw to automatically detect and install GPU dependencies.` · `Warning: could not connect to a running Ollama instance`. The install itself succeeded (exit 0).
+- Root cause: containers (Kaggle, Runpod) have no systemd, so the installer can't start its service; it looks for GPUs with lspci/lshw, which aren't installed. The Ollama tarball carries its CUDA libraries, so the GPU warning only skips driver installation.
+- Fix or workaround: none needed for systemd: the matrix starts `ollama serve` itself as the server process (and stops it). `install_ollama.sh` now installs `pciutils` first, and, if systemd *is* running, stops and disables the `ollama` service so it can't hold port 11434 in place of the matrix's server. Ollama never ran in this dry run (the matrix crashed first), so this is still unverified.
+- Severity: cosmetic
+- Filed: not filed
+- Requirement this implies: none.
+
+### Dry run: FP8 KV cache fails on T4 (expected; Turing has no FP8)
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 654f459 · session dryrun_kaggle_qwen3_4b_20261103T1948Z · vLLM 0.32.0 · Qwen/Qwen3-4B @ 1cfa9a7
+- Exact command: `vllm serve Qwen/Qwen3-4B --revision 1cfa9a7... --served-model-name qwen3-4b --dtype half --kv-cache-dtype fp8 --max-model-len 8192 --no-enable-prefix-caching --reasoning-parser deepseek_r1 --default-chat-template-kwargs '{"enable_thinking": false}'`
+- What happened (error excerpt): `ValueError: FP8 KV cache is not supported by the Triton attention backend on Tesla T4 (compute capability 7.5); native FP8 (fp8e4nv) requires SM89+. Re-run with --kv-cache-dtype float16.` (55 s, exit 1)
+- Root cause: hardware. Turing (SM75) has no FP8; vLLM's error is clear and names the fix.
+- Fix or workaround: none needed. This variant exists to exercise the fallback, and it worked: `no-fp8-kv` started in 90 s, passed the 8-request check, answered without thinking ("42", "Paris."), so `--default-chat-template-kwargs` works on 0.32.0, and logged KV capacity 36,688 tokens / 4.48× concurrency at 8,192 tokens, weights 7.56 GiB.
+- Severity: cosmetic (expected)
+- Filed: not filed: expected behavior
+- Requirement this implies: matches requirement 2(d): failures on unsupported GPUs should name the GPU and the alternative, as this one does.
+
+### Dry run reproduced audit 1b: Qwen3-4B's card line fails on `--enable-reasoning` in vLLM 0.32.0
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 654f459 · session dryrun_kaggle_qwen3_4b_20261103T1948Z · vLLM 0.32.0 · Qwen/Qwen3-4B @ 1cfa9a7
+- Exact command: `vllm serve Qwen/Qwen3-4B --revision 1cfa9a7... --enable-reasoning --reasoning-parser deepseek_r1 --dtype half --served-model-name qwen3-4b --max-model-len 8192`
+- What happened (error excerpt): `vllm: error: unrecognized arguments: --enable-reasoning` (exit 2 within 35 s). Same failure as the Phase 3 audit 1b entry below. Without the flag, the same line started in 200 s and passed the 8-request check (thinking on, as the card intends).
+- Root cause: vLLM removed `--enable-reasoning`; `--reasoning-parser` alone enables it. The card still says `vllm>=0.8.5`.
+- Fix or workaround: drop `--enable-reasoning`.
+- Severity: blocks (card command as written)
+- Filed: not filed: still the owner's call (see audit 1b)
+- Requirement this implies: model-card commands name a tested engine version, not just a minimum.
+
 ### Every Lightning "Q4_K_M" GGUF is ~6.2 bits/weight and tagged with the wrong pre-tokenizer
 - When / where: 2026-11-03 · no GPU (GGUF headers read over HTTP range requests; no weights downloaded) · `bench/gguf_check.py` · bartowski @ f0eec22, unsloth @ f2d3fe3 (UD-Q4_K_M), AtomicChat @ 14571e1, ggml-org @ 8cd0821 (Q4_0)
 - Exact command: `uv run python -m bench.gguf_check hf://bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF@f0eec22…/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M.gguf` (and the same for the other three)
