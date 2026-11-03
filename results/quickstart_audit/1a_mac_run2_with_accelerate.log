@@ -1,0 +1,8 @@
+W1103 03:27:26.848000 10248 .venv/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Fetching 3 files: 100%|██████████| 3/3 [00:54<00:00, 17.37s/it]
+Fetching 3 files: 100%|██████████| 3/3 [00:54<00:00, 18.05s/it]
+Loading weights: 100%|██████████| 398/398 [00:04<00:00, 83.25it/s]
+Some parameters are on the meta device because they were offloaded to the disk.
+timed out after 2700s
+/Users/tanmay/.local/share/uv/python/cpython-3.12.16-macos-aarch64-none/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

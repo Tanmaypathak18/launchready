@@ -1,0 +1,33 @@
+W1103 03:26:12.025000 10203 .venv/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "snippet.py", line 7, in <module>
+    model = AutoModelForCausalLM.from_pretrained(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ".venv/lib/python3.12/site-packages/transformers/models/auto/auto_factory.py", line 406, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ".venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4194, in from_pretrained
+    device_map = check_and_set_device_map(device_map)  # warn, error and fix the device map
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ".venv/lib/python3.12/site-packages/transformers/integrations/accelerate.py", line 139, in check_and_set_device_map
+    raise ValueError(
+ValueError: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
+       10.18 real         4.65 user         0.45 sys
+           476610560  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               38392  page reclaims
+                2314  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                  87  messages sent
+                1399  messages received
+                   0  signals received
+                4096  voluntary context switches
+                3098  involuntary context switches
+         59978789764  instructions retired
+         20453676143  cycles elapsed
+           409863416  peak memory footprint
+exit 1

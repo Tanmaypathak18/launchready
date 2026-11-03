@@ -18,6 +18,26 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Qwen3-4B quickstart offloads to disk on a 16 GB Mac and doesn't finish in 45 minutes (quickstart audit 1a, Mac)
+- When / where: 2026-11-03 · MacBook Air M4, 16 GB, macOS 26.6.2 · MPS · Python 3.12.16, torch 2.15.0, transformers 5.22.1, accelerate 1.15.0 · card: Qwen/Qwen3-4B @ 1cfa9a7 (same Quickstart block, unchanged)
+- Exact command: `python 1a_mac_snippet.py`, after `pip install accelerate` (log: `results/quickstart_audit/1a_mac_run2_with_accelerate.log`)
+- What happened (error excerpt): download (54 s) and weight loading (4 s) finish, then `Some parameters are on the meta device because they were offloaded to the disk.` No output after 2,700 s; stopped by the audit's 45-minute cap (no answer printed, no thinking content).
+- Root cause: `device_map="auto"` asks accelerate for a memory budget. On this Mac `accelerate.utils.get_max_memory()` returns `{'mps': 6.51 GiB}` with no `cpu` entry (MPS recommended maximum: 11.84 GiB). The BF16 weights are 7.49 GiB, so the remainder goes straight to disk, and every generated token reads those layers back from disk. Combined with `max_new_tokens=32768` and thinking on, the run doesn't finish in any reasonable time. (Budget measured with `get_max_memory()` right after the run; the exact device map wasn't captured.)
+- Fix or workaround: not run yet. Candidates: `device_map="mps"` (whole model on the GPU; 7.49 GiB fits under the 11.84 GiB MPS maximum) or a smaller `max_new_tokens`. On a 16 GB Mac, Ollama, MLX-LM or llama.cpp (which the card lists for local use) are likelier first choices.
+- Severity: blocks (the card's snippet never produces an answer on a 16 GB Apple-silicon laptop)
+- Filed: not filed: candidate card note ("on Apple silicon use device_map='mps'"), and possibly an accelerate issue about MPS budgets with no CPU fallback; waiting for the owner's OK
+- Requirement this implies: quickstarts should say which hardware they were tested on, and `device_map="auto"` should never silently fall back to disk on a machine with enough unified memory.
+
+### Qwen3-4B quickstart needs `accelerate`, which the card never mentions (quickstart audit 1a, Mac)
+- When / where: 2026-11-03 · MacBook Air M4, 16 GB, macOS 26.6.2 · MPS · Python 3.12.16, torch 2.15.0, transformers 5.22.1 (latest on PyPI, as the card advises), no accelerate · card: Qwen/Qwen3-4B @ 1cfa9a7 ("## Quickstart", Python block, lines 52–95)
+- Exact command: `python 1a_mac_snippet.py` (the card's block, byte-for-byte; saved in `results/quickstart_audit/`)
+- What happened (error excerpt): exits after 10 s, before any weights download: `File "1a_mac_snippet.py", line 7 … model = AutoModelForCausalLM.from_pretrained(` → `ValueError: Using a \`device_map\`, \`tp_plan\`, \`torch.device\` context manager or setting \`torch.set_default_device(device)\` requires \`accelerate\`. You can install it with \`pip install accelerate\``
+- Root cause: the snippet passes `device_map="auto"`, which needs the separate `accelerate` package; the card's setup text only says to use the latest `transformers`.
+- Fix or workaround: `pip install accelerate`, then rerun the same snippet unchanged. That rerun hit the next break (entry above).
+- Severity: blocks (first run of the card's snippet fails), though the error message names the fix
+- Filed: not filed: candidate one-line card fix ("pip install transformers accelerate"); waiting for the owner's OK
+- Requirement this implies: a quickstart's install line must list every package its snippet imports or triggers (`device_map` → accelerate), tested in a clean environment.
+
 ### Lightning's llama.cpp recipe asks for a Q4_K_M file that doesn't exist (quickstart audit 3b)
 - When / where: 2026-11-03 · MacBook Air M4, 16 GB, macOS 26.6.2 · Metal · llama.cpp 0.8.0 (build 11960, 8642541b2, Homebrew) · card: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4 @ bee7596 ("Local AI → llama.cpp → Full server recipe"); weights repo ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF @ 8cd0821
 - Exact command (verbatim from the card; saved in `results/quickstart_audit/`): `llama-server -hf ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF:Q4_K_M --temp 1.0 --top-p 0.95 -np 1 -c 40960 --port 8000 -ngl 99 -fa on --jinja --no-webui --fit off`
