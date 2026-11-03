@@ -18,6 +18,20 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Qwen3-4B's vLLM one-liner fails on `--enable-reasoning` in vLLM 0.32.0 (quickstart audit 1b, Kaggle)
+- When / where: 2026-11-03 · 2× Tesla T4 (Kaggle) · driver 580.178.04 · CUDA 13.0 · Python 3.13.16, vllm 0.32.0, torch 2.13.0, transformers 5.19.0 · card: Qwen/Qwen3-4B @ 1cfa9a7 ("## Quickstart", vLLM line)
+- Exact command (verbatim from the card; `notebooks/03_quickstart_audit.ipynb`, log in `results/quickstart_audit/1b_vllm.log`): `vllm serve Qwen/Qwen3-4B --enable-reasoning --reasoning-parser deepseek_r1`
+- What happened (error excerpt): exits with code 2 after 30 s, before loading anything: `usage: vllm [-h] [-v] {chat,complete,serve,launch,bench,collect-env,download-kernels,preload,run-batch,snapshot} ...` · `vllm: error: unrecognized arguments: --enable-reasoning`
+- Root cause: vLLM 0.32.0 no longer accepts `--enable-reasoning`. The card says "`vllm>=0.8.5`", so every current vLLM satisfies the stated requirement and still rejects the command.
+- Fix or workaround: not run. Dropping the flag (`vllm serve Qwen/Qwen3-4B --reasoning-parser deepseek_r1`) is the likely fix; whether `deepseek_r1` is still the right parser for Qwen3 is also untested.
+- Not tested: whether the default context (no `--max-model-len`, so 40,960 tokens) fits a single T4. The command failed before vLLM got that far. Notebook 01 measured room for 30,336 tokens of KV cache for Qwen3-4B on one T4 (vLLM 0.32.0, `--max-model-len 4096`), so the fixed command may hit a second break; that's a projection, not a result.
+- Severity: blocks (the card's deployment command fails on any current vLLM)
+- Filed: not filed: candidate card fix (drop `--enable-reasoning`, give a tested vLLM version instead of an open `>=` range); not filing upstream without the owner's OK
+- Requirement this implies: a quickstart's engine command needs a tested upper version, not just a minimum, and should be re-run when the engine removes flags.
+
+### Worked as written: Qwen3-4B Transformers quickstart on Kaggle 2× T4 (quickstart audit 1a, Kaggle)
+- 2026-11-03 · 2× Tesla T4 (Kaggle) · driver 580.178.04 · CUDA 13.0 · Kaggle's preinstalled Python 3.13.16, torch 2.11.0+cu130, transformers 5.20.2, accelerate 1.15.0 · card Qwen/Qwen3-4B @ 1cfa9a7, Quickstart Python block byte-for-byte · finished in 115 s with thinking (~2,050 characters) and an answer (678 characters). Cosmetic: the printed thinking still contains literal `<think>`/`</think>` tags. Unlike the Mac (entries below), Kaggle ships `accelerate`, and the two T4s have room for the weights, so `device_map="auto"` needed no offload.
+
 ### Qwen3-4B quickstart offloads to disk on a 16 GB Mac and doesn't finish in 45 minutes (quickstart audit 1a, Mac)
 - When / where: 2026-11-03 · MacBook Air M4, 16 GB, macOS 26.6.2 · MPS · Python 3.12.16, torch 2.15.0, transformers 5.22.1, accelerate 1.15.0 · card: Qwen/Qwen3-4B @ 1cfa9a7 (same Quickstart block, unchanged)
 - Exact command: `python 1a_mac_snippet.py`, after `pip install accelerate` (log: `results/quickstart_audit/1a_mac_run2_with_accelerate.log`)

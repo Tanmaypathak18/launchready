@@ -1,0 +1,3 @@
+usage: vllm [-h] [-v]
+            {chat,complete,serve,launch,bench,collect-env,download-kernels,preload,run-batch,snapshot} ...
+vllm: error: unrecognized arguments: --enable-reasoning

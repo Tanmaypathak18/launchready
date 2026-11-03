@@ -1,0 +1,96 @@
+{
+  "environment": {
+    "gpu": "Tesla T4",
+    "gpu_count": 2,
+    "nvidia_smi": [
+      "Tesla T4, 15360 MiB, 580.178.04",
+      "Tesla T4, 15360 MiB, 580.178.04"
+    ],
+    "driver_cuda": "13.0",
+    "platform": "Linux-6.18.55+-x86_64-with-glibc2.39",
+    "date_utc": "2026-11-03T11:29:43+00:00",
+    "packages_kaggle_stock": {
+      "python": "3.13.16",
+      "torch": "2.11.0+cu130",
+      "transformers": "5.20.2",
+      "accelerate": "1.15.0",
+      "vllm": null
+    },
+    "card_sha": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "packages_vllm": {
+      "python": "3.13.16",
+      "torch": "2.13.0",
+      "transformers": "5.19.0",
+      "accelerate": "1.15.0",
+      "vllm": "0.32.0"
+    }
+  },
+  "audits": {
+    "1a": {
+      "audit": "1a",
+      "command": "python 1a_snippet.py  # card Qwen/Qwen3-4B @ 1cfa9a7, Quickstart Python block",
+      "outcome": "worked",
+      "seconds": 114.9,
+      "first_error_lines": [],
+      "last_lines": [
+        "Loading weights:  78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a  | 312/398 [00:01<00:00, 213.44it/s]",
+        "Loading weights:  84%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258d | 334/398 [00:01<00:00, 213.54it/s]",
+        "Loading weights:  89%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2589 | 356/398 [00:01<00:00, 211.90it/s]",
+        "Loading weights:  95%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258d| 378/398 [00:01<00:00, 212.23it/s]",
+        "Loading weights: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 398/398 [00:01<00:00, 199.44it/s]",
+        "thinking content: <think>",
+        "Okay, the user is asking for a short introduction to large language models. Let me start by recalling what I know about them. Large language models, or LLMs, are a type of artificial intelligence that's trained on vast amounts of text data. They can generate human-like text, answer questions, and perform various tasks.",
+        "",
+        "First, I should mention their key characteristics. They have a huge number of parameters, which allows them to capture complex patterns in data. The training process involves using massive datasets, maybe from the internet or books. Then, they can do things like translation, summarization, and even code writing. ",
+        "",
+        "I need to explain the architecture, like transformer models, which use self-attention mechanisms. That's important because it's what makes them different from earlier models. Also, mention that they're pre-trained and then fine-tuned for specific tasks. ",
+        "",
+        "Wait, the user wants a short intro, so I should keep it concise. Maybe start with a definition, then key points: size, training, capabilities, applications. Also, maybe touch on their impact, like changing how we interact with technology. ",
+        "",
+        "Check if there are any common misconceptions. For example, they aren't perfect, but they're very powerful. Also, mention that they're used in various fields like customer service, content creation, etc. ",
+        "",
+        "Make sure to avoid technical jargon where possible, but still be accurate. Maybe use examples like answering questions or writing stories. ",
+        "",
+        "Let me structure it: start with a general statement about LLMs, then their components (size, training data, architecture), then their uses, and finally their significance. Keep each part brief. ",
+        "",
+        "Wait, the user might be a student or someone new to AI, so clarity is key. Avoid too much detail but cover the essentials. Also, mention that they're developed by companies like Google, Meta, etc. ",
+        "",
+        "I think that's a good outline. Now, put it all together in a coherent, concise paragraph. Make sure it's easy to understand and flows well.",
+        "</think>",
+        "content: Large language models (LLMs) are advanced artificial intelligence systems designed to understand and generate human-like text. Trained on vast amounts of textual data, they use complex architectures like transformers to process and generate language with remarkable accuracy. These models excel at tasks such as answering questions, writing essays, coding, translating languages, and summarizing information. Their ability to learn from diverse datasets enables them to adapt to various applications, from customer service to creative writing. LLMs represent a significant leap in AI, offering powerful tools for communication, problem-solving, and innovation across industries."
+      ],
+      "log": "results/quickstart_audit/1a_transformers.log",
+      "packages": {
+        "python": "3.13.16",
+        "torch": "2.11.0+cu130",
+        "transformers": "5.20.2",
+        "accelerate": "1.15.0",
+        "vllm": null
+      }
+    },
+    "1b": {
+      "audit": "1b",
+      "command": "vllm serve Qwen/Qwen3-4B --enable-reasoning --reasoning-parser deepseek_r1",
+      "outcome": "failed (exit 2)",
+      "seconds": 30.0,
+      "first_error_lines": [
+        "vllm: error: unrecognized arguments: --enable-reasoning"
+      ],
+      "last_lines": [
+        "usage: vllm [-h] [-v]",
+        "            {chat,complete,serve,launch,bench,collect-env,download-kernels,preload,run-batch,snapshot} ...",
+        "vllm: error: unrecognized arguments: --enable-reasoning"
+      ],
+      "log": "results/quickstart_audit/1b_vllm.log",
+      "packages": {
+        "python": "3.13.16",
+        "torch": "2.13.0",
+        "transformers": "5.19.0",
+        "accelerate": "1.15.0",
+        "vllm": "0.32.0"
+      },
+      "reasoning_separated": false,
+      "reply": null
+    }
+  }
+}
