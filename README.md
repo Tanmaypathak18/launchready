@@ -18,6 +18,8 @@ LaunchReady is a small, open-source launch-readiness kit for open-weight LLMs on
 uv sync
 uv run launchready fit Qwen/Qwen3-4B --context 32768 --users 8
 uv run launchready fit nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16 --gpu rtx-5090 --json
+uv run launchready brief nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16   # → briefs/
+uv run launchready radar --since 30d                                        # → radar/<date>.md
 uv run ruff check .
 uv run pytest
 ```

@@ -246,10 +246,12 @@ Implement Phase 5 steps 3–4 of BUILD_PLAN.md. Create recipes/nemotron-3.5-ligh
 
 | Engine | Repo | Look for |
 |---|---|---|
-| vLLM | vllm-project/vllm | `registry.py` under `vllm/model_executor/models/` |
+| vLLM | vllm-project/vllm | `_*_MODELS` dicts in `registry.py` under `vllm/model_executor/models/` (not `_PREVIOUSLY_SUPPORTED_MODELS`) |
 | SGLang | sgl-project/sglang | `EntryClass` under `python/sglang/srt/models/` |
-| llama.cpp (→ Ollama via GGUF) | ggml-org/llama.cpp | `register(...)` decorators in `convert_hf_to_gguf.py` |
-| Transformers | huggingface/transformers | `CONFIG_MAPPING_NAMES` in `models/auto/configuration_auto.py`; `auto_map` = custom code |
+| llama.cpp (→ Ollama via GGUF) | ggml-org/llama.cpp (default branch `master`) | `@ModelBase.register(...)` decorators in `conversion/*.py` (moved from `convert_hf_to_gguf.py`; verified at v0.8.0, 2026-11-02) |
+| Transformers | huggingface/transformers | `CONFIG_MAPPING_NAMES` in `models/auto/auto_mappings.py` (moved from `configuration_auto.py`, which now imports it; verified at v5.22.1, 2026-11-02); `auto_map` = custom code |
+
+"Latest release" = newest stable tag: skip rc/dev/alpha/beta tags even when GitHub doesn't flag them (vLLM), and skip per-build prereleases (llama.cpp's `bNNNN`).
 
 ### 6.7 Watchlist (verify handles)
 
