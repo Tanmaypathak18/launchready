@@ -85,10 +85,10 @@ Mac numbers never go in published benchmarks.
 
 ### Phase 0: Setup ($0)
 
-- [ ] Public repo `launchready` (Apache-2.0), Python 3.11+ with uv, ruff, pytest.
-- [ ] Tokens: Hugging Face (accept Llama/Gemma licenses), Kaggle (verify phone; enable GPU + internet), GitHub.
-- [ ] Mac: install Ollama, run `ollama run llama3.1:8b --verbose`, note the eval rate.
-- [ ] Save `BUILD_PLAN.md` and `CLAUDE.md`; create `docs/friction_log.md` from template 7.3.
+- [x] Public repo `launchready` (Apache-2.0), Python 3.11+ with uv, ruff, pytest.
+- [x] Tokens: Hugging Face (accept Llama/Gemma licenses), Kaggle (verify phone; enable GPU + internet), GitHub.
+- [x] Mac: install Ollama, run `ollama run llama3.1:8b --verbose`, note the eval rate.
+- [x] Save `BUILD_PLAN.md` and `CLAUDE.md`; create `docs/friction_log.md` from template 7.3.
 
 **Done when:** CI is green on a smoke test and Ollama answers on your Mac.
 

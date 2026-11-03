@@ -2,6 +2,12 @@
 
 One "Done so far" entry per phase, newest first: what shipped, decisions made, what's next.
 
+## Phase 4: Developer feedback → requirements (2026-11-03)
+
+- **Shipped:** `docs/requirements.md`: 36 GitHub issues and Hugging Face discussions (Aug 1 – Nov 3, 2026; vLLM, llama.cpp, Ollama, NVIDIA's Lightning repos, ggml-org and Unsloth GGUF repos), read by hand and grouped into 5 requirements with acceptance criteria and owners: GGUF contents vs labels (8), NVFP4 crashes on Blackwell/Jetson (5), hybrid Mamba speed features (9), wrong-output kernels (4), install/docs gaps (6). All 38 links checked against the GitHub and Hugging Face APIs on 2026-11-03 (dates and states match).
+- **Decisions:** ranked by severity first (wrong output > blocks > slows), then thread count; counts are threads, not distinct bugs; sibling Nemotron models included only when the root cause is the shared `nemotron_h` / `nemotron_h_moe` architecture; chat template / tool calling (2 threads) left below the cut; no Lightning-specific OOM reports found.
+- **Next:** Phase 5 launch kit, carrying in the five plan changes from requirements.md: real GGUF tensor types for Lightning (experts fall back to Q5_0), try the card's 5090 vLLM command then without `--kv-cache-dtype fp8`, Ollama at concurrency 1 plus `llama-server -np 8`, prefix caching off and vLLM pinned for headline numbers, and record `tokenizer.ggml.pre` for the benchmarked GGUF.
+
 ## Phase 3: Validate on free GPUs + first-user audits (2026-11-03)
 
 - **Shipped:** `notebooks/01_memory_validation.ipynb` ran on Kaggle 2× T4 (driver 580.178.04, CUDA 13.0, vLLM 0.32.0); raw results in `results/` (CSV, environment, logs; chart rebuilt from the CSV with the fixed plot cell). Weights (vLLM "Model loading") within 1% for all three models; KV budget and concurrency within 4–6% for Qwen3-4B and OLMoE; granite-4.0-h-tiny concurrency +133% (budget ×1.72, per-sequence ×1.36). `launchready fit` now warns about the hybrid gap; 80 tests. Quickstart audits (`results/quickstart_audit/`, `notebooks/03_quickstart_audit.ipynb`): Lightning's llama.cpp recipe fails on a nonexistent `:Q4_K_M` tag (Mac); Qwen3-4B's Transformers quickstart needs undocumented `accelerate` and then offloads to disk on a 16 GB Mac, but worked as written on Kaggle 2× T4 in 115 s; Qwen3-4B's `vllm serve` line fails on `--enable-reasoning` in vLLM 0.32.0 despite the card's `vllm>=0.8.5`.
