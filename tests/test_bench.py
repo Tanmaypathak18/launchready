@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import struct
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -622,3 +623,73 @@ def test_run_with_failed_requests_is_partial_and_stays_in_the_headline(fake_smi,
     assert row["status"] == "partial"
     assert "ServerDisconnectedError" in row["note"]
     assert run_matrix.headline([row])[0]["reps"] == 1
+
+
+# --- recipes run as written in the 5090 session ------------------------------------------------
+
+RECIPES = Path(__file__).parent.parent / "recipes" / "nemotron-3.5-lightning"
+MATRIX_5090 = Path(__file__).parent.parent / "bench" / "matrices" / "rtx5090_lightning.yaml"
+NVFP4_REV = "bee7596271d1495f6992ae224aefde4410e816b8"
+
+
+def _run_vllm_recipe(tmp_path, **env):
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(exist_ok=True)
+    fake = bin_dir / "vllm"
+    fake.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\n')
+    fake.chmod(0o755)
+    full_env = {**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}", **env}
+    out = subprocess.run(
+        ["bash", str(RECIPES / "vllm.sh")],
+        env={**full_env, "RUNNER": "local"},
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return out.stdout.splitlines()
+
+
+def test_vllm_recipe_default_has_pinned_model_and_no_fp8_kv(tmp_path):
+    args = _run_vllm_recipe(tmp_path)
+    assert args[0] == "serve" and NVFP4_REV in args
+    assert "--kv-cache-dtype" not in args
+    assert "--no-enable-prefix-caching" in args
+    assert args[args.index("--max-model-len") + 1] == "40960"
+
+
+def test_vllm_recipe_card_mode_keeps_the_card_flags(tmp_path):
+    args = _run_vllm_recipe(tmp_path, MODE="card")
+    assert args[args.index("--kv-cache-dtype") + 1] == "fp8"
+    assert "--enable-prefix-caching" in args
+    assert "--speculative_config.model" in args
+
+
+def test_5090_session_runs_each_recipe_as_written():
+    matrix = run_matrix.load_matrix(MATRIX_5090)
+    for name in ("recipe-vllm", "recipe-llama-server", "recipe-ollama"):
+        assert matrix["servers"][name]["startup_only"] is True
+    vllm = matrix["servers"]["recipe-vllm"]["variants"][0]
+    assert vllm["cmd"] == ["bash", "recipes/nemotron-3.5-lightning/vllm.sh"]
+    assert vllm["env"]["RUNNER"] == "local"
+    # The llama-server flags in the matrix are the ones printed in ollama.md.
+    recipe = (RECIPES / "ollama.md").read_text()
+    llama = matrix["servers"]["recipe-llama-server"]["variants"][0]["cmd"]
+    assert "--port 8001 -np 8 -c 327680 -ngl 99 -fa on --jinja --no-webui --fit off" in recipe
+    assert (
+        " ".join(llama[3:])
+        == "--port 8001 -np 8 -c 327680 -ngl 99 -fa on --jinja --no-webui --fit off"
+    )
+    ollama = matrix["servers"]["recipe-ollama"]
+    assert ollama["variants"][0]["env"]["OLLAMA_CONTEXT_LENGTH"] == "40960"
+    run = next(s for s in ollama["setup"] if s[:2] == ["ollama", "run"])
+    assert "--verbose" in run and "ollama run hf.co/bartowski" in recipe
+
+
+def test_nvfp4_is_downloaded_once_for_the_matrix_and_the_recipe(monkeypatch):
+    monkeypatch.delenv("HF_HOME", raising=False)
+    matrix = run_matrix.load_matrix(MATRIX_5090)
+    variables = run_matrix.resolve_vars(matrix["vars"])
+    assert variables["NVFP4_DIR"].endswith(f"/snapshots/{NVFP4_REV}")
+    step = next(s for s in matrix["prepare"] if "${NVFP4_REPO}" in s)
+    assert "--local-dir" not in step and step.startswith("HF_HOME=${HF_HOME} ")
+    assert matrix["servers"]["recipe-vllm"]["variants"][0]["env"]["HF_HOME"] == "${HF_HOME}"

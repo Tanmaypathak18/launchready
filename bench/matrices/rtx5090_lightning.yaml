@@ -13,9 +13,12 @@ session: rtx5090_lightning
 results_dir: results
 vars:
   MODELS_DIR: /workspace/models
+  # NVFP4 goes in the Hugging Face cache, so the matrix (snapshot path) and vllm.sh (repo +
+  # revision) share one copy. Keep it on the volume: the container disk is too small.
+  HF_HOME: /workspace/hf
   NVFP4_REPO: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4
   NVFP4_REV: bee7596271d1495f6992ae224aefde4410e816b8
-  NVFP4_DIR: ${MODELS_DIR}/Lightning-NVFP4
+  NVFP4_DIR: ${HF_HOME}/hub/models--nvidia--NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4/snapshots/${NVFP4_REV}
   DSPARK_REPO: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DSpark
   DSPARK_REV: 6d127b50ecd98562cea85d0087680b7d86091fb0
   DSPARK_DIR: ${MODELS_DIR}/Lightning-NVFP4-DSpark
@@ -40,7 +43,7 @@ defaults:
 
 # Run once, in order, by run_session_5090.sh before the matrix (one shell command per line).
 prepare:
-  - uv run hf download ${NVFP4_REPO} --revision ${NVFP4_REV} --local-dir ${NVFP4_DIR}
+  - HF_HOME=${HF_HOME} uv run hf download ${NVFP4_REPO} --revision ${NVFP4_REV}
   - uv run hf download ${DSPARK_REPO} --revision ${DSPARK_REV} --local-dir ${DSPARK_DIR}
   - uv run hf download ${GGUF_REPO} ${GGUF_NAME} --revision ${GGUF_REV} --local-dir ${GGUF_DIR}
   - bash bench/build_llamacpp.sh ${LLAMA_CPP_TAG} ${LLAMA_CPP_DIR}
@@ -224,6 +227,62 @@ servers:
           OLLAMA_MODELS: ${MODELS_DIR}/ollama
           OLLAMA_CONTEXT_LENGTH: "40960"
           OLLAMA_KEEP_ALIVE: "-1"
+
+  # Last, so they can't cost the benchmarks: the recipes as a reader runs them, startup check
+  # only. Exceptions, because a pod differs from a laptop: RUNNER=local (no Docker inside a pod),
+  # and llama-server comes from bench/build_llamacpp.sh with -m pointing at the pinned file.
+  recipe-vllm:
+    engine: vllm
+    port: 8000
+    model: nemotron-lightning
+    model_repo: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4
+    model_revision: bee7596271d1495f6992ae224aefde4410e816b8
+    prefix_caching: "off"
+    health_path: /health
+    version_path: /version
+    startup_timeout: 2400
+    startup_only: true
+    variants:
+      - name: as-written
+        cmd: [bash, recipes/nemotron-3.5-lightning/vllm.sh]
+        env: {RUNNER: local, HF_HOME: "${HF_HOME}"}
+
+  recipe-llama-server:
+    engine: llama.cpp
+    port: 8001
+    model: nemotron-lightning-gguf
+    model_repo: bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF
+    model_revision: f0eec2267ae843d9eb21ea3926ab0046da0a8628
+    gguf_file: ${GGUF_FILE}
+    health_path: /health
+    version_cmd: ["${LLAMA_SERVER}", --version]
+    startup_timeout: 900
+    startup_only: true
+    variants:
+      - name: as-written
+        cmd: ["${LLAMA_SERVER}", -m, "${GGUF_FILE}", --port, "8001", -np, "8", -c, "327680",
+              -ngl, "99", -fa, "on", --jinja, --no-webui, --fit, "off"]
+
+  recipe-ollama:
+    engine: ollama
+    port: 11434
+    model: ${OLLAMA_MODEL}
+    model_repo: bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF (via ollama pull hf.co/...)
+    model_revision: "latest at pull time (digest in the server log)"
+    health_path: /api/version
+    version_cmd: [ollama, --version]
+    startup_timeout: 300
+    startup_only: true
+    setup:
+      - [ollama, run, "${OLLAMA_MODEL}", "Say hello in one sentence.", --verbose]
+      - [ollama, ps]
+    variants:
+      - name: as-written
+        cmd: [ollama, serve]
+        env:
+          OLLAMA_HOST: 127.0.0.1:11434
+          OLLAMA_MODELS: ${MODELS_DIR}/ollama
+          OLLAMA_CONTEXT_LENGTH: "40960"
 
 runs:
   - {server: vllm-nvfp4, workload: chat, concurrency: [1, 8, 32], reps: 3,
