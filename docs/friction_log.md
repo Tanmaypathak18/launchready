@@ -18,12 +18,52 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Dry run 2: vLLM quality scored exactly 0.0 because every answer came back in `reasoning`, not `content`
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 88a53fd · session dryrun_kaggle_qwen3_4b_20261103T2043Z · vLLM 0.32.0 · lm-eval 0.4.13 · Qwen/Qwen3-4B @ 1cfa9a7
+- Exact command: `vllm serve Qwen/Qwen3-4B ... --reasoning-parser deepseek_r1 --default-chat-template-kwargs '{"enable_thinking": false}'`, then `lm_eval --model local-chat-completions ... --tasks gsm8k --limit 20` (same for ifeval)
+- What happened (error excerpt): vLLM gsm8k 0.0, ifeval 0.0; llama-server 0.65 and 0.75 on identical prompts. All 60 vLLM samples have `resps: [[""]]` (`filtered_resps: "[invalid]"`), and lm-eval logged, for every request, `API returned null content. Content filled with LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = . Check reasoning_content field or generation limits.`
+- Root cause: `deepseek_r1` doesn't handle thinking off. With `enable_thinking=false`, Qwen3's template ends the prompt with `<think>\n\n</think>\n\n`, so the model's output has no `</think>`. vLLM's `BaseThinkingReasoningParser.extract_reasoning` (`vllm/reasoning/basic_parsers.py`, read at v0.32.0) then does `if self.end_token not in model_output: return model_output, None`: the whole answer becomes `reasoning` and `content` is null. Streaming isn't affected, because the serving layer sets `reasoning_ended` from the prompt tokens; that's why AIPerf (streaming) saw 256 normal output tokens. The raw HTTP response wasn't recorded; this rests on the samples, the lm-eval warning and the source.
+- Why we missed it: two bugs of ours. `Server.chat()` joined `content` + `reasoning`, so the startup check passed on "42" and "Paris." with content actually null. `quality.py` reported 60 empty answers as status `ok`, score 0.0.
+- Fix or workaround: Kaggle matrix uses `--reasoning-parser qwen3`, which returns `(None, model_output)` when `enable_thinking` is false. The startup check now requires non-empty `content` when thinking is off, and saves the first raw response. `quality.py` counts empty answers; above 5% the task is `invalid`, with no score in the CSV. **The parser fix can only be verified by a new Kaggle run.** It wasn't re-run, by instruction; the guards are tested offline.
+- Lightning: the 5090 matrix uses `nemotron_v3`, not `deepseek_r1`. By reading v0.27.1 (not running it): the server default reaches `NemotronV3Parser` through `chat_template_kwargs`, `Qwen3Parser.extract_reasoning` returns `(None, model_output)` with thinking off, and `--default-chat-template-kwargs` exists there. An attempt to run vLLM's parsers locally was blocked (it would execute downloaded source). If this reading is wrong, the new startup check fails in the first 8 requests, before any benchmark.
+- Severity: wrong output (a false 0.0 with status ok)
+- Filed: not filed: `deepseek_r1` isn't Qwen3's parser; our matrix copied it from the card line
+- Requirement this implies: check that the answer is in `content`, not just that the server answered; a quality score from empty answers is not a score.
+
+### Dry run 2: "prefix caching off" wasn't true for llama-server or Ollama
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 88a53fd · session dryrun_kaggle_qwen3_4b_20261103T2043Z · llama.cpp v0.8.0 · Ollama 0.40.14
+- Exact command: the AIPerf runs in `bench/matrices/kaggle_qwen3_4b.yaml`
+- What happened: per-request TTFT is bimodal. llama-server long: 4,871, 5,075, then 991, 957 ms. llama-server chat: ~430 ms, last two 142, 140. Ollama chat: ~430, last two 188, 186. vLLM long stayed flat at ~16,350 ms. The llama-server log shows `selected slot by LCP similarity, f_sim_best = 1.000` and `n_past = 524`.
+- Root cause: AIPerf generated as many prompts as `--request-count`, used the first ones for warmup, then repeated them at the end of the run; llama-server's `cache_prompt` (on by default) reused them. Our label "off (no prompt reuse...; synthetic prompts)" was wrong. It flatters TTFT p50 and p99 for GGUF against vLLM.
+- Fix or workaround: `--num-dataset-entries` = requests + warmup, so every prompt is unique; llama-server also gets `cache_prompt: false` per request. Ollama has no equivalent setting here, so unique prompts are what protect it. Needs a new run to verify.
+- Severity: wrong output (comparison skewed in GGUF's favor)
+- Filed: not filed: our setup
+- Requirement this implies: "cache off" has to be shown per engine; look at per-request TTFT, not only percentiles.
+
+### Dry run 2: llama-server at 32 users lost 2 of 64 requests but the run said `ok`
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 88a53fd · session dryrun_kaggle_qwen3_4b_20261103T2043Z · llama.cpp v0.8.0
+- Exact command: AIPerf `--concurrency 32 --request-count 64` against `llama-server -np 8`
+- What happened (error excerpt): `ServerDisconnectedError('Server disconnected')` × 2; error rate 3.125%; `status: ok`; `requests_completed` said 64 while only 62 succeeded.
+- Root cause: ours for the labeling (status ignored AIPerf's errors, and `completed_request_count` includes failures). The disconnect itself is **not diagnosed**: nothing in the server log explains it, and this point deliberately queues 24 requests past 8 slots.
+- Fix or workaround: runs with any failed request get status `partial` and a note naming the error and count, and `requests_completed` counts successes only. Headline rows keep them, and the note stays on the run. Watch for it at 32 users on the 5090.
+- Severity: slows
+- Filed: not filed: cause unknown
+- Requirement this implies: throughput numbers carry their error count.
+
+### Dry run 2: fixes from dry run 1 confirmed, and Ollama's output was all reasoning
+- When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 88a53fd · session dryrun_kaggle_qwen3_4b_20261103T2043Z · llama.cpp v0.8.0 · Ollama 0.40.14
+- What happened: all servers ran, 10 of 10 runs finished, the GPU sampler recorded memory and power, and the two expected failures failed as expected. The llama.cpp build linked `/usr/local/nvidia/lib64/libcuda.so.1`, confirming no driver stub is on Kaggle, and took 1,654 s (27.5 min). `ollama serve` started under the matrix with 37/37 layers on the GPU.
+- Note for the 5090: Ollama ran with thinking on, so all 256 tokens per request were reasoning (AIPerf `reasoning_token_count` 256, no `output_token_count`). Throughput is still valid; the text isn't comparable to the other engines.
+- Severity: cosmetic
+- Filed: not filed
+- Requirement this implies: none.
+
 ### Dry run: llama.cpp v0.8.0 CUDA build fails with "CUDA::cuda_driver ... target was not found"
 - When / where: 2026-11-03 · Kaggle 2× Tesla T4 · driver 580.178.04 · CUDA 13.0 · launchready 654f459 · session dryrun_kaggle_qwen3_4b_20261103T1948Z · llama.cpp v0.8.0 (8642541) · nvcc 13.0.88
 - Exact command: `bash bench/build_llamacpp.sh v0.8.0 /tmp/llama.cpp` (prepare-3)
 - What happened (error excerpt): `CMake Error at ggml/src/ggml-cuda/CMakeLists.txt:181 (target_link_libraries): Target "ggml-cuda" links to: CUDA::cuda_driver but the target was not found.` CMake did find the toolkit (`Found CUDAToolkit: /usr/local/cuda/targets/x86_64-linux/include ... 13.0.88`).
-- Root cause: llama.cpp links `CUDA::cuda_driver` (libcuda.so, for virtual-memory pools) unless `GGML_CUDA_NO_VMM` is on. CMake's FindCUDAToolkit only creates that target when it finds a library named `libcuda.so` in the toolkit's lib dirs or their `stubs/` subdirectory. Kaggle's image has the toolkit but no `libcuda.so` there: the stub ships in the `cuda-driver-dev` package, and the driver itself provides only `libcuda.so.1`. Inferred from the error and the CMake source; the directory listing wasn't captured.
-- Fix or workaround: `build_llamacpp.sh` now looks for libcuda (toolkit `stubs/`, then the driver's `libcuda.so`/`libcuda.so.1` via ldconfig), installs `cuda-driver-dev-<ver>` if none is found, passes the path as `-DCUDA_cuda_driver_LIBRARY=...`, and only as a last resort builds with `-DGGML_CUDA_NO_VMM=ON` (recorded in `build/LAUNCHREADY_BUILD.txt`). It logs `cmake --version` and the libcuda it used. **Not verified yet**: needs the next Kaggle run (no GPU or CUDA toolkit here).
+- Root cause: llama.cpp links `CUDA::cuda_driver` (libcuda.so, for virtual-memory pools) unless `GGML_CUDA_NO_VMM` is on. CMake's FindCUDAToolkit only creates that target when it finds a library named `libcuda.so` in the toolkit's lib dirs or their `stubs/` subdirectory. Kaggle's image has the toolkit but no `libcuda.so` there: the stub ships in the `cuda-driver-dev` package, and the driver itself provides only `libcuda.so.1`. Confirmed by dry run 2, which found only the driver's `/usr/local/nvidia/lib64/libcuda.so.1`.
+- Fix or workaround: `build_llamacpp.sh` now looks for libcuda (toolkit `stubs/`, then the driver's `libcuda.so`/`libcuda.so.1` via ldconfig), installs `cuda-driver-dev-<ver>` if none is found, passes the path as `-DCUDA_cuda_driver_LIBRARY=...`, and only as a last resort builds with `-DGGML_CUDA_NO_VMM=ON` (recorded in `build/LAUNCHREADY_BUILD.txt`). It logs `cmake --version` and the libcuda it used. Verified by dry run 2 on Kaggle (it linked the driver's `libcuda.so.1`); still unverified on the Runpod vLLM image.
 - Severity: blocks (no llama-server, so no concurrent GGUF points)
 - Filed: not filed: environment packaging, not a llama.cpp bug
 - Requirement this implies: build scripts must not assume a full CUDA devel image; check for the driver stub and say which libcuda was linked.
@@ -53,7 +93,7 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 - Exact command: `bash bench/install_ollama.sh 0.40.14` (prepare-4)
 - What happened: `WARNING: systemd is not running` · `WARNING: Unable to detect NVIDIA/AMD GPU. Install lspci or lshw to automatically detect and install GPU dependencies.` · `Warning: could not connect to a running Ollama instance`. The install itself succeeded (exit 0).
 - Root cause: containers (Kaggle, Runpod) have no systemd, so the installer can't start its service; it looks for GPUs with lspci/lshw, which aren't installed. The Ollama tarball carries its CUDA libraries, so the GPU warning only skips driver installation.
-- Fix or workaround: none needed for systemd: the matrix starts `ollama serve` itself as the server process (and stops it). `install_ollama.sh` now installs `pciutils` first, and, if systemd *is* running, stops and disables the `ollama` service so it can't hold port 11434 in place of the matrix's server. Ollama never ran in this dry run (the matrix crashed first), so this is still unverified.
+- Fix or workaround: none needed for systemd: the matrix starts `ollama serve` itself as the server process (and stops it). `install_ollama.sh` now installs `pciutils` first, and, if systemd *is* running, stops and disables the `ollama` service so it can't hold port 11434 in place of the matrix's server. Ollama didn't run in this dry run (the matrix crashed first); dry run 2 confirmed it.
 - Severity: cosmetic
 - Filed: not filed
 - Requirement this implies: none.
