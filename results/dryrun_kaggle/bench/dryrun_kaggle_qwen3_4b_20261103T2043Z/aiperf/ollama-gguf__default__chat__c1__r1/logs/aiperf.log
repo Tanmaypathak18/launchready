@@ -1,0 +1,87 @@
+2026-11-03 21:48:57.075 - aiperf.cli_runner._single_run - INFO - Starting AIPerf System
+2026-11-03 21:48:57.085 - aiperf.config.resolution.resolvers - INFO - [OK] Tokenizer Qwen/Qwen3-4B detected
+2026-11-03 21:48:57.085 - aiperf.config.resolution.resolvers - INFO - 1 tokenizer validated | 0.0s
+2026-11-03 21:48:57.085 - aiperf.config.resolution.resolvers - INFO - HF cache hit (skipping prefetch): ['Qwen/Qwen3-4B']
+2026-11-03 21:48:57.246 - aiperf - WARNING - Using --osl without ignore_eos or min_tokens in --extra-inputs. Output sequence length cannot be guaranteed unless the server honors these parameters. Consider: --extra-inputs ignore_eos:true (generate until max_tokens) or --extra-inputs min_tokens:<value> (set minimum output length).
+2026-11-03 21:48:57.371 - system_controller - INFO - GPU telemetry disabled via --no-gpu-telemetry
+2026-11-03 21:48:57.374 - system_controller - INFO - Server metrics disabled via --no-server-metrics
+2026-11-03 21:48:57.398 - _ServiceRegistry - INFO - Registered: Worker_Manager ('worker_manager') [0/0]
+2026-11-03 21:48:57.399 - system_controller - INFO - Registered Worker Manager (id: 'worker_manager')
+2026-11-03 21:48:57.429 - OTelMetricsResultsProcessor_9f7c7ce7 - INFO - Telemetry streaming is disabled (set --otel-url and/or --mlflow-tracking-uri to enable)
+2026-11-03 21:48:57.430 - RecordExportJSONLWriter_e00f723b - INFO - Record metrics export enabled: /kaggle/working/launchready/results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2043Z/aiperf/ollama-gguf__default__chat__c1__r1/profile_export.jsonl
+2026-11-03 21:48:57.442 - _ServiceRegistry - INFO - Registered: Dataset_Manager ('dataset_manager') [0/0]
+2026-11-03 21:48:57.442 - system_controller - INFO - Registered Dataset Manager (id: 'dataset_manager')
+2026-11-03 21:48:57.442 - _ServiceRegistry - INFO - Registered: Records_Manager ('records_manager') [0/0]
+2026-11-03 21:48:57.442 - system_controller - INFO - Registered Records Manager (id: 'records_manager')
+2026-11-03 21:48:57.443 - system_controller - INFO - Registered Records Manager (id: 'records_manager')
+2026-11-03 21:48:57.497 - system_controller - INFO - Registered Worker Manager (id: 'worker_manager')
+2026-11-03 21:48:57.537 - system_controller - INFO - Registered Dataset Manager (id: 'dataset_manager')
+2026-11-03 21:48:57.551 - _ServiceRegistry - INFO - Registered: Record_Processor ('record_processor_b40d2442') [0/0]
+2026-11-03 21:48:57.551 - system_controller - INFO - Registered Record Processor (id: 'record_processor_b40d2442')
+2026-11-03 21:48:57.603 - _ServiceRegistry - INFO - Registered: Timing_Manager ('timing_manager') [0/0]
+2026-11-03 21:48:57.603 - system_controller - INFO - Registered Timing Manager (id: 'timing_manager')
+2026-11-03 21:48:57.603 - system_controller - INFO - Registered Timing Manager (id: 'timing_manager')
+2026-11-03 21:48:57.651 - system_controller - INFO - Registered Record Processor (id: 'record_processor_b40d2442')
+2026-11-03 21:48:57.701 - _ServiceRegistry - INFO - Registered: Worker ('worker_f722ac1f') [0/0]
+2026-11-03 21:48:57.701 - system_controller - INFO - Registered Worker (id: 'worker_f722ac1f')
+2026-11-03 21:48:57.701 - system_controller - INFO - Registered Worker (id: 'worker_f722ac1f')
+2026-11-03 21:48:57.876 - system_controller - INFO - System state: initializing -> configuring
+2026-11-03 21:48:57.877 - system_controller - INFO - AIPerf System is CONFIGURING
+2026-11-03 21:48:57.877 - system_controller - INFO - Configuring all services to start profiling
+2026-11-03 21:48:57.878 - InferenceResultParser_ebb94837 - INFO - Configuring tokenizers for inference result parser (resolve_alias: True)
+2026-11-03 21:48:57.879 - timing_manager - INFO - Waiting for dataset to be configured before configuring timing
+2026-11-03 21:48:57.879 - dataset_manager - INFO - Configuring tokenizer(s) for dataset manager
+2026-11-03 21:48:59.472 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B/tree/1cfa9a7208912126459214e8b04321603b3df60c/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 21:48:59.485 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B/tree/1cfa9a7208912126459214e8b04321603b3df60c/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 21:48:59.525 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B/tree/1cfa9a7208912126459214e8b04321603b3df60c?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 21:48:59.531 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B/tree/1cfa9a7208912126459214e8b04321603b3df60c?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 21:49:00.103 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B "HTTP/1.1 200 OK"
+2026-11-03 21:49:00.106 - InferenceResultParser_ebb94837 - INFO - Initialized tokenizers: {'hf.co/Qwen/Qwen3-4B-GGUF:Q4_K_M': {'class': 'Qwen2Tokenizer', 'name_or_path': 'Qwen/Qwen3-4B'}} in 2.23 seconds
+2026-11-03 21:49:00.110 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-4B "HTTP/1.1 200 OK"
+2026-11-03 21:49:00.113 - dataset_manager - INFO - Tokenizer(s) configured in 2.23 seconds
+2026-11-03 21:49:00.113 - dataset_manager - INFO - Configuring dataset for dataset_manager
+2026-11-03 21:49:01.424 - MemoryMapDatasetBackingStore_2baa3a41 - INFO - Memory-mapped backing store initialized (streaming to /tmp/aiperf_mmap_1000dde8fc45/dataset.dat)
+2026-11-03 21:49:01.426 - MemoryMapDatasetBackingStore_2baa3a41 - INFO - Data file finalized: 8 conversations, 0.02 MB
+2026-11-03 21:49:01.427 - MemoryMapDatasetBackingStore_2baa3a41 - INFO - Index file created: /tmp/aiperf_mmap_1000dde8fc45/index.dat
+2026-11-03 21:49:01.427 - dataset_manager - INFO - Backing store finalized: client_type=DatasetClientStoreType.MEMORY_MAP format=MemoryMapFormat.CONVERSATION data_file_path=PosixPath('/tmp/aiperf_mmap_1000dde8fc45/dataset.dat') index_file_path=PosixPath('/tmp/aiperf_mmap_1000dde8fc45/index.dat') conversation_count=8 total_size_bytes=25017 compressed=False compressed_data_file_path=None compressed_index_file_path=None compressed_size_bytes=0
+2026-11-03 21:49:01.428 - dataset_manager - INFO - sampling strategy: sequential, unique conversations: 8, unique turn count: 8
+2026-11-03 21:49:01.429 - dataset_manager - INFO - Generating inputs.json file at /kaggle/working/launchready/results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2043Z/aiperf/ollama-gguf__default__chat__c1__r1/inputs.json
+2026-11-03 21:49:01.432 - PhaseOrchestrator_5bc6d9cc - INFO - Initialized 2 phase(s): ['Warmup', 'Profiling']
+2026-11-03 21:49:01.432 - dataset_manager - INFO - inputs.json file generated in 0.00 seconds
+2026-11-03 21:49:01.560 - dataset_manager - INFO - Dataset client initialized and freed 8 conversations from memory
+2026-11-03 21:49:01.560 - dataset_manager - INFO - Dataset configured in 1.45 seconds
+2026-11-03 21:49:01.561 - system_controller - INFO - All services configured in 3.68 seconds
+2026-11-03 21:49:01.561 - system_controller - INFO - System state: configuring -> ready
+2026-11-03 21:49:01.561 - system_controller - INFO - AIPerf System is CONFIGURED
+2026-11-03 21:49:01.564 - system_controller - INFO - All services started profiling successfully
+2026-11-03 21:49:01.564 - system_controller - INFO - System state: ready -> profiling
+2026-11-03 21:49:01.564 - system_controller - INFO - AIPerf System is PROFILING
+2026-11-03 21:49:01.564 - system_controller - INFO - Waiting for result domains: profile
+2026-11-03 21:49:01.566 - RateTiming - INFO - Creating interval generator: pattern=concurrency_burst, rate=None, smoothness=None
+2026-11-03 21:49:01.566 - PhaseRunner - NOTICE - Phase warmup (warmup) started | phase_index=0 | target: 2 requests
+2026-11-03 21:49:01.568 - records_manager - INFO - Credit phase start: warmup
+2026-11-03 21:49:01.568 - RateTiming - INFO - Rate loop pacing via timerfd (kernel hrtimer)
+2026-11-03 21:49:06.777 - PhaseRunner - NOTICE - Phase warmup (warmup) sending complete | sent=2, completed=1, in_flight=1 | sessions: sent=2, completed=1
+2026-11-03 21:49:12.342 - PhaseRunner - NOTICE - Phase warmup (warmup) complete | completed=2, cancelled=0, errors=0 | sessions: completed=2, cancelled=0 | elapsed=10.78s
+2026-11-03 21:49:12.343 - RateTiming - INFO - Creating interval generator: pattern=concurrency_burst, rate=None, smoothness=None
+2026-11-03 21:49:12.343 - PhaseRunner - NOTICE - Phase profiling (profiling) started | phase_index=1 | profiling_index=0 | target: 8 requests
+2026-11-03 21:49:12.344 - RateTiming - INFO - Rate loop pacing via timerfd (kernel hrtimer)
+2026-11-03 21:49:12.344 - records_manager - INFO - Credit phase start: profiling
+2026-11-03 21:49:51.236 - PhaseRunner - NOTICE - Phase profiling (profiling) sending complete | sent=8, completed=7, in_flight=1 | sessions: sent=8, completed=7
+2026-11-03 21:49:51.237 - records_manager - INFO - Sent 8 requests. Waiting for all to complete...
+2026-11-03 21:49:56.533 - PhaseRunner - NOTICE - Phase profiling (profiling) complete | completed=8, cancelled=0, errors=0 | sessions: completed=8, cancelled=0 | elapsed=44.19s
+2026-11-03 21:49:56.533 - PhaseOrchestrator_5bc6d9cc - NOTICE - All credits completed
+2026-11-03 21:49:56.534 - records_manager - INFO - Received CREDIT_PHASE_COMPLETE message, Phase complete: PhaseRecordsStats(phase=CreditPhase.PROFILING, phase_index=1, profiling_index=0, phase_name='profiling', phase_kind='profiling', start_ns=1793742552343505123, sent_end_ns=1793742591236322390, requests_end_ns=1793742596532932947, baseline_start_ns=1793742552343488373, baseline_end_ns=1793742596532940474, total_expected_requests=8, expected_duration_sec=None, expected_num_sessions=None, expected_grace_period_sec=None, final_requests_sent=None, final_requests_completed=8, final_requests_cancelled=0, final_request_errors=0, final_sent_sessions=None, final_completed_sessions=None, final_cancelled_sessions=None, timeout_triggered=False, grace_period_timeout_triggered=False, was_cancelled=False, records_end_ns=None, success_records=7, error_records=0)
+2026-11-03 21:49:56.534 - records_manager - NOTICE - All requests have completed, please wait for the results to be processed (currently 7 of 8 records processed)...
+2026-11-03 21:49:56.534 - system_controller - INFO - Received credits complete from 'timing_manager'
+2026-11-03 21:49:56.534 - system_controller - INFO - System state: profiling -> processing
+2026-11-03 21:49:56.534 - records_manager - INFO - All credits complete, please wait for the results to be processed...
+2026-11-03 21:49:56.542 - records_manager - INFO - Processed 8 valid requests and 0 errors (8 total).
+2026-11-03 21:49:56.543 - records_manager - INFO - Received all records, processing now...
+2026-11-03 21:49:56.544 - records_manager - INFO - Processing records results...
+2026-11-03 21:49:56.607 - records_manager - INFO - _finalize_and_process_results completed
+2026-11-03 21:49:56.608 - system_controller - INFO - System state: processing -> stopping
+2026-11-03 21:49:56.608 - system_controller - INFO - All results received, initiating shutdown
+2026-11-03 21:49:56.609 - system_controller - INFO - System state: stopping -> shutdown
+2026-11-03 21:49:57.211 - ExporterManager - INFO - Exporting all records
+2026-11-03 21:49:57.271 - ExporterManager - INFO - Exporting console data

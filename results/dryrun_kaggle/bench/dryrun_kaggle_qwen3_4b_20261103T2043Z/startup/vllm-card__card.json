@@ -1,0 +1,46 @@
+{
+  "server": "vllm-card",
+  "variant": "card",
+  "cmd": [
+    "vllm",
+    "serve",
+    "Qwen/Qwen3-4B",
+    "--revision",
+    "1cfa9a7208912126459214e8b04321603b3df60c",
+    "--enable-reasoning",
+    "--reasoning-parser",
+    "deepseek_r1",
+    "--dtype",
+    "half",
+    "--served-model-name",
+    "qwen3-4b",
+    "--max-model-len",
+    "8192"
+  ],
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "0"
+  },
+  "started_utc": "2026-11-03T21:13:37+00:00",
+  "healthy": false,
+  "seconds_to_healthy": 35.6,
+  "health": "exited with code 2",
+  "sequence": [],
+  "passed": false,
+  "vllm_capacity": {},
+  "alive": false,
+  "log_tail": [
+    "$ vllm serve Qwen/Qwen3-4B --revision 1cfa9a7208912126459214e8b04321603b3df60c --enable-reasoning --reasoning-parser deepseek_r1 --dtype half --served-model-name qwen3-4b --max-model-len 8192",
+    "usage: vllm [-h] [-v]",
+    "            {chat,complete,serve,launch,bench,collect-env,download-kernels,preload,run-batch,snapshot} ...",
+    "vllm: error: unrecognized arguments: --enable-reasoning"
+  ],
+  "log_file": "results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2043Z/logs/vllm-card__card.log",
+  "meta": {
+    "engine": "vllm",
+    "model_repo": "Qwen/Qwen3-4B",
+    "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "prefix_caching": null,
+    "gguf_file": null,
+    "gguf_tokenizer_pre": null
+  }
+}

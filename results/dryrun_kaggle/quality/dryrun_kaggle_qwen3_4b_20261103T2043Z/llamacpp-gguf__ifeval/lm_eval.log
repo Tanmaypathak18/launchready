@@ -1,0 +1,27 @@
+2026-11-03:21:45:36 WARNING  [config.evaluate_config:337] --limit SHOULD ONLY BE USED FOR TESTING. REAL METRICS SHOULD NOT BE COMPUTED USING LIMIT.
+2026-11-03:21:45:36 INFO     [config.evaluate_config:357] Using default fewshot_as_multiturn=True.
+2026-11-03:21:45:47 INFO     [_cli.run:392] Selected Tasks: ['ifeval']
+2026-11-03:21:45:47 INFO     [evaluator:214] Setting random seed to 1234 | Setting numpy seed to 1234 | Setting torch manual seed to 1234 | Setting fewshot manual seed to 1234
+2026-11-03:21:45:47 WARNING  [evaluator:226] generation_kwargs: {'temperature': 0} specified through cli, these settings will update set parameters in yaml tasks. Ensure 'do_sample=True' for non-greedy decoding!
+2026-11-03:21:45:47 INFO     [evaluator:239] Initializing local-chat-completions model, with arguments: {'base_url': 'http://127.0.0.1:8001/v1/chat/completions', 'model': 'qwen3-4b-gguf', 'num_concurrent': 8, 'max_retries': 3, 'tokenized_requests': False, 'timeout': 1800}
+2026-11-03:21:45:47 INFO     [models.api_models:176] Using max length 2048 - 1
+2026-11-03:21:45:47 INFO     [models.api_models:197] Using tokenizer None
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03:21:45:50 INFO     [evaluator_utils:472] Selected tasks:
+2026-11-03:21:45:50 INFO     [evaluator_utils:506] Task: ifeval (ifeval/ifeval.yaml)
+2026-11-03:21:45:50 INFO     [evaluator:314] ifeval: Using gen_kwargs: {'until': [], 'do_sample': False, 'temperature': 0, 'max_gen_toks': 1280}
+2026-11-03:21:45:50 INFO     [api.task:312] Building contexts for ifeval on rank 0...
+  0%|          | 0/20 [00:00<?, ?it/s]100%|██████████| 20/20 [00:00<00:00, 30727.50it/s]
+2026-11-03:21:45:50 INFO     [evaluator:589] Running generate_until requests
+2026-11-03:21:45:50 INFO     [models.api_models:752] Tokenized requests are disabled. Context + generation length is not checked.
+Requesting API:   0%|          | 0/20 [00:00<?, ?it/s]Requesting API:   5%|▌         | 1/20 [00:02<00:44,  2.35s/it]Requesting API:  10%|█         | 2/20 [00:05<00:55,  3.07s/it]Requesting API:  15%|█▌        | 3/20 [00:07<00:39,  2.32s/it]Requesting API:  20%|██        | 4/20 [00:13<01:00,  3.76s/it]Requesting API:  25%|██▌       | 5/20 [00:17<00:56,  3.76s/it]Requesting API:  30%|███       | 6/20 [00:18<00:42,  3.04s/it]Requesting API:  35%|███▌      | 7/20 [00:19<00:29,  2.27s/it]Requesting API:  40%|████      | 8/20 [00:20<00:23,  1.92s/it]Requesting API:  45%|████▌     | 9/20 [00:33<00:57,  5.24s/it]Requesting API:  55%|█████▌    | 11/20 [00:34<00:28,  3.19s/it]Requesting API:  60%|██████    | 12/20 [00:35<00:20,  2.55s/it]Requesting API:  65%|██████▌   | 13/20 [00:36<00:14,  2.02s/it]Requesting API:  70%|███████   | 14/20 [00:36<00:09,  1.56s/it]Requesting API:  75%|███████▌  | 15/20 [00:36<00:06,  1.26s/it]Requesting API:  80%|████████  | 16/20 [00:37<00:03,  1.06it/s]Requesting API:  85%|████████▌ | 17/20 [00:37<00:02,  1.26it/s]Requesting API:  90%|█████████ | 18/20 [00:38<00:01,  1.08it/s]Requesting API:  95%|█████████▌| 19/20 [00:44<00:02,  2.24s/it]Requesting API: 100%|██████████| 20/20 [00:44<00:00,  1.68s/it]Requesting API: 100%|██████████| 20/20 [00:44<00:00,  2.23s/it]
+2026-11-03:21:46:35 INFO     [loggers.evaluation_tracker:247] Saving results aggregated
+2026-11-03:21:46:35 INFO     [loggers.evaluation_tracker:119] Saving per-task samples to results_dryrun/quality/dryrun_kaggle_qwen3_4b_20261103T2043Z/llamacpp-gguf__ifeval/qwen3-4b-gguf/*.jsonl
+local-chat-completions ({'base_url': 'http://127.0.0.1:8001/v1/chat/completions', 'model': 'qwen3-4b-gguf', 'num_concurrent': 8, 'max_retries': 3, 'tokenized_requests': False, 'timeout': 1800}), gen_kwargs: ({'temperature': 0}), limit: 20.0, num_fewshot: None, batch_size: 1
+|Tasks |Version|Filter|n-shot|        Metric         |   |Value |   |Stderr|
+|------|------:|------|-----:|-----------------------|---|-----:|---|------|
+|ifeval|      4|none  |     0|inst_level_loose_acc   |↑  |0.8333|±  |   N/A|
+|      |       |none  |     0|inst_level_strict_acc  |↑  |0.8333|±  |   N/A|
+|      |       |none  |     0|prompt_level_loose_acc |↑  |0.7500|±  |0.0993|
+|      |       |none  |     0|prompt_level_strict_acc|↑  |0.7500|±  |0.0993|
+

@@ -1,0 +1,48 @@
+2026-11-03:21:31:52 WARNING  [config.evaluate_config:337] --limit SHOULD ONLY BE USED FOR TESTING. REAL METRICS SHOULD NOT BE COMPUTED USING LIMIT.
+2026-11-03:21:31:52 INFO     [config.evaluate_config:357] Using default fewshot_as_multiturn=True.
+2026-11-03:21:32:04 INFO     [_cli.run:392] Selected Tasks: ['ifeval']
+2026-11-03:21:32:04 INFO     [evaluator:214] Setting random seed to 1234 | Setting numpy seed to 1234 | Setting torch manual seed to 1234 | Setting fewshot manual seed to 1234
+2026-11-03:21:32:04 WARNING  [evaluator:226] generation_kwargs: {'temperature': 0} specified through cli, these settings will update set parameters in yaml tasks. Ensure 'do_sample=True' for non-greedy decoding!
+2026-11-03:21:32:04 INFO     [evaluator:239] Initializing local-chat-completions model, with arguments: {'base_url': 'http://127.0.0.1:8000/v1/chat/completions', 'model': 'qwen3-4b', 'num_concurrent': 8, 'max_retries': 3, 'tokenized_requests': False, 'timeout': 1800}
+2026-11-03:21:32:04 INFO     [models.api_models:176] Using max length 2048 - 1
+2026-11-03:21:32:04 INFO     [models.api_models:197] Using tokenizer None
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Generating train split:   0%|          | 0/541 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 541/541 [00:00<00:00, 59738.80 examples/s]
+2026-11-03:21:32:09 INFO     [evaluator_utils:472] Selected tasks:
+2026-11-03:21:32:09 INFO     [evaluator_utils:506] Task: ifeval (ifeval/ifeval.yaml)
+2026-11-03:21:32:09 INFO     [evaluator:314] ifeval: Using gen_kwargs: {'until': [], 'do_sample': False, 'temperature': 0, 'max_gen_toks': 1280}
+2026-11-03:21:32:09 INFO     [api.task:312] Building contexts for ifeval on rank 0...
+  0%|          | 0/20 [00:00<?, ?it/s]100%|██████████| 20/20 [00:00<00:00, 32066.54it/s]
+2026-11-03:21:32:09 INFO     [evaluator:589] Running generate_until requests
+2026-11-03:21:32:09 INFO     [models.api_models:752] Tokenized requests are disabled. Context + generation length is not checked.
+Requesting API:   0%|          | 0/20 [00:00<?, ?it/s]2026-11-03:21:32:10 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:   5%|▌         | 1/20 [00:00<00:16,  1.18it/s]2026-11-03:21:32:14 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  10%|█         | 2/20 [00:04<00:46,  2.56s/it]2026-11-03:21:32:16 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  15%|█▌        | 3/20 [00:07<00:45,  2.69s/it]2026-11-03:21:32:18 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  20%|██        | 4/20 [00:09<00:38,  2.42s/it]2026-11-03:21:32:25 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  25%|██▌       | 5/20 [00:16<01:00,  4.05s/it]2026-11-03:21:32:28 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  30%|███       | 6/20 [00:18<00:47,  3.40s/it]2026-11-03:21:32:28 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  35%|███▌      | 7/20 [00:19<00:32,  2.49s/it]2026-11-03:21:32:29 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  40%|████      | 8/20 [00:19<00:22,  1.87s/it]2026-11-03:21:32:40 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  45%|████▌     | 9/20 [00:30<00:52,  4.80s/it]2026-11-03:21:32:40 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  50%|█████     | 10/20 [00:31<00:33,  3.35s/it]2026-11-03:21:32:40 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+2026-11-03:21:32:41 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  55%|█████▌    | 11/20 [00:31<00:22,  2.46s/it]2026-11-03:21:32:42 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  65%|██████▌   | 13/20 [00:32<00:11,  1.61s/it]2026-11-03:21:32:42 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  70%|███████   | 14/20 [00:33<00:07,  1.27s/it]2026-11-03:21:32:42 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  75%|███████▌  | 15/20 [00:33<00:04,  1.00it/s]2026-11-03:21:32:42 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+2026-11-03:21:32:43 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  85%|████████▌ | 17/20 [00:34<00:02,  1.23it/s]2026-11-03:21:32:47 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  90%|█████████ | 18/20 [00:38<00:03,  1.56s/it]2026-11-03:21:32:58 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API:  95%|█████████▌| 19/20 [00:49<00:03,  3.87s/it]2026-11-03:21:33:39 WARNING  [models.api_models:544] API returned null content. Content filled with `LMEVAL_MODEL_NONE_ANSWER_PLACEHOLDER = `. Check reasoning_content field or generation limits.
+Requesting API: 100%|██████████| 20/20 [01:29<00:00, 13.59s/it]Requesting API: 100%|██████████| 20/20 [01:29<00:00,  4.49s/it]
+2026-11-03:21:33:39 INFO     [loggers.evaluation_tracker:247] Saving results aggregated
+2026-11-03:21:33:39 INFO     [loggers.evaluation_tracker:119] Saving per-task samples to results_dryrun/quality/dryrun_kaggle_qwen3_4b_20261103T2043Z/vllm-bench__ifeval/qwen3-4b/*.jsonl
+local-chat-completions ({'base_url': 'http://127.0.0.1:8000/v1/chat/completions', 'model': 'qwen3-4b', 'num_concurrent': 8, 'max_retries': 3, 'tokenized_requests': False, 'timeout': 1800}), gen_kwargs: ({'temperature': 0}), limit: 20.0, num_fewshot: None, batch_size: 1
+|Tasks |Version|Filter|n-shot|        Metric         |   |Value|   |Stderr|
+|------|------:|------|-----:|-----------------------|---|----:|---|------|
+|ifeval|      4|none  |     0|inst_level_loose_acc   |↑  |    0|±  |   N/A|
+|      |       |none  |     0|inst_level_strict_acc  |↑  |    0|±  |   N/A|
+|      |       |none  |     0|prompt_level_loose_acc |↑  |    0|±  |0.0000|
+|      |       |none  |     0|prompt_level_strict_acc|↑  |    0|±  |0.0000|
+

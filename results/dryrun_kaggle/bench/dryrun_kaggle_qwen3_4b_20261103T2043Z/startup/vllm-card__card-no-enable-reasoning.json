@@ -1,0 +1,128 @@
+{
+  "server": "vllm-card",
+  "variant": "card-no-enable-reasoning",
+  "cmd": [
+    "vllm",
+    "serve",
+    "Qwen/Qwen3-4B",
+    "--revision",
+    "1cfa9a7208912126459214e8b04321603b3df60c",
+    "--reasoning-parser",
+    "deepseek_r1",
+    "--dtype",
+    "half",
+    "--served-model-name",
+    "qwen3-4b",
+    "--max-model-len",
+    "8192"
+  ],
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "0"
+  },
+  "started_utc": "2026-11-03T21:14:13+00:00",
+  "healthy": true,
+  "seconds_to_healthy": 185.0,
+  "health": "healthy",
+  "sequence": [
+    {
+      "prompt": "What is 17 + 25? Answer with the number only.",
+      "ok": true,
+      "text": "\nOkay, let's see. The user is asking for 17 plus 25, and they want the answer as just the number. Alright, so first, I need to add those two numbers together. Let me break it down. 17 plus 25. Hmm, 17"
+    },
+    {
+      "prompt": "Name the capital of France in one word.",
+      "ok": true,
+      "text": "\nOkay, the user is asking for the capital of France in one word. Let me think. France is a country in Europe, right? I remember that the capital is Paris. Wait, is there any other city that's consider"
+    },
+    {
+      "prompt": "Write one sentence about GPUs.",
+      "ok": true,
+      "text": "\nOkay, the user wants a single sentence about GPUs. Let me start by recalling what GPUs are. They're graphics processing units, right? Used for rendering images, videos, and handling parallel processi"
+    },
+    {
+      "prompt": "List three primary colors, comma-separated.",
+      "ok": true,
+      "text": "\nOkay, the user is asking for three primary colors, separated by commas. Let me start by recalling what primary colors are. In the traditional color model, primary colors are red, blue, and yellow. Th"
+    },
+    {
+      "prompt": "Translate 'good morning' into Spanish.",
+      "ok": true,
+      "text": "\nOkay, the user wants to translate \"good morning\" into Spanish. Let me think. The most common translation is \"buenos d\u00edas\". But wait, sometimes people might use \"buen d\u00eda\" as well. Hmm, which is more "
+    },
+    {
+      "prompt": "What is 9 times 8? Answer with the number only.",
+      "ok": true,
+      "text": "\nOkay, the user is asking what 9 times 8 is and wants the answer as just the number. Let me think. I know that multiplication is repeated addition, so 9 added eight times. But maybe there's a quicker "
+    },
+    {
+      "prompt": "Give a synonym for 'fast'.",
+      "ok": true,
+      "text": "\nOkay, the user is asking for a synonym for \"fast.\" Let me think about the different words that mean fast. First, I should consider the context in which \"fast\" is used. It could be related to speed, l"
+    },
+    {
+      "prompt": "Is 29 a prime number? Answer yes or no.",
+      "ok": true,
+      "text": "\nOkay, so I need to figure out if 29 is a prime number. Let me start by recalling what a prime number is. A prime number is a number greater than 1 that has no positive divisors other than 1 and itsel"
+    }
+  ],
+  "passed": true,
+  "engine_version": "0.32.0",
+  "vllm_capacity": {
+    "kv_cache_tokens": 32464,
+    "max_concurrency_at_tokens": 8192,
+    "max_concurrency": 3.96,
+    "model_loading_gib": 7.56
+  },
+  "alive": true,
+  "log_tail": [
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /ping, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /invocations, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/chat/completions, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/chat/completions/batch, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/responses, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/responses/{response_id}, Methods: GET",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/responses/{response_id}/cancel, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/completions, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/messages, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/messages/count_tokens, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /generative_scoring, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /scale_elastic_ep, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /is_scaling_elastic_ep, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/chat/completions/render, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/messages/render, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/completions/render, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/responses/render, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/chat/completions/derender, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /v1/completions/derender, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /inference/v1/generate, Methods: POST",
+    "(APIServer pid=6715) INFO 11-03 21:17:15 [launcher.py:195] Route: /inference/v1/abort_requests, Methods: POST",
+    "INFO:     Started server process [6715]",
+    "INFO:     Waiting for application startup.",
+    "INFO:     Application startup complete.",
+    "INFO:     127.0.0.1:35314 - \"GET /health HTTP/1.1\" 200 OK",
+    "(EngineCore pid=6782) WARNING 11-03 21:17:19 [jit_monitor.py:140] Triton kernel JIT compilation during inference: kernel_unified_attention. This causes a latency spike; consider extending warmup to cover this shape/config.",
+    "INFO:     127.0.0.1:35326 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "INFO:     127.0.0.1:35334 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "(APIServer pid=6715) INFO 11-03 21:17:26 [loggers.py:335] Engine 000: Avg prompt throughput: 4.6 tokens/s, Avg generation throughput: 14.6 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.2%, Prefix cache hit rate: 0.0%",
+    "INFO:     127.0.0.1:39178 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "INFO:     127.0.0.1:39190 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "INFO:     127.0.0.1:39196 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "INFO:     127.0.0.1:39206 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "(APIServer pid=6715) INFO 11-03 21:17:36 [loggers.py:335] Engine 000: Avg prompt throughput: 6.9 tokens/s, Avg generation throughput: 23.9 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.1%, Prefix cache hit rate: 0.0%",
+    "INFO:     127.0.0.1:52926 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "INFO:     127.0.0.1:52928 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "(APIServer pid=6715) INFO 11-03 21:17:46 [loggers.py:335] Engine 000: Avg prompt throughput: 3.7 tokens/s, Avg generation throughput: 21.9 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.4%, Prefix cache hit rate: 0.0%",
+    "INFO:     127.0.0.1:52930 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "INFO:     127.0.0.1:38920 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK",
+    "INFO:     127.0.0.1:38924 - \"GET /version HTTP/1.1\" 200 OK"
+  ],
+  "log_file": "results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2043Z/logs/vllm-card__card-no-enable-reasoning.log",
+  "meta": {
+    "engine": "vllm",
+    "model_repo": "Qwen/Qwen3-4B",
+    "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "prefix_caching": null,
+    "gguf_file": null,
+    "gguf_tokenizer_pre": null
+  }
+}

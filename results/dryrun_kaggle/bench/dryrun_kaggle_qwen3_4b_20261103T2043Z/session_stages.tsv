@@ -1,0 +1,7 @@
+stage	status	started_utc	seconds
+prepare-1	0	2026-11-03T20:43:28Z	42
+prepare-2	0	2026-11-03T20:44:10Z	6
+prepare-3	0	2026-11-03T20:44:16Z	1654
+prepare-4	0	2026-11-03T21:11:50Z	106
+prepare-5	0	2026-11-03T21:13:36Z	1
+matrix	0	2026-11-03T21:13:37Z	2180

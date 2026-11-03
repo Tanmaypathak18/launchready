@@ -1,0 +1,50 @@
+{
+  "label": "measured",
+  "what": "GGUF header (metadata + tensor table); weights not read",
+  "file": "/tmp/models/gguf/Qwen3-4B-Q4_K_M.gguf",
+  "file_bytes": 2497280256,
+  "gguf_version": 3,
+  "architecture": "qwen3",
+  "general_name": "Qwen3 4B Instruct Awq",
+  "file_type": 15,
+  "tokenizer_ggml_pre": "qwen2",
+  "tokenizer_ggml_model": "gpt2",
+  "has_chat_template": true,
+  "context_length": 40960,
+  "tensor_count": 398,
+  "params_total": 4022468096,
+  "tensor_bytes": 2491323904,
+  "header_bytes": 5956352,
+  "bits_per_weight": 4.954816484888784,
+  "tensor_types": {
+    "Q4_K": {
+      "tensors": 216,
+      "params": 3137863680,
+      "bytes": 1765048320,
+      "bits_per_weight": 4.5,
+      "share_of_bytes": 0.7084780574561532
+    },
+    "Q6_K": {
+      "tensors": 37,
+      "params": 884408320,
+      "bytes": 725491200,
+      "bits_per_weight": 6.5625,
+      "share_of_bytes": 0.29120709628931496
+    },
+    "F32": {
+      "tensors": 145,
+      "params": 196096,
+      "bytes": 784384,
+      "bits_per_weight": 32.0,
+      "share_of_bytes": 0.00031484625453182343
+    }
+  },
+  "layer_check": {
+    "blocks": 36,
+    "head_count_kv": 8,
+    "mismatches": [],
+    "note": "head_count_kv is not per-layer; per-layer check skipped"
+  },
+  "warnings": [],
+  "checked_utc": "2026-11-03T21:13:37+00:00"
+}

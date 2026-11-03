@@ -1,0 +1,144 @@
+{
+  "server": "ollama-gguf",
+  "variant": "default",
+  "cmd": [
+    "ollama",
+    "serve"
+  ],
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "0",
+    "OLLAMA_HOST": "127.0.0.1:11434",
+    "OLLAMA_MODELS": "/tmp/models/ollama",
+    "OLLAMA_CONTEXT_LENGTH": "8192",
+    "OLLAMA_KEEP_ALIVE": "-1"
+  },
+  "started_utc": "2026-11-03T21:46:37+00:00",
+  "healthy": true,
+  "seconds_to_healthy": 15.0,
+  "health": "healthy",
+  "setup": [
+    {
+      "cmd": [
+        "ollama",
+        "pull",
+        "hf.co/Qwen/Qwen3-4B-GGUF:Q4_K_M"
+      ],
+      "returncode": 0,
+      "seconds": 25.0
+    },
+    {
+      "cmd": [
+        "ollama",
+        "show",
+        "hf.co/Qwen/Qwen3-4B-GGUF:Q4_K_M"
+      ],
+      "returncode": 0,
+      "seconds": 0.1
+    },
+    {
+      "cmd": [
+        "ollama",
+        "list"
+      ],
+      "returncode": 0,
+      "seconds": 0.0
+    }
+  ],
+  "sequence": [
+    {
+      "prompt": "What is 17 + 25? Answer with the number only.",
+      "ok": true,
+      "text": "Okay, let's see. The user is asking for the sum of 17 and 25. Hmm, I need to make sure I add these two numbers correctly. Let me break it down. \n\nFirst, adding the tens place: 10 + 20 is 30. Then the"
+    },
+    {
+      "prompt": "Name the capital of France in one word.",
+      "ok": true,
+      "text": "Okay, the user is asking for the capital of France in one word. Let me think. I know that France is a country in Europe. The capital is usually a city that serves as the political, economic, and cultu"
+    },
+    {
+      "prompt": "Write one sentence about GPUs.",
+      "ok": true,
+      "text": "Okay, the user wants a single sentence about GPUs. Let me start by recalling what GPUs are. They're graphics processing units, right? Mainly for handling graphics, but they also do other tasks.\n\nI sho"
+    },
+    {
+      "prompt": "List three primary colors, comma-separated.",
+      "ok": true,
+      "text": "Okay, the user is asking for three primary colors separated by commas. Let me recall what primary colors are. In art, the primary colors are red, blue, and yellow. But wait, in additive color models l"
+    },
+    {
+      "prompt": "Translate 'good morning' into Spanish.",
+      "ok": true,
+      "text": "Okay, the user wants to translate \"good morning\" into Spanish. Let me think. The direct translation is \"Buenos d\u00edas\". But wait, I should make sure that's correct. Let me recall. In Spanish, \"buenos\" i"
+    },
+    {
+      "prompt": "What is 9 times 8? Answer with the number only.",
+      "ok": true,
+      "text": "Okay, so I need to figure out what 9 times 8 is. Let me think. Hmm, I remember that multiplication is basically adding a number by itself a certain number of times. So 9 multiplied by 8 would be 9 add"
+    },
+    {
+      "prompt": "Give a synonym for 'fast'.",
+      "ok": true,
+      "text": "Okay, the user is asking for a synonym for \"fast.\" Let me think about this. First, I need to recall different words that mean the same as \"fast.\" The most common ones are \"quick\" and \"rapid,\" but ther"
+    },
+    {
+      "prompt": "Is 29 a prime number? Answer yes or no.",
+      "ok": true,
+      "text": "Okay, so I need to figure out if 29 is a prime number. Let me start by recalling what a prime number is. A prime number is a number greater than 1 that has no positive divisors other than 1 and itself"
+    }
+  ],
+  "passed": true,
+  "engine_version": "ollama version is 0.40.14",
+  "vllm_capacity": {},
+  "alive": true,
+  "log_tail": [
+    "srv          load:    - prompt with length      82, lcp =       3, f_keep = 0.037, f_sim = 0.167",
+    "srv          load:    - prompt with length      79, lcp =       4, f_keep = 0.051, f_sim = 0.222",
+    "srv          load:    - prompt with length      81, lcp =       3, f_keep = 0.037, f_sim = 0.167",
+    "srv          load:    - prompt with length      81, lcp =       3, f_keep = 0.037, f_sim = 0.167",
+    "srv          load:    - prompt with length      87, lcp =       3, f_keep = 0.034, f_sim = 0.167",
+    "srv          load:    - prompt with length      80, lcp =       3, f_keep = 0.038, f_sim = 0.167",
+    "srv          load:    - prompt with length      86, lcp =       3, f_keep = 0.035, f_sim = 0.167",
+    "srv          load:    - prompt with length     145, lcp =      18, f_keep = 0.124, f_sim = 1.000",
+    "srv        update:  - cache state: 9 prompts, 113.923 MiB (limits: 8192.000 MiB, 40960 tokens, 58245 est)",
+    "srv        update:    - prompt 0x26d51d20:      89 tokens, checkpoints:  0,    12.517 MiB",
+    "srv        update:    - prompt 0x26d51b10:      82 tokens, checkpoints:  0,    11.533 MiB",
+    "srv        update:    - prompt 0x26d51900:      79 tokens, checkpoints:  0,    11.111 MiB",
+    "srv        update:    - prompt 0x26d519b0:      81 tokens, checkpoints:  0,    11.392 MiB",
+    "srv        update:    - prompt 0x26d51a60:      81 tokens, checkpoints:  0,    11.392 MiB",
+    "srv        update:    - prompt 0x16ef3c60:      87 tokens, checkpoints:  0,    12.236 MiB",
+    "srv        update:    - prompt 0x16ef38f0:      80 tokens, checkpoints:  0,    11.252 MiB",
+    "srv        update:    - prompt 0x1a2f7d60:      86 tokens, checkpoints:  0,    12.096 MiB",
+    "srv        update:    - prompt 0x1a2fe3d0:     145 tokens, checkpoints:  0,    20.393 MiB",
+    "srv  get_availabl: prompt cache update took 21.34 ms",
+    "slot launch_slot_: id  0 | task -1 | sampler chain: logits -> penalties -> ?dry -> ?top-n-sigma -> top-k -> ?typical -> top-p -> ?min-p -> ?xtc -> temp-ext -> greedy ",
+    "slot launch_slot_: id  0 | task -1 | sampler params: ",
+    "\trepeat_last_n = 64, repeat_penalty = 1.000, frequency_penalty = 0.000, presence_penalty = 1.500",
+    "\tdry_multiplier = 0.000, dry_base = 1.750, dry_allowed_length = 2, dry_penalty_last_n = 64",
+    "\ttop_k = 20, top_p = 0.950, min_p = 0.000, xtc_probability = 0.000, xtc_threshold = 0.100, typical_p = 1.000, top_n_sigma = -1.000, temp = 0.000",
+    "\tmirostat = 0, mirostat_lr = 0.100, mirostat_ent = 5.000, adaptive_target = -1.000, adaptive_decay = 0.900",
+    "slot launch_slot_: id  0 | task 649 | processing task, is_child = 0",
+    "slot   operator(): id  0 | task 649 | new prompt, n_ctx_slot = 40960, n_keep = 4, task.n_tokens = 18",
+    "slot   operator(): id  0 | task 649 | need to evaluate at least 1 token for each active slot (n_past = 18, task.n_tokens() = 18)",
+    "slot   operator(): id  0 | task 649 | n_past was set to 17",
+    "slot   operator(): id  0 | task 649 | cached n_tokens = 17, memory_seq_rm [17, end)",
+    "slot init_sampler: id  0 | task 649 | init sampler, took 0.01 ms, tokens: text = 18, total = 18",
+    "slot print_timing: id  0 | task 649 | prompt eval time =      15.88 ms /     1 tokens (   15.88 ms per token,    62.96 tokens per second)",
+    "slot print_timing: id  0 | task 649 |        eval time =    2269.67 ms /   128 tokens (   17.87 ms per token,    55.96 tokens per second)",
+    "slot print_timing: id  0 | task 649 |       total time =    2285.55 ms /   129 tokens",
+    "slot print_timing: id  0 | task 649 |    graphs reused =        751",
+    "slot print_timing: id  0 | task 649 |   graph reallocs =          0    /     0        (same size) / (changed size)",
+    "slot      release: id  0 | task 649 | stop processing: n_tokens = 145, truncated = 0",
+    "srv  update_slots: all slots are idle",
+    "[GIN] 2026/11/03 - 21:48:55 | 200 |    2.31s |       127.0.0.1 | POST     \"/v1/chat/completions\"",
+    "[GIN] 2026/11/03 - 21:48:55 | 200 | 48.195\u00b5s |       127.0.0.1 | GET      \"/api/version\""
+  ],
+  "log_file": "results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2043Z/logs/ollama-gguf__default.log",
+  "meta": {
+    "engine": "ollama",
+    "model_repo": "Qwen/Qwen3-4B-GGUF (via ollama pull hf.co/...)",
+    "model_revision": "latest at pull time (digest in the server log)",
+    "prefix_caching": "n/a",
+    "gguf_file": null,
+    "gguf_tokenizer_pre": null
+  }
+}

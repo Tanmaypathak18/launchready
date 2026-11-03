@@ -1,0 +1,164 @@
+{
+  "data": [
+    {
+      "session_id": "session_000000",
+      "payloads": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": " drowse Whiles nights black agents to their preys do rouse Thou marvellst at my words but hold thee still Things bad begun make strong themselves by ill So prythee go with me Exeunt SCENE III The same A Park or Lawn with a gate leading to the Palace Enter three Murderers FIRST MURDERER But who did bid thee join with us THIRD MURDERER Macbeth SECOND MURDERER He needs not our mistrust since he delivers Our offices and what we have to do To the direction just FIRST MURDERER Then stand with us The west yet glimmers with some streaks of day Now spurs the lated traveller apace To gain the timely inn and near approaches The subject of our watch THIRD MURDERER Hark I hear horses BANQUO Within Give us a light there ho SECOND MURDERER Then tis he the rest That are within the note of expectation Already are i th court FIRST MURDERER His horses go about THIRD MURDERER Almost a mile but he does usually So all men do from hence to the palace gate Make it their walk Enter Banquo and Fleance with a torch SECOND MURDERER A light a light THIRD MURDERER Tis he FIRST MURDERER Stand tot BANQUO It will be rain tonight FIRST MURDERER Let it come down Assaults Banquo BANQUO O treachery Fly good Fleance fly fly fly Thou mayst revengeO slave Dies Fleance escapes THIRD MURDERER Who did strike out the light FIRST MURDERER Wast not the way THIRD MURDERER Theres but one down the son is fled SECOND MURDERER We have lost best half of our affair FIRST MURDERER Well lets away and say how much is done Exeunt SCENE IV The same A Room of state in the Palace A banquet prepared Enter Macbeth Lady Macbeth Ross Lennox Lords and Attendants MACBETH You know your own degrees sit down At first And last the hearty welcome LORDS Thanks to your Majesty MACBETH Ourself will mingle with society And play the humble host Our hostess keeps her state but in best time We will require her welcome LADY MACBETH Pronounce it for me sir to all our friends For my heart speaks they are welcome Enter first Murderer to the door MACBETH See they encounter thee with their hearts thanks Both sides are even here Ill sit i th midst Be large in mirth anon"
+            }
+          ],
+          "model": "qwen3-4b-gguf",
+          "stream": true,
+          "max_completion_tokens": 256,
+          "ignore_eos": true,
+          "stream_options": {
+            "include_usage": true
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "session_000001",
+      "payloads": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": " several colours That methought she appeared like the fair nymph That feeds the lake with waters or as Iris Newly dropped down from heaven Rings she made Of rushes that grew by and to em spoke The prettiest posies Thus our true loves tied This you may loose not me and many a oneAnd then she wept and sung again and sighed And with the same breath smiled and kissed her hand SECOND FRIEND Alas what pity it is WOOER I made in to her She saw me and straight sought the flood I saved her And set her safe to land when presently She slipped away and to the city made With such a cry and swiftness that believe me She left me far behind her Three or four I saw from far off cross herone of em I knew to be your brotherwhere she stayed And fell scarce to be got away I left them with her And hither came to tell you Enter Jailers Brother Jailers Daughter and others Here they are DAUGHTER Sings May you never more enjoy the light c Is not this a fine song BROTHER O a very fine one DAUGHTER I can sing twenty more BROTHER I think you can DAUGHTER Yes truly can I I can sing The Broom and Bonny Robin Are not you a tailor BROTHER Yes DAUGHTER Wheres my wedding gown BROTHER Ill bring it tomorrow DAUGHTER Do very rarely I must be abroad else To call the maids and pay the minstrels For I must lose my maidenhead by cocklight Twill never thrive else Sings O fair O sweet c BROTHER To Jailer You must een take it patiently JAILER Tis true DAUGHTER Good evn good men pray did you ever hear Of one young Palamon JAILER Yes wench we know him DAUGHTER Ist not a fine young gentleman JAILER Tis love BROTHER By no means cross her she is then distempered Far worse than now she shows FIRST FRIEND Yes hes a fine man DAUGHTER O is he so You have a sister FIRST FRIEND Yes DAUGHTER But she shall never have him tell her so For a trick that I know youd best look to her For if she see him once shes gone shes done And undone in an hour All the young maids Of our town are in love with him but I laugh at em And let em all alone Is t not a wise course FIRST FRIEND Yes DAUGHTER There is at least two hundred now with child by him There must be four yet"
+            }
+          ],
+          "model": "qwen3-4b-gguf",
+          "stream": true,
+          "max_completion_tokens": 256,
+          "ignore_eos": true,
+          "stream_options": {
+            "include_usage": true
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "session_000002",
+      "payloads": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": " are honourable But yet they could have wishedthey know not Something hath been amissa noble nature May catch a wrenchwould all were welltis pity And so intending other serious matters After distasteful looks and these hard fractions With certain halfcaps and coldmoving nods They froze me into silence TIMON You gods reward them Prithee man look cheerly These old fellows Have their ingratitude in them hereditary Their blood is caked tis cold it seldom flows Tis lack of kindly warmth they are not kind And nature as it grows again toward earth Is fashioned for the journey dull and heavy Go to Ventidius Prithee be not sad Thou art true and honest ingenuously I speak No blame belongs to thee Ventidius lately Buried his father by whose death hes stepped Into a great estate When he was poor Imprisoned and in scarcity of friends I cleared him with five talents Greet him from me Bid him suppose some good necessity Touches his friend which craves to be remembered With those five talents That had givet these fellows To whom tis instant due Neer speak or think That Timons fortunes mong his friends can sink Exit FLAVIUS I would I could not think it That thought is bountys foe Being free itself it thinks all others so Exit ACT IIISCENE I Athens A room in Lucullus house Flaminius waiting to speak with Lucullus from his master Enter a Servant to him SERVANT I have told my lord of you he is coming down to you FLAMINIUS I thank you sir Enter Lucullus SERVANT Heres my lord LUCULLUS Aside One of Lord Timons men A gift I warrant Why this hits right I dreamt of a silver basin and ewer tonightFlaminius honest Flaminius you are very respectively welcome sir Fill me some wine Exit Servant And how does that honourable complete freehearted gentleman of Athens thy very bountiful good lord and master FLAMINIUS His health is well sir LUCULLUS I am right glad that his health is well sir And what hast thou there under thy cloak pretty Flaminius FLAMINIUS Faith nothing but an empty box sir which in my lords behalf I come to entreat your honour to supply who having great and instant occasion to use fifty talents hath sent to your lordship to furnish him nothing doubting your present assistance therein LUCULLUS La la la la Nothing doubting says he Alas good lord A noble gentleman tis if he would not"
+            }
+          ],
+          "model": "qwen3-4b-gguf",
+          "stream": true,
+          "max_completion_tokens": 256,
+          "ignore_eos": true,
+          "stream_options": {
+            "include_usage": true
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "session_000003",
+      "payloads": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": " heraldry in Lucrece face was seen Argued by beautys red and virtues white Of eithers colour was the other queen Proving from worlds minority their right Yet their ambition makes them still to fight The sovereignty of either being so great That oft they interchange each others seat Their silent war of lilies and of roses Which Tarquin viewed in her fair faces field In their pure ranks his traitor eye encloses Where lest between them both it should be killed The coward captive vanquished doth yield To those two armies that would let him go Rather than triumph in so false a foe Now thinks he that her husbands shallow tongue The niggard prodigal that praised her so In that high task hath done her beauty wrong Which far exceeds his barren skill to show Therefore that praise which Collatine doth owe Enchanted Tarquin answers with surmise In silent wonder of stillgazing eyes This earthly saint adored by this devil Little suspecteth the false worshipperFor unstained thoughts do seldom dream on evil Birds never limed no secret bushes fear So guiltless she securely gives good cheer And reverend welcome to her princely guest Whose inward ill no outward harm expressed For that he coloured with his high estate Hiding base sin in pleats of majesty That nothing in him seemed inordinate Save sometime too much wonder of his eye Which having all all could not satisfy But poorly rich so wanteth in his store That cloyed with much he pineth still for more But she that never coped with stranger eyes Could pick no meaning from their parling looks Nor read the subtle shining secrecies Writ in the glassy margents of such books She touched no unknown baits nor feared no hooks Nor could she moralize his wanton sight More than his eyes were opened to the light He stories to her ears her husbands fame Won in the fields of fruitful Italy And decks with praises Collatines high name Made glorious by his manly chivalry With bruised arms and wreaths of victory Her joy with heavedup hand she doth express And wordless so greets heaven for his success Far from the purpose of his coming thither He makes excuses for his being there No cloudy show of stormy blustring weather Doth yet in his fair welkin once appear Till sable Night mother of dread and fear Upon the world dim darkness doth display And in her vaulty prison stows the day For then is Tarquin brought unto his bed Intending weariness with heavy sprite For after supper long he questioned"
+            }
+          ],
+          "model": "qwen3-4b-gguf",
+          "stream": true,
+          "max_completion_tokens": 256,
+          "ignore_eos": true,
+          "stream_options": {
+            "include_usage": true
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "session_000004",
+      "payloads": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": " News my good lord from Rome ANTONY Grates me the sum CLEOPATRA Nay hear them Antony Fulvia perchance is angry or who knows If the scarcebearded Caesar have not sent His powerful mandate to you Do this or this Take in that kingdom and enfranchise that Performt or else we damn thee ANTONY How my love CLEOPATRA Perchance Nay and most like You must not stay here longer your dismission Is come from Caesar therefore hear it Antony Wheres Fulvias processCaesars I would say Both Call in the messengers As I am Egypts queen Thou blushest Antony and that blood of thine Is Caesars homager else so thy cheek pays shame When shrilltongued Fulvia scolds The messengers ANTONY Let Rome in Tiber melt and the wide arch Of the ranged empire fall Here is my space Kingdoms are clay Our dungy earth alike Feeds beast as man The nobleness of life Is to do thus Embracing when such a mutual pair And such a twain can dot in which I bind On pain of punishment the world to weet We stand up peerless CLEOPATRA Excellent falsehood Why did he marry Fulvia and not love her Ill seem the fool I am not Antony Will be himself ANTONY But stirred by Cleopatra Now for the love of Love and her soft hours Lets not confound the time with conference harsh Theres not a minute of our lives should stretch Without some pleasure now What sport tonight CLEOPATRA Hear the ambassadors ANTONY Fie wrangling queen Whom everything becomesto chide to laugh To weep whose every passion fully strives To make itself in thee fair and admired No messenger but thine and all alone Tonight well wander through the streets and note The qualities of people Come my queen Last night you did desire it Speak not to us Exeunt Antony and Cleopatra with the Train DEMETRIUS Is Caesar with Antonius prized so slight PHILO Sir sometimes when he is not Antony He comes too short of that great property Which still should go with Antony DEMETRIUS I am full sorry That he approves the common liar who Thus speaks of him at Rome but I will hope Of better deeds tomorrow Rest you happy Exeunt SCENE II Alexandria Another Room in Cleopatras palace Enter Enobarbus a Soothsayer Charmian Iras Mardian and Alexas CHARMIAN Lord Alexas sweet Alexas most anything Alex"
+            }
+          ],
+          "model": "qwen3-4b-gguf",
+          "stream": true,
+          "max_completion_tokens": 256,
+          "ignore_eos": true,
+          "stream_options": {
+            "include_usage": true
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "session_000005",
+      "payloads": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": " I see medcine the less for Cloten Is quite forgot He was a queens son boys And though he came our enemy remember He was paid for that Though mean and mighty rotting Together have one dust yet reverence That angel of the world doth make distinction Of place tween high and low Our foe was princely And though you took his life as being our foe Yet bury him as a prince GUIDERIUS Pray you fetch him hither Thersites body is as good as Ajax When neither are alive ARVIRAGUS If youll go fetch him Well say our song the whilst Brother begin Exit Belarius GUIDERIUS Nay Cadwal we must lay his head to th East My father hath a reason fort ARVIRAGUS Tis true GUIDERIUS Come on then and remove him ARVIRAGUS So Begin SONG GUIDERIUS Fear no more the heat o th sun Nor the furious winters rages Thou thy worldly task hast done Home art gone and taen thy wages Golden lads and girls all must As chimneysweepers come to dust ARVIRAGUS Fear no more the frown o th great Thou art past the tyrants stroke Care no more to clothe and eat To thee the reed is as the oak The sceptre learning physic must All follow this and come to dust GUIDERIUS Fear no more the lightning flash ARVIRAGUS Nor th alldreaded thunderstone GUIDERIUS Fear not slander censure rash ARVIRAGUS Thou hast finishd joy and moan BOTH All lovers young all lovers must Consign to thee and come to dust GUIDERIUS No exorciser harm thee ARVIRAGUS Nor no witchcraft charm thee GUIDERIUS Ghost unlaid forbear thee ARVIRAGUS Nothing ill come near thee BOTH Quiet consummation have And renowned be thy grave Enter Belarius with the body of Cloten GUIDERIUS We have done our obsequies Come lay him down BELARIUS Heres a few flowers but bout midnight more The herbs that have on them cold dew o th night Are strewings fitst for graves Upon their faces You were as flowrs now witherd Even so These herblets shall which we upon you strew Come on away Apart upon our knees The ground that gave them first has them again Their pleasures here are past so is their pain Exeunt all but Imogen IMOGEN Awaking Yes sir to Milford Haven Which is the way I thank you"
+            }
+          ],
+          "model": "qwen3-4b-gguf",
+          "stream": true,
+          "max_completion_tokens": 256,
+          "ignore_eos": true,
+          "stream_options": {
+            "include_usage": true
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "session_000006",
+      "payloads": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": " HELENA Ay my good lord Gerard de Narbon was my father In what he did profess well found KING I knew him HELENA The rather will I spare my praises towards him Knowing him is enough On his bed of death Many receipts he gave me chiefly one Which as the dearest issue of his practice And of his old experience the only darling He bade me store up as a triple eye Safer than mine own two more dear I have so And hearing your high majesty is touchd With that malignant cause wherein the honour Of my dear fathers gift stands chief in power I come to tender it and my appliance With all bound humbleness KING We thank you maiden But may not be so credulous of cure When our most learned doctors leave us and The congregated college have concluded That labouring art can never ransom nature From her inaidable estate I say we must not So stain our judgment or corrupt our hope To prostitute our pastcure malady To empirics or to dissever so Our great self and our credit to esteem A senseless help when help past sense we deem HELENA My duty then shall pay me for my pains I will no more enforce mine office on you Humbly entreating from your royal thoughts A modest one to bear me back again KING I cannot give thee less to be calld grateful Thou thoughtst to help me and such thanks I give As one near death to those that wish him live But what at full I know thou knowst no part I knowing all my peril thou no art HELENA What I can do can do no hurt to try Since you set up your rest gainst remedy He that of greatest works is finisher Oft does them by the weakest minister So holy writ in babes hath judgment shown When judges have been babes Great floods have flown From simple sources and great seas have dried When miracles have by the greatst been denied Oft expectation fails and most oft there Where most it promises and oft it hits Where hope is coldest and despair most fits KING I must not hear thee Fare thee well kind maid Thy pains not usd must by thyself be paid Proffers not took reap thanks for their rewardHELENA Inspired merit so by breath is barrd It is not so with Him that all things knows As tis with us that square our guess by shows But most it is presumption in us when The help of heaven we count the act of men Dear sir to my endeavours give consent Of heaven not me make an experiment I am not an impostor that proclaim Myself"
+            }
+          ],
+          "model": "qwen3-4b-gguf",
+          "stream": true,
+          "max_completion_tokens": 256,
+          "ignore_eos": true,
+          "stream_options": {
+            "include_usage": true
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "session_000007",
+      "payloads": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": " sober ancient gentleman by your habit but your words show you a madman Why sir what cerns it you if I wear pearl and gold I thank my good father I am able to maintain it VINCENTIO Thy father O villain he is a sailmaker in Bergamo BAPTISTA You mistake sir you mistake sir Pray what do you think is his name VINCENTIO His name As if I knew not his name I have brought him up ever since he was three years old and his name is Tranio PEDANT Away away mad ass His name is Lucentio and he is mine only son and heir to the lands of me Signior Vincentio VINCENTIO Lucentio O he hath murdered his master Lay hold on him I charge you in the Dukes name O my son my son Tell me thou villain where is my son Lucentio TRANIO Call forth an officer Enter one with an Officer Carry this mad knave to the gaol Father Baptista I charge you see that he be forthcoming VINCENTIO Carry me to the gaol GREMIO Stay officer he shall not go to prison BAPTISTA Talk not Signior Gremio I say he shall go to prison GREMIO Take heed Signior Baptista lest you be conycatched in this business I dare swear this is the right Vincentio PEDANT Swear if thou darest GREMIO Nay I dare not swear it TRANIO Then thou wert best say that I am not Lucentio GREMIO Yes I know thee to be Signior Lucentio BAPTISTA Away with the dotard to the gaol with him VINCENTIO Thus strangers may be haled and abusd O monstrous villain Reenter Biondello with Lucentio and Bianca BIONDELLO O we are spoiled and yonder he is deny him forswear him or else we are all undone LUCENTIO Kneeling Pardon sweet father VINCENTIO Lives my sweetest son Biondello Tranio and Pedant run out BIANCA Kneeling Pardon dear father BAPTISTA How hast thou offended Where is Lucentio LUCENTIO Heres Lucentio Right son to the right Vincentio That have by marriage made thy daughter mine While counterfeit supposes bleard thine eyne GREMIO Here s packing with a witness to deceive us all VINCENTIO Where is that damned villain Tranio That facd and bravd me in this matter so BAPTISTA Why tell me is not this my Cambio"
+            }
+          ],
+          "model": "qwen3-4b-gguf",
+          "stream": true,
+          "max_completion_tokens": 256,
+          "ignore_eos": true,
+          "stream_options": {
+            "include_usage": true
+          }
+        }
+      ]
+    }
+  ]
+}

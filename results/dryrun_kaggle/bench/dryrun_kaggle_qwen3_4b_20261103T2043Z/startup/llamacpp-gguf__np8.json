@@ -1,0 +1,133 @@
+{
+  "server": "llamacpp-gguf",
+  "variant": "np8",
+  "cmd": [
+    "/tmp/llama.cpp/build/bin/llama-server",
+    "-m",
+    "/tmp/models/gguf/Qwen3-4B-Q4_K_M.gguf",
+    "--alias",
+    "qwen3-4b-gguf",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "8001",
+    "-np",
+    "8",
+    "-c",
+    "65536",
+    "-ngl",
+    "99",
+    "-fa",
+    "on",
+    "--jinja",
+    "--no-webui",
+    "--chat-template-kwargs",
+    "{\"enable_thinking\": false}"
+  ],
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "0"
+  },
+  "started_utc": "2026-11-03T21:38:32+00:00",
+  "healthy": true,
+  "seconds_to_healthy": 15.0,
+  "health": "healthy",
+  "sequence": [
+    {
+      "prompt": "What is 17 + 25? Answer with the number only.",
+      "ok": true,
+      "text": "42"
+    },
+    {
+      "prompt": "Name the capital of France in one word.",
+      "ok": true,
+      "text": "Paris."
+    },
+    {
+      "prompt": "Write one sentence about GPUs.",
+      "ok": true,
+      "text": "Graphics Processing Units (GPUs) are specialized electronic circuits designed to rapidly manipulate graphics and compute complex visualizations, making them essential for tasks involving heavy computa"
+    },
+    {
+      "prompt": "List three primary colors, comma-separated.",
+      "ok": true,
+      "text": "Red, Blue, Yellow"
+    },
+    {
+      "prompt": "Translate 'good morning' into Spanish.",
+      "ok": true,
+      "text": "Buenos d\u00edas."
+    },
+    {
+      "prompt": "What is 9 times 8? Answer with the number only.",
+      "ok": true,
+      "text": "72"
+    },
+    {
+      "prompt": "Give a synonym for 'fast'.",
+      "ok": true,
+      "text": "A synonym for \"fast\" is **quick**."
+    },
+    {
+      "prompt": "Is 29 a prime number? Answer yes or no.",
+      "ok": true,
+      "text": "Yes.\n\n29 is a prime number. A prime number is a number greater than 1 that has no positive divisors other than 1 and itself. The number 29 is only divisible by 1 and 29, so it is prime."
+    }
+  ],
+  "passed": true,
+  "engine_version": "version: 0.8.0-dev (build 1, commit 8642541)",
+  "vllm_capacity": {},
+  "alive": true,
+  "log_tail": [
+    "0.13.879.820 I slot print_timing: id  0 | task 65 | prompt eval time =      32.61 ms /    23 tokens (    1.42 ms per token,   705.35 tokens per second)",
+    "0.13.879.832 I slot print_timing: id  0 | task 65 |        eval time =      32.79 ms /     3 tokens (   16.40 ms per token,    60.99 tokens per second)",
+    "0.13.879.833 I slot print_timing: id  0 | task 65 |       total time =      65.40 ms /    26 tokens",
+    "0.13.879.834 I slot print_timing: id  0 | task 65 |    graphs reused =         52",
+    "0.13.879.834 I slot print_timing: id  0 | task 65 |   graph reallocs =          0    /     0        (same size) / (changed size)",
+    "0.13.879.876 I slot      release: id  0 | task 65 | stop processing: n_tokens = 28, truncated = 0",
+    "0.13.881.876 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.158 (> 0.100 thold), f_keep = 0.107",
+    "0.13.887.635 I slot launch_slot_: id  0 | task 69 | processing task, is_child = 0",
+    "0.14.104.669 I slot print_timing: id  0 | task 69 | prompt eval time =      26.91 ms /    16 tokens (    1.68 ms per token,   594.60 tokens per second)",
+    "0.14.104.679 I slot print_timing: id  0 | task 69 |        eval time =     190.10 ms /    12 tokens (   17.28 ms per token,    57.87 tokens per second)",
+    "0.14.104.680 I slot print_timing: id  0 | task 69 |       total time =     217.01 ms /    28 tokens",
+    "0.14.104.681 I slot print_timing: id  0 | task 69 |    graphs reused =         62",
+    "0.14.104.682 I slot print_timing: id  0 | task 69 |   graph reallocs =          0    /     0        (same size) / (changed size)",
+    "0.14.104.736 I slot      release: id  0 | task 69 | stop processing: n_tokens = 30, truncated = 0",
+    "0.14.106.744 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.120 (> 0.100 thold), f_keep = 0.100",
+    "0.14.112.271 I slot launch_slot_: id  0 | task 82 | processing task, is_child = 0",
+    "0.15.096.723 I slot print_timing: id  0 | task 82 | prompt eval time =      34.85 ms /    22 tokens (    1.58 ms per token,   631.28 tokens per second)",
+    "0.15.096.734 I slot print_timing: id  0 | task 82 |        eval time =     949.57 ms /    54 tokens (   17.92 ms per token,    55.81 tokens per second)",
+    "0.15.096.735 I slot print_timing: id  0 | task 82 |       total time =     984.42 ms /    76 tokens",
+    "0.15.096.736 I slot print_timing: id  0 | task 82 |    graphs reused =        114",
+    "0.15.096.736 I slot print_timing: id  0 | task 82 |   graph reallocs =          0    /     0        (same size) / (changed size)",
+    "0.15.096.779 I slot      release: id  0 | task 82 | stop processing: n_tokens = 78, truncated = 0",
+    "0.15.099.336 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.150 (> 0.100 thold), f_keep = 0.038",
+    "0.15.112.632 I slot launch_slot_: id  0 | task 137 | processing task, is_child = 0",
+    "0.16.879.254 I slot print_timing: id  0 | task 137 | prompt eval time =      31.38 ms /    17 tokens (    1.85 ms per token,   541.80 tokens per second)",
+    "0.16.879.268 I slot print_timing: id  0 | task 137 |        eval time =    1735.22 ms /    96 tokens (   18.27 ms per token,    54.75 tokens per second)",
+    "0.16.879.269 I slot print_timing: id  0 | task 137 |       total time =    1766.59 ms /   113 tokens",
+    "0.16.879.271 I slot print_timing: id  0 | task 137 |    graphs reused =        208",
+    "0.16.879.271 I slot print_timing: id  0 | task 137 |   graph reallocs =          0    /     0        (same size) / (changed size)",
+    "0.16.879.315 I slot      release: id  0 | task 137 | stop processing: n_tokens = 115, truncated = 0",
+    "0.16.881.439 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 1.000 (> 0.100 thold), f_keep = 0.174",
+    "0.16.899.691 I slot launch_slot_: id  0 | task 234 | processing task, is_child = 0",
+    "0.16.899.712 W slot   operator(): id  0 | task 234 | need to evaluate at least 1 token for each active slot (n_past = 20, task.n_tokens() = 20)",
+    "0.16.899.712 W slot   operator(): id  0 | task 234 | n_past was set to 19",
+    "0.18.665.705 I slot print_timing: id  0 | task 234 | prompt eval time =      14.86 ms /     1 tokens (   14.86 ms per token,    67.32 tokens per second)",
+    "0.18.665.717 I slot print_timing: id  0 | task 234 |        eval time =    1751.13 ms /    96 tokens (   18.43 ms per token,    54.25 tokens per second)",
+    "0.18.665.719 I slot print_timing: id  0 | task 234 |       total time =    1765.98 ms /    97 tokens",
+    "0.18.665.720 I slot print_timing: id  0 | task 234 |    graphs reused =        304",
+    "0.18.665.720 I slot print_timing: id  0 | task 234 |   graph reallocs =          0    /     0        (same size) / (changed size)",
+    "0.18.665.764 I slot      release: id  0 | task 234 | stop processing: n_tokens = 115, truncated = 0"
+  ],
+  "log_file": "results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2043Z/logs/llamacpp-gguf__np8.log",
+  "meta": {
+    "engine": "llama.cpp",
+    "model_repo": "Qwen/Qwen3-4B-GGUF",
+    "model_revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+    "prefix_caching": "off (no prompt reuse across requests; synthetic prompts)",
+    "gguf_file": "/tmp/models/gguf/Qwen3-4B-Q4_K_M.gguf",
+    "gguf_tokenizer_pre": "qwen2",
+    "gguf_sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+    "gguf_bits_per_weight": 4.954816484888784
+  }
+}

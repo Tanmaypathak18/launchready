@@ -1,0 +1,33 @@
+[vllm-card] starting variant card
+[vllm-card] card: passed=False (35.6 s to healthy; exited with code 2)
+[vllm-card] starting variant card-no-enable-reasoning
+[vllm-card] card-no-enable-reasoning: passed=True (185.0 s to healthy; healthy)
+[vllm-bench] starting variant fp8-kv
+[vllm-bench] fp8-kv: passed=False (50.0 s to healthy; exited with code 1)
+[vllm-bench] starting variant no-fp8-kv
+[vllm-bench] no-fp8-kv: passed=True (110.0 s to healthy; healthy)
+[vllm-bench] vllm-bench__no-fp8-kv__chat__c1__r1: ok tps=19.614829207468173 ttft_p50=357.29583099999996
+[vllm-bench] vllm-bench__no-fp8-kv__chat__c8__r1: ok tps=107.22335748975567 ttft_p50=2177.6191235
+[vllm-bench] vllm-bench__no-fp8-kv__chat__c32__r1: ok tps=186.43636740129676 ttft_p50=4051.0274729999996
+[vllm-bench] vllm-bench__no-fp8-kv__long__c1__r1: ok tps=7.777068726169153 ttft_p50=16378.098813499999
+[quality vllm-bench] gsm8k (limit 20)
+[quality vllm-bench] gsm8k: ok {'exact_match,strict-match': 0.0, 'exact_match_stderr,strict-match': 0.0, 'exact_match,flexible-extract': 0.0, 'exact_match_stderr,flexible-extract': 0.0}
+[quality vllm-bench] ifeval (limit 20)
+[quality vllm-bench] ifeval: ok {'prompt_level_strict_acc,none': 0.0, 'prompt_level_strict_acc_stderr,none': 0.0, 'inst_level_strict_acc,none': 0.0, 'prompt_level_loose_acc,none': 0.0, 'prompt_level_loose_acc_stderr,none': 0.0, 'inst_level_loose_acc,none': 0.0}
+[vllm-bench-spec] starting variant ngram
+[vllm-bench-spec] ngram: passed=True (155.0 s to healthy; healthy)
+[vllm-bench-spec] vllm-bench-spec__ngram__chat__c1__r1: ok tps=22.14728370413724 ttft_p50=345.5031615
+[llamacpp-gguf] starting variant np8
+[llamacpp-gguf] np8: passed=True (15.0 s to healthy; healthy)
+[llamacpp-gguf] llamacpp-gguf__np8__chat__c1__r1: ok tps=45.3965252920453 ttft_p50=426.530146
+[llamacpp-gguf] llamacpp-gguf__np8__chat__c8__r1: ok tps=124.87017800187887 ttft_p50=2061.4392359999997
+[llamacpp-gguf] llamacpp-gguf__np8__chat__c32__r1: ok tps=127.39749407010555 ttft_p50=47524.0167095
+[llamacpp-gguf] llamacpp-gguf__np8__long__c1__r1: ok tps=28.63796271794757 ttft_p50=2931.0953004999997
+[quality llamacpp-gguf] gsm8k (limit 20)
+[quality llamacpp-gguf] gsm8k: ok {'exact_match,strict-match': 0.65, 'exact_match_stderr,strict-match': 0.10942433098048308, 'exact_match,flexible-extract': 0.65, 'exact_match_stderr,flexible-extract': 0.10942433098048308}
+[quality llamacpp-gguf] ifeval (limit 20)
+[quality llamacpp-gguf] ifeval: ok {'prompt_level_strict_acc,none': 0.75, 'prompt_level_strict_acc_stderr,none': 0.09933992677987828, 'inst_level_strict_acc,none': 0.8333333333333334, 'prompt_level_loose_acc,none': 0.75, 'prompt_level_loose_acc_stderr,none': 0.09933992677987828, 'inst_level_loose_acc,none': 0.8333333333333334}
+[ollama-gguf] starting variant default
+[ollama-gguf] default: passed=True (15.0 s to healthy; healthy)
+[ollama-gguf] ollama-gguf__default__chat__c1__r1: ok tps=46.34592708819139 ttft_p50=432.3084925
+Results: results_dryrun/bench/dryrun_kaggle_qwen3_4b_20261103T2043Z (runs/, startup/, logs/, gpu/) and results_dryrun/summary.csv

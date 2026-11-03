@@ -1,0 +1,5 @@
+[90mHint: The `hf-cli` skill is not installed. Run `hf skills add -g` to teach your AI agents how to use the `hf` CLI.[0m
+Fetching 13 files:   0%|          | 0/13 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 13 files:   8%|▊         | 1/13 [00:00<00:01,  7.38it/s]Fetching 13 files:  54%|█████▍    | 7/13 [00:00<00:00, 32.95it/s]Fetching 13 files:  85%|████████▍ | 11/13 [00:02<00:00,  4.26it/s]Fetching 13 files:  85%|████████▍ | 11/13 [00:20<00:00,  4.26it/s]Fetching 13 files:  92%|█████████▏| 12/13 [00:40<00:05,  5.61s/it]Fetching 13 files: 100%|██████████| 13/13 [00:40<00:00,  3.11s/it]
+[32m✓ Downloaded[0m
+  path: /root/.cache/huggingface/hub/models--Qwen--Qwen3-4B/snapshots/1cfa9a7208912126459214e8b04321603b3df60c
