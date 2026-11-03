@@ -25,6 +25,10 @@ _QUANT_NAME = re.compile(
     r"gguf|awq|gptq|fp8|nvfp4|mxfp4|int4|int8|w4a16|w8a8|mlx|bnb|[-_]\d+bit|exl2", re.IGNORECASE
 )
 _SINCE = re.compile(r"^(\d+)([dw])$")
+CAVEAT = (
+    "Dates are Hub repo-creation dates; a repo published later than it was created can look "
+    "older than its public release."
+)
 
 
 @dataclass
@@ -172,6 +176,7 @@ def render(
             f"Handles not found on the Hub: {', '.join(missing)}. Verify them in BUILD_PLAN 6.7.",
             "",
         ]
+    lines += ["---", "", CAVEAT, ""]
     return "\n".join(lines)
 
 

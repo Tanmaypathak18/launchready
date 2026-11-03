@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from launchready.radar import Release, filter_releases, parse_since, render
+from launchready.radar import CAVEAT, Release, filter_releases, parse_since, render
 
 
 def _r(repo_id, tags=(), days_ago=1, pipeline="text-generation", library=None, params=None):
@@ -72,3 +72,4 @@ def test_render_nests_children_and_counts_skips():
     assert "1 quantized" in text
     assert "not-an-org" in text
     assert "No root-model releases" in text  # nvidia section
+    assert text.rstrip().endswith(CAVEAT)
