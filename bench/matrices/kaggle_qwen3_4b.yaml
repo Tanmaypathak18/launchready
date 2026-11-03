@@ -65,6 +65,8 @@ servers:
               --max-model-len, "8192"]
         env: {CUDA_VISIBLE_DEVICES: "0"}
 
+  # --reasoning-parser qwen3, not the card's deepseek_r1: with thinking off, deepseek_r1 files the
+  # whole answer under `reasoning` and non-streaming clients get null content (friction log).
   vllm-bench:
     engine: vllm
     port: 8000
@@ -84,14 +86,14 @@ servers:
         thinking: "off (--default-chat-template-kwargs enable_thinking=false)"
         cmd: [vllm, serve, "${MODEL}", --revision, "${MODEL_REV}", --served-model-name, qwen3-4b,
               --dtype, half, --kv-cache-dtype, fp8, --max-model-len, "8192",
-              --no-enable-prefix-caching, --reasoning-parser, deepseek_r1,
+              --no-enable-prefix-caching, --reasoning-parser, qwen3,
               --default-chat-template-kwargs, '{"enable_thinking": false}']
         env: {CUDA_VISIBLE_DEVICES: "0"}
       - name: no-fp8-kv
         thinking: "off (--default-chat-template-kwargs enable_thinking=false)"
         cmd: [vllm, serve, "${MODEL}", --revision, "${MODEL_REV}", --served-model-name, qwen3-4b,
               --dtype, half, --max-model-len, "8192",
-              --no-enable-prefix-caching, --reasoning-parser, deepseek_r1,
+              --no-enable-prefix-caching, --reasoning-parser, qwen3,
               --default-chat-template-kwargs, '{"enable_thinking": false}']
         env: {CUDA_VISIBLE_DEVICES: "0"}
 
@@ -115,7 +117,7 @@ servers:
               --dtype, half, --max-model-len, "8192", --no-enable-prefix-caching,
               --speculative-config,
               '{"method": "ngram", "num_speculative_tokens": 3, "prompt_lookup_max": 4}',
-              --reasoning-parser, deepseek_r1,
+              --reasoning-parser, qwen3,
               --default-chat-template-kwargs, '{"enable_thinking": false}']
         env: {CUDA_VISIBLE_DEVICES: "0"}
 
@@ -129,11 +131,11 @@ servers:
     gguf_sha256: 7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5
     tokenizer: ${MODEL}
     tokenizer_revision: 1cfa9a7208912126459214e8b04321603b3df60c
-    prefix_caching: "off (no prompt reuse across requests; synthetic prompts)"
+    prefix_caching: "off (cache_prompt false, unique prompts)"
     health_path: /health
     version_cmd: ["${LLAMA_SERVER}", --version]
     startup_timeout: 600
-    extra_inputs: {ignore_eos: true}
+    extra_inputs: {ignore_eos: true, cache_prompt: false}
     quality: true
     notes:
       32: "llama-server -np 8: 24 of 32 requests queue; this point measures queueing past 8 slots"
@@ -160,7 +162,7 @@ servers:
     model_revision: "latest at pull time (digest in the server log)"
     tokenizer: ${MODEL}
     tokenizer_revision: 1cfa9a7208912126459214e8b04321603b3df60c
-    prefix_caching: "n/a"
+    prefix_caching: "no setting; unique prompts, so no hits"
     health_path: /api/version
     version_cmd: [ollama, --version]
     startup_timeout: 300

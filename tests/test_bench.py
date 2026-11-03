@@ -4,6 +4,7 @@ import csv
 import io
 import json
 import os
+import shutil
 import struct
 import sys
 import time
@@ -501,3 +502,123 @@ def test_safe_run_one_turns_unexpected_errors_into_failed_rows(fake_smi, tmp_pat
     assert "KeyError" in row["note"]
     assert row["run_id"] == "a__v__chat__c1__r1"
     assert row["traceback"]
+
+
+# --- thinking off: the answer must be in `content` (Kaggle dry run 2: vLLM scored a false 0.0) --
+
+
+def test_null_content_response_fails_when_thinking_is_off():
+    resp = json.loads((FIXTURES / "vllm_null_content_response.json").read_text())
+    ok, text = run_matrix.message_text(resp, require_content=True)
+    assert not ok
+    assert "content is empty" in text and "42" in text
+
+
+def test_reasoning_only_response_is_fine_when_thinking_is_on():
+    # 64 tokens can end mid-thought, so with thinking on reasoning counts as an answer.
+    resp = json.loads((FIXTURES / "vllm_null_content_response.json").read_text())
+    assert run_matrix.message_text(resp, require_content=False) == (True, "42")
+
+
+def test_message_text_reads_content_and_rejects_malformed():
+    good = {"choices": [{"message": {"content": "Paris."}}]}
+    assert run_matrix.message_text(good, require_content=True) == (True, "Paris.")
+    assert run_matrix.message_text({"choices": []}, require_content=True)[0] is False
+
+
+def test_require_content_follows_the_variant_thinking_label():
+    assert run_matrix.requires_content({"thinking": "off (--chat-template-kwargs ...)"}) is True
+    assert run_matrix.requires_content({"thinking": "on (model default)"}) is False
+    assert run_matrix.requires_content({}) is False
+
+
+def test_recorded_vllm_samples_are_counted_as_empty(tmp_path):
+    shutil.copy(
+        FIXTURES / "lm_eval_samples_vllm_null_content.jsonl", tmp_path / "samples_gsm8k_x.jsonl"
+    )
+    assert quality.count_empty(tmp_path, "gsm8k") == (4, 4)
+    assert quality.task_status(4, 4) == "invalid: 4/4 empty responses"
+
+
+def test_recorded_llamacpp_samples_are_not_empty(tmp_path):
+    shutil.copy(FIXTURES / "lm_eval_samples_llamacpp.jsonl", tmp_path / "samples_gsm8k_x.jsonl")
+    assert quality.count_empty(tmp_path, "gsm8k") == (0, 4)
+    assert quality.task_status(0, 4) == "ok"
+
+
+def test_task_status_tolerates_a_few_empty_answers():
+    assert quality.task_status(1, 250) == "ok"
+    assert quality.task_status(13, 250).startswith("invalid")
+    assert quality.task_status(0, 0) == "ok"  # no samples file: nothing to judge
+
+
+def test_invalid_task_writes_no_score_to_the_csv(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        quality,
+        "run_task",
+        lambda *a: {
+            "task": "gsm8k",
+            "limit": 4,
+            "status": "invalid: 4/4 empty responses",
+            "empty_responses": 4,
+            "scores": {"exact_match,strict-match": 0.0},
+        },
+    )
+    quality.run_quality(
+        base_url="u",
+        model="m",
+        label="vllm-bench",
+        session="s",
+        results=tmp_path,
+        tasks={"gsm8k": 4},
+        num_concurrent=1,
+        meta={},
+        engine_version="0.32.0",
+        environment={},
+        thinking="off",
+    )
+    [row] = list(csv.DictReader((tmp_path / "quality_summary.csv").open()))
+    assert row["status"] == "invalid: 4/4 empty responses"
+    assert row["value"] == "" and row["empty_responses"] == "4"
+
+
+# --- dry run 2: repeated prompts hit llama-server's cache; failed requests looked like successes
+
+
+def test_every_prompt_is_unique_across_warmup_and_run(tmp_path):
+    spec = run_matrix.RunSpec("a", "chat", 8, 1, 200, 512, 256)
+    server = {"port": 1, "model": "m"}
+    cmd = run_matrix.aiperf_command(spec, server, tmp_path, warmup=10, aiperf="aiperf")
+    assert cmd[cmd.index("--num-dataset-entries") + 1] == "210"
+
+
+def test_requests_completed_counts_successes_only():
+    export = {
+        "request_count": {"avg": 62.0},
+        "completed_request_count": {"avg": 64.0},
+        "request_error_rate": {"avg": 3.125},
+        "error_summary": [
+            {"error_details": {"type": "ServerDisconnectedError"}, "count": 2},
+        ],
+    }
+    m = run_matrix.parse_aiperf(export)
+    assert m["requests_completed"] == 62
+    assert run_matrix.error_note(m) == "2 failed requests (3.1%): ServerDisconnectedError × 2"
+    assert run_matrix.error_note(run_matrix.parse_aiperf({})) is None
+
+
+def test_run_with_failed_requests_is_partial_and_stays_in_the_headline(fake_smi, tmp_path):
+    export = json.loads((FIXTURES / "aiperf_profile_export.json").read_text())
+    export["request_error_rate"] = {"avg": 3.125}
+    export["error_summary"] = [{"error_details": {"type": "ServerDisconnectedError"}, "count": 2}]
+    path = tmp_path / "export.json"
+    path.write_text(json.dumps(export))
+    fake = tmp_path / "fake_aiperf.py"
+    fake.write_text(FAKE_AIPERF)
+    spec = run_matrix.RunSpec("a", "chat", 32, 1, 64, 64, 32)
+    server = _FakeServer({"port": 1, "model": "m", "notes": {}})
+    ctx = _ctx(tmp_path, [sys.executable, str(fake), str(path)])
+    row = run_matrix.run_one(spec, server, tmp_path / "s", ctx)
+    assert row["status"] == "partial"
+    assert "ServerDisconnectedError" in row["note"]
+    assert run_matrix.headline([row])[0]["reps"] == 1

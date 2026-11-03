@@ -1,0 +1,22 @@
+{
+  "_source": "RECONSTRUCTED, not a capture: the dry run saved no raw HTTP response. Shape from vLLM 0.32.0 ChatCompletionResponse; null content from lm-eval's 'API returned null content' warning on all 60 requests; the text '42' is what the startup check got by joining content + reasoning.",
+  "object": "chat.completion",
+  "model": "qwen3-4b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": null,
+        "reasoning": "42",
+        "tool_calls": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 34,
+    "completion_tokens": 3,
+    "total_tokens": 37
+  }
+}

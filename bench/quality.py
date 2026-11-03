@@ -32,6 +32,9 @@ LM_EVAL = [
     "lm_eval",
 ]
 DEFAULT_TASKS = {"gsm8k": 250, "ifeval": 200}
+# More empty answers than this means the harness isn't seeing the model's output, so a score
+# would measure the plumbing (Kaggle dry run 2: vLLM's null `content` scored exactly 0.0).
+MAX_EMPTY_SHARE = 0.05
 QUALITY_FIELDS = [
     "label",
     "session",
@@ -51,6 +54,7 @@ QUALITY_FIELDS = [
     "lm_eval_version",
     "seconds",
     "status",
+    "empty_responses",
     "env_gpu",
     "env_driver",
     "env_cuda",
@@ -117,6 +121,26 @@ def parse_lm_eval(data: dict, task: str) -> dict:
     }
 
 
+def count_empty(out_dir: Path, task: str) -> tuple[int, int]:
+    """(empty, total) answers in lm-eval's samples_<task>_*.jsonl under out_dir."""
+    empty = total = 0
+    for path in Path(out_dir).rglob(f"samples_{task}_*.jsonl"):
+        for line in path.read_text().splitlines():
+            if not line.strip():
+                continue
+            total += 1
+            resps = json.loads(line).get("resps") or [[""]]
+            text = resps[0][0] if resps[0] else ""
+            empty += not str(text).strip()
+    return empty, total
+
+
+def task_status(empty: int, total: int) -> str:
+    if total and empty / total > MAX_EMPTY_SHARE:
+        return f"invalid: {empty}/{total} empty responses"
+    return "ok"
+
+
 def run_task(
     base_url: str, model: str, task: str, limit: int, out_dir: Path, num_concurrent: int
 ) -> dict:
@@ -138,9 +162,11 @@ def run_task(
         result["scores"] = {}
         return result
     data = json.loads(path.read_text())
+    empty, total = count_empty(out_dir, task)
     result.update(
         {
-            "status": "ok",
+            "status": task_status(empty, total),
+            "empty_responses": empty,
             "scores": parse_lm_eval(data, task),
             "results_file": str(path),
             "n_samples": data.get("n-samples", {}).get(task),
@@ -176,6 +202,7 @@ def run_quality(
 ) -> list[dict]:
     """Run each task and write its JSON and CSV rows as soon as it finishes."""
     out = results / "quality" / session
+    out.mkdir(parents=True, exist_ok=True)
     done = []
     for task, limit in tasks.items():
         if deadline is not None and time.time() > deadline - 300:
@@ -197,12 +224,15 @@ def run_quality(
         }
         path = out / f"{label}__{task}.json"
         path.write_text(json.dumps(record, indent=2, default=str) + "\n")
+        valid = r["status"] == "ok"  # no number in the CSV for a run that saw no answers
         rows = [
             {
                 **record,
                 "metric": k,
-                "value": v,
-                "stderr": r["scores"].get(k.replace(",", "_stderr,", 1)) if "," in k else None,
+                "value": v if valid else None,
+                "stderr": (
+                    r["scores"].get(k.replace(",", "_stderr,", 1)) if valid and "," in k else None
+                ),
                 "env_gpu": environment.get("gpu"),
                 "env_driver": environment.get("driver"),
                 "env_cuda": environment.get("cuda"),

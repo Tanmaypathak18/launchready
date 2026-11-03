@@ -90,6 +90,8 @@ SUMMARY_FIELDS = [
     "status",
     "note",
 ]
+# Run statuses with numbers worth reporting; "partial" lost some requests (see its note).
+USABLE = ("ok", "partial")
 ENV_FIELDS = [
     "env_gpu",
     "env_gpu_count",
@@ -223,6 +225,9 @@ def aiperf_command(
         str(spec.request_count),
         "--warmup-request-count",
         str(warmup),
+        # One unique prompt per request: repeats hit llama-server's and Ollama's prompt cache.
+        "--num-dataset-entries",
+        str(spec.request_count + warmup),
         "--isl",
         str(spec.isl),
         "--isl-stddev",
@@ -254,9 +259,10 @@ def _metric(export: dict, name: str, stat: str):
 
 def parse_aiperf(export: dict) -> dict:
     """Headline metrics from AIPerf's profile_export_aiperf.json."""
-    completed = _metric(export, "completed_request_count", "avg")
+    # request_count is successes; completed_request_count includes requests that failed.
+    completed = _metric(export, "request_count", "avg")
     if completed is None:
-        completed = _metric(export, "request_count", "avg")
+        completed = _metric(export, "completed_request_count", "avg")
     return {
         "aiperf_version": export.get("aiperf_version"),
         "ttft_ms_p50": _metric(export, "time_to_first_token", "p50"),
@@ -273,6 +279,21 @@ def parse_aiperf(export: dict) -> dict:
         "benchmark_duration_s": _metric(export, "benchmark_duration", "avg"),
         "errors": export.get("error_summary", []),
     }
+
+
+def error_note(metrics: dict) -> str | None:
+    """'2 failed requests (3.1%): ServerDisconnectedError × 2', or None if nothing failed."""
+    errors = metrics.get("errors") or []
+    kinds, total = [], 0
+    for e in errors:
+        count = int(e.get("count", 1))
+        total += count
+        kinds.append(f"{e.get('error_details', {}).get('type', 'unknown')} × {count}")
+    if not total:
+        return None
+    return (
+        f"{total} failed requests ({metrics.get('error_rate_pct') or 0:.1f}%): {', '.join(kinds)}"
+    )
 
 
 def cost_per_million(hourly_price: float, tokens_per_s: float | None) -> float | None:
@@ -515,6 +536,27 @@ def _http(url: str, body: dict | None = None, timeout: float = 10) -> tuple[int,
         return 0, str(e)
 
 
+def requires_content(variant: dict) -> bool:
+    """With thinking off the answer must be in `content`, or clients get null (lm-eval: 0.0)."""
+    return str(variant.get("thinking", "")).startswith("off")
+
+
+def message_text(resp: dict, require_content: bool) -> tuple[bool, str]:
+    """(answered?, text) from a chat completion. Reasoning only counts when thinking is on."""
+    try:
+        msg = resp["choices"][0]["message"]
+    except (KeyError, IndexError, TypeError):
+        return False, f"no choices in response: {str(resp)[:300]}"
+    content = msg.get("content") or ""
+    reasoning = (msg.get("reasoning_content") or "") + (msg.get("reasoning") or "")
+    if require_content:
+        if content.strip():
+            return True, content[:200]
+        return False, f"content is empty, thinking is off (reasoning: {reasoning[:150]!r})"
+    text = content + reasoning
+    return bool(text.strip()), text[:200]
+
+
 class Server:
     """One server process (own process group) with its log file."""
 
@@ -526,6 +568,7 @@ class Server:
         self.base = f"http://127.0.0.1:{cfg['port']}"
         self.log_path, self.proc, self.log = log_path, None, None
         self.start_error: str | None = None
+        self.first_response: dict | str | None = None
         self.variables = variables
 
     def start(self) -> None:
@@ -591,15 +634,11 @@ class Server:
             "temperature": 0,
         }
         code, resp = _http(self.base + "/v1/chat/completions", body, timeout=timeout)
+        if self.first_response is None:
+            self.first_response = resp  # raw, so a surprise can be diagnosed from the results
         if code != 200 or not isinstance(resp, dict):
             return False, f"HTTP {code}: {str(resp)[:300]}"
-        try:
-            msg = resp["choices"][0]["message"]
-        except (KeyError, IndexError, TypeError):
-            return False, f"no choices in response: {str(resp)[:300]}"
-        text = (msg.get("content") or "") + (msg.get("reasoning_content") or "")
-        text += msg.get("reasoning") or ""
-        return bool(text.strip()), text[:200]
+        return message_text(resp, requires_content(self.variant))
 
     def version(self) -> str | None:
         if url := self.cfg.get("version_path"):
@@ -668,6 +707,7 @@ def startup_check(server: Server, timeout: float, warmup: int) -> dict:
             if not good or not server.alive():
                 break
     rec["sequence"] = answers
+    rec["first_response"] = server.first_response
     rec["passed"] = ok and len(answers) == len(STARTUP_PROMPTS) and all(a["ok"] for a in answers)
     if rec["passed"]:
         for _ in range(warmup):
@@ -761,6 +801,9 @@ def run_one(spec: RunSpec, server: Server, out_dir: Path, ctx: dict) -> dict:
             ctx["hourly_price"], metrics["output_tps_total"]
         )
         row["status"] = "ok" if server.alive() else "server died"
+        if failed := error_note(metrics):
+            row["note"] = (row.get("note", "") + " " + failed).strip()
+            row["status"] = "partial" if server.alive() else row["status"]
         if metrics["osl_mean"] and abs(metrics["osl_mean"] - spec.osl) > 0.1 * spec.osl:
             row["note"] = (
                 row.get("note", "") + f" mean output {metrics['osl_mean']:.0f} "
@@ -905,7 +948,7 @@ def main(
                     write_json(out_dir / "runs" / f"{row['run_id']}.json", row)
                     append_summary(summary_path, {**row, **env_flat})
                     all_rows.append(row)
-                    heads = headline([r for r in all_rows if r.get("status") == "ok"])
+                    heads = headline([r for r in all_rows if r.get("status") in USABLE])
                     write_json(out_dir / "headline.json", {"label": "measured", "rows": heads})
                     print(
                         f"[{name}] {row['run_id']}: {row['status']} "

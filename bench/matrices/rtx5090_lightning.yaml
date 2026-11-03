@@ -83,6 +83,8 @@ servers:
               --reasoning-parser, nemotron_v3, --speculative_config.model, "${DSPARK_DIR}",
               --tool-call-parser, qwen3_coder, --enable-auto-tool-choice]
 
+  # With thinking off the answer must be in `content`; the startup check now fails otherwise.
+  # nemotron_v3 handles this (Qwen3Parser returns the output as content); deepseek_r1 does not.
   # Benchmark config: the card's flags minus FP8 KV, prefix caching off, no drafter, 40,960-token
   # max model length (same as llama.cpp's card recipe), thinking off on the server.
   vllm-nvfp4:
@@ -173,11 +175,11 @@ servers:
     gguf_sha256: b520a8992e94c4d61e6a0833edffc499a46f42522df446c290d75dc5787a9158
     tokenizer: ${TOKENIZER}
     tokenizer_revision: a9904d24bcc1d289a1950fa9d2b978c47cf903b9
-    prefix_caching: "off (no prompt reuse across requests; synthetic prompts)"
+    prefix_caching: "off (cache_prompt false, unique prompts)"
     health_path: /health
     version_cmd: ["${LLAMA_SERVER}", --version]
     startup_timeout: 900
-    extra_inputs: {ignore_eos: true}
+    extra_inputs: {ignore_eos: true, cache_prompt: false}
     quality: true
     notes:
       32: "llama-server -np 8: 24 of 32 requests queue; this point measures queueing past 8 slots"
@@ -204,7 +206,7 @@ servers:
     model_revision: "latest at pull time (digest in the server log)"
     tokenizer: ${TOKENIZER}
     tokenizer_revision: a9904d24bcc1d289a1950fa9d2b978c47cf903b9
-    prefix_caching: "n/a"
+    prefix_caching: "no setting; unique prompts, so no hits"
     health_path: /api/version
     version_cmd: [ollama, --version]
     startup_timeout: 300
