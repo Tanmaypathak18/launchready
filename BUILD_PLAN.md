@@ -133,11 +133,11 @@ Implement Phase 2 of BUILD_PLAN.md. For engine support, use shallow sparse clone
 
 **Goal:** prove the calculator on real NVIDIA GPUs and act as the first user of official quickstarts.
 
-- [ ] `notebooks/01_memory_validation.ipynb` on Kaggle T4 x2 with 3 models: `Qwen/Qwen3-4B` (dense), `allenai/OLMoE-1B-7B-0924-Instruct` (MoE), `ibm-granite/granite-4.0-h-tiny` (hybrid Mamba). Over ~13 GB in FP16 → run across both GPUs with `--tensor-parallel-size 2`.
-- [ ] Per model: projected (`launchready fit`) vs measured — Transformers + `torch.cuda.max_memory_allocated()`, and vLLM's KV-capacity and max-concurrency startup lines (6.8).
+- [x] `notebooks/01_memory_validation.ipynb` on Kaggle T4 x2 with 3 models: `Qwen/Qwen3-4B` (dense), `allenai/OLMoE-1B-7B-0924-Instruct` (MoE), `ibm-granite/granite-4.0-h-tiny` (hybrid Mamba). Over ~13 GB in FP16 → run across both GPUs with `--tensor-parallel-size 2`.
+- [x] Per model: projected (`launchready fit`) vs measured — Transformers + `torch.cuda.max_memory_allocated()`, and vLLM's KV-capacity and max-concurrency startup lines (6.8).
   - Changed 2026-11-03: measured weights come from vLLM's "Model loading took X GiB" line (summed over TP ranks), not Transformers `max_memory_allocated()`; the Transformers stage is an optional cross-check, off by default (see docs/friction_log.md).
-- [ ] If something fails on T4, log it and move on.
-- [ ] Run 2–3 official quickstarts exactly as written (model-card snippets for vLLM or Transformers). Log every break; file an issue or PR where it genuinely helps.
+- [x] If something fails on T4, log it and move on.
+- [x] Run 2–3 official quickstarts exactly as written (model-card snippets for vLLM or Transformers). Log every break; file an issue or PR where it genuinely helps.
 
 **Done when:** predicted vs measured is in a CSV and chart with misses explained (aim: weights within ~5%, KV capacity within ~10–15%), and at least 2 audits are logged.
 
