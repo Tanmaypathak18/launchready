@@ -41,6 +41,14 @@ PRECISION_LABELS = {
 }
 REFERENCE_CONTEXTS = (8_192, 32_768, 131_072)
 KV_DTYPES = ("fp16", "fp8")
+# Measured in notebooks/01_memory_validation.ipynb (results/memory_validation.csv). One model,
+# so the fit model is not retuned; we warn instead (docs/friction_log.md has the breakdown).
+HYBRID_VLLM_WARNING = (
+    "hybrid Mamba: vLLM concurrency can be far below this projection (measured: "
+    "ibm-granite/granite-4.0-h-tiny at 4,096 tokens on 2× Tesla T4, vLLM 0.32.0, 2026-11-03: "
+    "projected 118, measured 50.6); KV-cache token counts are not comparable to vLLM's for "
+    "hybrids, since vLLM shares pages between attention KV and Mamba state"
+)
 
 
 def _fail(message: str, code: int) -> None:
@@ -97,6 +105,9 @@ def fit(
 
     weights = {p: weight_bytes(total, p) for p in BITS_PER_WEIGHT} if total else {}
     seq = sequence_bytes(arch, context, kv_dtype)
+    hybrid = seq.mamba.dtype is not None
+    if hybrid:
+        warnings.append(HYBRID_VLLM_WARNING)
     if seq.mamba.assumed:
         notes.append(
             f"Mamba state dtype not in config: assumed {seq.mamba.dtype} "
@@ -160,6 +171,7 @@ def fit(
                         "attention_bytes": seq.attention_bytes,
                         "mamba_state_bytes": seq.mamba_bytes,
                         "total_bytes": seq.total,
+                        "kv_tokens_comparable_to_vllm": not hybrid,
                     },
                     "fit": fits,
                     "warnings": warnings,

@@ -33,6 +33,24 @@ def test_fit_table_labels_projected_and_assumed_state(hub_cache):
     assert "assumed" in result.output.lower()
 
 
+def test_fit_warns_hybrid_mamba_vllm_gap(hub_cache):
+    result = runner.invoke(app, ["fit", "ibm-granite/granite-4.0-h-tiny", "--json"])
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output)
+    hybrid_warnings = [w for w in data["warnings"] if w.startswith("hybrid Mamba")]
+    assert len(hybrid_warnings) == 1
+    assert "projected 118, measured 50.6" in hybrid_warnings[0]
+    assert data["sequence"]["kv_tokens_comparable_to_vllm"] is False
+
+
+def test_fit_no_hybrid_warning_for_dense(hub_cache):
+    result = runner.invoke(app, ["fit", "Qwen/Qwen3-4B", "--json"])
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output)
+    assert not any(w.startswith("hybrid Mamba") for w in data["warnings"])
+    assert data["sequence"]["kv_tokens_comparable_to_vllm"] is True
+
+
 def test_fit_unknown_gpu(hub_cache):
     result = runner.invoke(app, ["fit", "Qwen/Qwen3-4B", "--gpu", "rtx-9999"])
     assert result.exit_code == 2

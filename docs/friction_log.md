@@ -18,6 +18,39 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### granite-4.0-h-tiny serves 2.3× fewer users in vLLM than projected
+- When / where: 2026-11-03 · 2× Tesla T4 (Kaggle) · driver 580.178.04 · CUDA 13.0 · vLLM 0.32.0, torch 2.13.0+cu130 · ibm-granite/granite-4.0-h-tiny @ 791e0d3
+- Exact command: `vllm serve ibm-granite/granite-4.0-h-tiny --revision 791e0d3d28c86e106c9b6e0b4cecdee0375b6124 --dtype half --max-model-len 4096 --gpu-memory-utilization 0.9 --tensor-parallel-size 2`
+- What happened (error excerpt): `GPU KV cache size: 207,171 tokens, Maximum concurrency for 4,096 tokens per request: 50.58x`. launchready projected 118.08 (+133%). Qwen3-4B (−4%) and OLMoE (−6%) were within target on the same session.
+- Root cause: two errors that multiply (118.08 ÷ 50.58 = 1.719 × 1.358):
+  - **KV budget, ×1.72 (64% of the miss in log terms):** measured 2.93 GiB (3.15 GB) per GPU vs 5.04 GiB (5.41 GB) projected. vLLM: `Desired … (0.9, 13.11 GiB). Actual usage is 7.93 GiB for consumed memory (weights + non-torch), 2.24 GiB for peak activation`, so KV = 13.11 − 7.93 − 2.24 = 2.94 GiB. Overhead beyond the 6.48 GiB of weights is 3.70 GiB per GPU (1.45 non-torch + 2.24 activation), not the 2 GiB the fit model assumes; for comparison Qwen3-4B was 1.38 and OLMoE 1.29. Also, vLLM's 13.11 GiB is 0.9 × 14.56 GiB (CUDA's total), while the projection used nvidia-smi's 15 GiB: 0.40 GiB per GPU on every model.
+  - **Per-sequence cost, ×1.36 (36%):** measured 124 MB per 4,096-token sequence (2 × 2.93 GiB ÷ 50.58) vs 92 MB projected (34 MB KV + 58 MB Mamba state at FP32). vLLM keeps Mamba state in FP16 (`cache_dtype=float16`), which alone would make it *smaller* (~65 MB), so something else costs more. The log shows `Setting attention block size to 400 tokens to ensure that attention page size is >= mamba page size`, `Padding mamba page size by 1.39%`, and `Mamba cache mode is set to 'align' … when prefix caching is enabled`; page unification and per-block state copies are the likely cause. Not confirmed.
+  - With only the budget corrected, the projection would be 68.7; with only per-sequence corrected, 87.0.
+- Fix or workaround: no retune from one model. `launchready fit` now warns that vLLM concurrency for hybrid Mamba models can be far below the projection (with this measurement) and marks the KV-token projection as not comparable for hybrids. The notebook footer carries the same decomposition.
+- Severity: slows (a developer sizing granite on 2× T4 from our numbers would expect 118 users and get 51)
+- Filed: not filed: vLLM behaves as designed; the gap is in our fit model
+- Requirement this implies: the fit model needs a per-architecture overhead and a hybrid per-sequence rule, calibrated on more than one hybrid model before it changes.
+
+### vLLM startup for granite-4.0-h-tiny took 16 minutes on T4
+- When / where: 2026-11-03 · 2× Tesla T4 (Kaggle) · driver 580.178.04 · CUDA 13.0 · vLLM 0.32.0 · ibm-granite/granite-4.0-h-tiny @ 791e0d3
+- Exact command: same `vllm serve` as above
+- What happened (error excerpt): `init engine (profile, create kv cache, warmup model) took 951.29 s`. The bulk was `Warming up Mamba2 SSD Triton kernels...` → `Initial profiling/warmup run took 666.77 s`; CUDA-graph capture took ~220 s (`Graph capturing finished in 120 secs` + `in 100 secs`) and torch.compile 21.9 s. Qwen3-4B's warmup run took 0.14 s and OLMoE's 7.7 s. The notebook's vLLM timeout was 1,200 s, so this passed with ~4 min to spare.
+- Root cause: Mamba2 SSD Triton kernels are JIT-compiled and autotuned on first use; there are no tuned configs for Tesla T4 (`Using default Mamba SSU config … Config file not found … device_name=Tesla_T4`).
+- Fix or workaround: raised the notebook's vLLM timeout to 1,800 s.
+- Severity: slows
+- Filed: not filed: expected first-run JIT cost on an old GPU; worth a line in any T4 recipe
+- Requirement this implies: recipes for hybrid Mamba models on older GPUs should warn that first startup can take 15+ minutes.
+
+### Transformers weight measurement crashed for every model
+- When / where: 2026-11-03 · 2× Tesla T4 (Kaggle) · driver 580.178.04 · CUDA 13.0 · torch 2.13.0+cu130, transformers 5.19.0 · all three Phase 3 models
+- Exact command: `python measure_hf.py Qwen/Qwen3-4B 1cfa9a7… 1` (notebooks/01_memory_validation.ipynb, commit cc0090a)
+- What happened (error excerpt): `torch.cuda.reset_peak_memory_stats(d)` → `RuntimeError: Invalid device argument`. Every `weights_bytes` measured row is empty; the chart's weights panel says "not measured".
+- Root cause: our bug. The script reset the peak-memory counter before anything had touched the GPU; torch 2.13 rejects the call while the caching allocator for that device is uninitialized.
+- Fix or workaround: initialize each device first (`torch.zeros(1, device=d)`) and then reset. The Transformers stage is now optional and off by default; the notebook uses vLLM's `Model loading took X GiB` lines as the measured weights (within 1% of projected for all three models).
+- Severity: blocks (no Transformers weights measurement)
+- Filed: not filed: our bug
+- Requirement this implies: run each GPU helper once on a real GPU before relying on it in a long notebook run.
+
 ### Lightning's drafter models are tagged as quantized variants of the base
 - When / where: 2026-11-02 · no GPU · huggingface_hub 2.4.0 · nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DFlash and -NVFP4-DSpark
 - Exact command: `HfApi().list_models(filter="base_model:quantized:nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16")`
