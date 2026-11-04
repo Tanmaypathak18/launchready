@@ -125,14 +125,21 @@ def test_tree_check_catches_local_details(text, category):
     assert category in text_problems(text, authored=False)
 
 
-def test_allowed_url_passes_where_it_is_linked():
-    url = site.ALLOWED_URL
+def test_only_the_space_and_article_urls_are_exempt():
+    assert site.ALLOWED_URLS == (
+        "https://huggingface.co/spaces/tanmaypathak4/launchready",
+        "https://huggingface.co/blog/tanmaypathak4/launchready",
+    )
+
+
+@pytest.mark.parametrize("url", site.ALLOWED_URLS)
+def test_allowed_url_passes_where_it_is_linked(url):
     for text in (url, f"Live tool: {url} (free)", f"[{url}]({url})", f'<a href="{url}">{url}</a>'):
         assert text_problems(text, authored=True) == set()
 
 
-def test_the_word_in_the_allowed_url_stays_banned_everywhere_else():
-    url = site.ALLOWED_URL
+@pytest.mark.parametrize("url", site.ALLOWED_URLS)
+def test_the_word_in_the_allowed_url_stays_banned_everywhere_else(url):
     word = url.split("/")[-2]
     assert hashlib.sha256(word.encode()).hexdigest() in site.PRIVATE_WORD_HASHES
     for text in (

@@ -7,6 +7,7 @@ Think of the model as a stack of papers and your GPU's memory as a desk. LaunchR
 - **Live tool:** [https://huggingface.co/spaces/tanmaypathak4/launchready](https://huggingface.co/spaces/tanmaypathak4/launchready) (free CPU Basic, no login)
 - **One-page summary:** [tanmaypathak18.github.io/launchready](https://tanmaypathak18.github.io/launchready/)
 - **Repo:** [github.com/Tanmaypathak18/launchready](https://github.com/Tanmaypathak18/launchready)
+- **Read the article:** [https://huggingface.co/blog/tanmaypathak4/launchready](https://huggingface.co/blog/tanmaypathak4/launchready)
 
 ## What it does
 

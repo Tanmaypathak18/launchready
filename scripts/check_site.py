@@ -39,10 +39,15 @@ PRIVATE_WORD_HASHES = {
     "31eb78c4e3e8b3d5d50cfb24408d4b7d01aa5f76f4a7409394856400dee4d305",
     "4bb2f659b74005b5ae2f281f0340dc29a902c32d32fe7094a63010dddef25be1",
 }
-# The one URL allowed to contain a private word, because the live tool sits at it. Only this exact
-# string is exempt: it must stand alone, so longer URLs and the bare word still fail.
-ALLOWED_URL = "https://huggingface.co/spaces/tanmaypathak4/launchready"
-ALLOWED_URL_MATCH = re.compile(rf"""(?<![^\s(\["'>]){re.escape(ALLOWED_URL)}(?![^\s)\]"'<,])""")
+# The only URLs allowed to contain a private word, because the live tool and the article sit at
+# them. Only these exact strings are exempt: each must stand alone, so longer URLs and the bare
+# word still fail.
+ALLOWED_URLS = (
+    "https://huggingface.co/spaces/tanmaypathak4/launchready",
+    "https://huggingface.co/blog/tanmaypathak4/launchready",
+)
+_ALLOWED = "|".join(re.escape(url) for url in ALLOWED_URLS)
+ALLOWED_URL_MATCH = re.compile(rf"""(?<![^\s(\["'>])(?:{_ALLOWED})(?![^\s)\]"'<,])""")
 # The same, for job-search wording, checked only in the project's own writing.
 JOB_WORD_HASHES = {
     "02540942346fdfbf21a94f8b823af2ae315f20cb71721c2cc6e205097d560840",
