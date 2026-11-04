@@ -1,53 +1,86 @@
-# LaunchReady: Roadmap
+# LaunchReady: Product roadmap
 
-**A small, open-source launch-readiness kit for open models on NVIDIA GPUs.** It sizes a new model's hardware needs, runs it on NVIDIA GPUs with the community's tools, measures it honestly, and explains the results to developers.
-
-**Compute budget:** $0 for everything except one rented RTX 5090 session (~$5–10, hard cap $20).
-
-| Phase | Status |
-|---|---|
-| 0. Setup | Done |
-| 1. Memory calculator | Done |
-| 2. Engine readiness + Nemotron brief | Done |
-| 3. Validate on free GPUs + first-user audits | Done |
-| 4. Developer feedback → requirements | Done |
-| 5. Nemotron 3.5 Lightning launch kit | kit complete and validated by dry run on 2x T4 with Qwen3-4B; RTX 5090 Lightning run pending |
-
-Details of what shipped in each phase are in [progress.md](progress.md).
+**Status as of 2026-11-03:** the tools, validation, requirements and launch kit are built, and the [live tool](https://huggingface.co/spaces/tanmaypathak4/launchready) and [summary page](https://tanmaypathak18.github.io/launchready/) are public. [progress.md](progress.md) has the detail on what shipped.
 
 ---
 
-## 1. What the project delivers
+## 1. Product overview
 
-One repo with five deliverables:
+**Vision:** know whether a new open model will run on NVIDIA GPUs before launch, from evidence rather than from the model's name or card.
 
-1. **`launchready fit`**: a calculator that reads any model from Hugging Face (no weight download) and works out memory at BF16, FP8, NVFP4 and GGUF, plus which NVIDIA GPUs fit it.
-2. **A model brief for NVIDIA Nemotron 3.5 Lightning** (30B total / 3B active hybrid Mamba-Transformer MoE, released Aug 11, 2026): capabilities, hardware needs, engine readiness, ecosystem impact.
-3. **Proof the calculator is right**: predicted vs measured memory on free Kaggle GPUs.
-4. **A launch kit**: verified vLLM and Ollama recipes for Lightning, benchmarked on a rented RTX 5090, with a quality check.
-5. **A friction log and a requirements table** built from real developer issues.
+**Problem:** when a model drops, developers can't tell whether it will fit their GPU or whether the card's commands will work without first spending the download and the GPU time.
 
-**Customer:** developers and researchers: Hugging Face users, people running models locally, ML engineers serving models. Every output is written for them.
+**Customers:** developers and researchers: Hugging Face users, people running models locally, ML engineers serving models. Every output is written for them.
 
-**Cut on purpose:** scheduled automation, an automated feedback pipeline, H100 benchmarks, TensorRT-LLM, fine-tuning, demo videos and slides.
+**What we deliver:**
 
----
-
-## 2. Goals and deliverables
-
-| Project goal | Deliverable |
-|---|---|
-| Enablement and launch readiness with model builders | Readiness checklist + recipes; issues or PRs filed upstream |
-| Track releases; summarize capabilities, hardware needs, ecosystem impact | Nemotron brief + a one-off radar of recent releases |
-| Requirements, launch plans, checklists | Readiness checklist; requirements table |
-| Inference, evaluation, deployment | vLLM/Ollama recipes, benchmarks, quality check, pinned containers |
-| Feedback → recurring issues → requirements | Hand-reviewed issues → requirements table |
-| Test developer workflows, notebooks, Python | Quickstart audits, friction log, notebooks anyone can run |
-| Docs | Brief, recipe README |
+| Customer need | Deliverable | Status |
+|---|---|---|
+| Size a model without downloading it | `launchready fit` and the live tool: memory at BF16, FP8, NVFP4 and GGUF, plus which NVIDIA GPUs fit | Live |
+| Summarize capabilities, hardware needs and ecosystem impact | A model brief for NVIDIA Nemotron 3.5 Lightning, plus a one-off radar of recent releases | Done |
+| Trust the numbers | Projected vs measured memory on free Kaggle GPUs | Done, with one known miss |
+| Launch readiness with model builders | Readiness checklist; vLLM and Ollama recipes, benchmarks, quality check and pinned containers | Built, dry-run only |
+| Turn feedback into requirements | Friction log, quickstart audits and a requirements table from real developer issues | Done |
 
 ---
 
-## 3. Ground rules
+## 2. Outcomes and success measures
+
+| Outcome | Measure | Target | Result |
+|---|---|---|---|
+| Weight projections are trustworthy | Projected vs measured weights | Within ~5% | Met: −0.9%, −0.1% and −0.3% measured on three models |
+| Capacity projections are trustworthy | Projected vs measured KV capacity | Within ~10–15% | Met for dense and MoE. **Missed for hybrid Mamba:** +133% on users |
+| Quickstart breaks are found before users hit them | Audits logged | At least 2 | Met: three breaks logged |
+| Feedback becomes requirements | Requirements with linked evidence | 5 | Met: 5 from 36 threads |
+| New users can reproduce a result | One result reproduced from the README | Works from a fresh clone | Met for the Qwen3-4B projection |
+| Lightning is ready on an RTX 5090 | Readiness checklist | All checks ready, or each exception explained | **Not met:** 1 ready, 5 not ready, 21 unknown of 27 checks |
+
+---
+
+## 3. Milestones
+
+| Milestone | Outcome | Status |
+|---|---|---|
+| Phase 0: Setup | Public repo with CI, tokens and a local Ollama | Done |
+| Phase 1: Memory calculator | `launchready fit` sizes dense, MoE, hybrid Mamba and MLA models without downloading weights | Done |
+| Phase 2: Engine readiness + Nemotron brief | `launchready brief` and `launchready radar`; the Lightning brief has hand-written sections and sources | Done |
+| Phase 3: Validate on free GPUs + first-user audits | Projected vs measured in a CSV and chart with the misses explained; quickstart audits logged | Done |
+| Phase 4: Developer feedback → requirements | Threads read by hand and grouped into 5 requirements with evidence | Done |
+| Phase 5: Nemotron 3.5 Lightning launch kit | Checklist, gap check, recipes and benchmark scripts built; dry run on Kaggle against `Qwen/Qwen3-4B`, raw output in `results/dryrun_kaggle/` (not headline) | Done as a dry run |
+| Live tool and summary page | Hugging Face Space and Pages site public | Done |
+
+---
+
+## 4. Risks and decisions
+
+### 4.1 Known risks
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| Hybrid Mamba capacity runs high, and Lightning is hybrid | Teams plan for more users than the engine holds | The tool warns on every hybrid; the model isn't retuned from one result |
+| Validation rests on three models on T4 | Accuracy elsewhere is unproven | Every number stays labeled; limits are stated in the README |
+| Engines and cards change quickly | Recipes and audits go stale | Pinned versions and model revisions |
+| Fixes confirmed on T4 only | They could still fail on Lightning | The checklist keeps these as unknown |
+
+### 4.2 Decisions
+
+| Date | Decision | Why |
+|---|---|---|
+| 2026-11-03 | Measured weights come from vLLM's "Model loading took X GiB" line, summed over TP ranks. The Transformers stage is an optional cross-check, off by default | The Transformers stage crashed on our own bug ([friction log](friction_log.md)) |
+| 2026-11-03 | GGUF is bartowski Q4_K_M, and its memory comes from the header | ggml-org has no Q4_K_M, and the header says 6.19 bits per weight |
+| 2026-11-03 | Quality compares NVFP4 (vLLM) with GGUF (llama.cpp) directly, thinking off for both | The card has no GSM8K or IFEval numbers |
+| 2026-11-03 | The fit model isn't retuned from one hybrid; the tool warns instead | One model isn't enough to calibrate on |
+| 2026-11-03 | The live tool uses real Hub file sizes where they exist | Projected sizes flip the verdict for Lightning on an RTX 4090 |
+
+### 4.3 Out of scope
+
+Scheduled automation, an automated feedback pipeline, H100 benchmarks, TensorRT-LLM, fine-tuning, demo videos and slides.
+
+---
+
+## 5. How we run it
+
+### 5.1 Product principles
 
 - **Labeled numbers.** Every number is *measured* (GPU, driver, CUDA, engine version, model revision, date) or *projected* (with the formula). This rule is not optional.
 - **Reproducible.** Lockfile; pinned engine versions and container tags; model revision hashes; one command per result.
@@ -56,93 +89,15 @@ One repo with five deliverables:
 - **No weight downloads in the calculator.** config.json and safetensors headers only.
 - **No secrets in git.** Public data only.
 
----
+### 5.2 Compute
 
-## 4. Compute
-
-| Where | Use it for | Cost |
+| Where | Used for | Cost |
 |---|---|---|
 | Development laptop (Mac) | All code; Ollama hands-on; writing | $0 |
 | Kaggle "GPU T4 x2" (2 × 16 GB) | Memory validation, quickstart audits, dry runs of the benchmark script | $0 |
-| Rented RTX 5090, 32 GB, Blackwell (~6–8 h) | Lightning benchmarks: NVFP4 in vLLM, GGUF in Ollama/llama.cpp | ~$5–10 |
-
-**Renting checklist:** Runpod or Vast.ai (per-minute billing) · on-demand, not spot · ~100 GB disk · CUDA 12.8+ image · set the spend cap first · download weights with `hf download` before starting the clock on benchmarks · copy results off before stopping. Rent only after the benchmark script has run end to end on Kaggle.
+| Hugging Face PRO | Hosting the live tool on CPU Basic | $9/month |
 
 Mac numbers never go in published benchmarks.
-
----
-
-## 5. Phases
-
-### Phase 0: Setup ($0)
-
-- [x] Public repo `launchready` (Apache-2.0), Python 3.11+ with uv, ruff, pytest.
-- [x] Tokens: Hugging Face (accept Llama/Gemma licenses), Kaggle (GPU + internet enabled), GitHub.
-- [x] Mac: install Ollama, run `ollama run llama3.1:8b --verbose`, note the eval rate.
-- [x] Add the roadmap and `CLAUDE.md`; create `docs/friction_log.md` from template 7.3.
-
-**Done when:** CI is green on a smoke test and Ollama answers on a local Mac.
-
-### Phase 1: Memory calculator ($0)
-
-**Goal:** `launchready fit <repo_id>` shows memory at each precision and which NVIDIA GPUs fit, without downloading weights.
-
-- [x] `hub.py`: config.json (handle nested `text_config`), model info (date, license, gated), safetensors parameter counts (`huggingface_hub.get_safetensors_metadata`), file sizes. Cache on disk.
-- [x] `arch.py`: normalize into an `Architecture` dataclass: layers and layer types (full attention, sliding window, Mamba), heads, KV heads, head_dim, context, MoE fields (total vs active), MLA fields, Mamba fields. Unknown fields → warning naming the field.
-- [x] `memory.py`: weights per precision (6.1), KV/state per sequence (6.2), fit model (6.3), `--kv-dtype fp16|fp8`.
-- [x] `data/gpus.yaml` from 6.4.
-- [x] CLI: `launchready fit <id> [--context 32768] [--users 8] [--gpu rtx-5090] [--json]`, every output labeled "projected".
-- [x] Tests first, using 6.5 and saved config fixtures.
-
-**Done when:** reference tests pass and `launchready fit` gives sensible tables for dense, MoE, hybrid Mamba and MLA models.
-
-### Phase 2: Engine readiness + the Nemotron brief ($0)
-
-**Goal:** `launchready brief <repo_id>` writes a one-page brief a leader or developer can act on.
-
-- [x] `engines.py`: shallow sparse clones of only the paths in 6.6, at `main` and the latest release tag, cached in `~/.cache/launchready`. Status per engine: `release`, `main-only`, `not-found`, `unknown`, with the matching file and line. Flag `auto_map` → "needs trust_remote_code".
-- [x] Variants: FP8, NVFP4 and GGUF derivatives (Hub filter `base_model:quantized:<repo_id>` plus the builder's org), with sizes.
-- [x] `brief.py`: render template 7.1 to `briefs/<org>__<model>.md`.
-- [x] Write the **Ecosystem impact** and **Open questions** sections by hand.
-- [x] `launchready radar --since 30d`: one-off list of recent root-model releases from the watchlist in 6.7, run by hand. No scheduling.
-
-**Done when:** the Lightning brief exists with hand-written sections, every claim is sourced, and one radar digest exists.
-
-### Phase 3: Validate on free GPUs + first-user audit ($0)
-
-**Goal:** prove the calculator on real NVIDIA GPUs and act as the first user of official quickstarts.
-
-- [x] `notebooks/01_memory_validation.ipynb` on Kaggle T4 x2 with 3 models: `Qwen/Qwen3-4B` (dense), `allenai/OLMoE-1B-7B-0924-Instruct` (MoE), `ibm-granite/granite-4.0-h-tiny` (hybrid Mamba). Over ~13 GB in FP16 → run across both GPUs with `--tensor-parallel-size 2`.
-- [x] Per model: projected (`launchready fit`) vs measured — Transformers + `torch.cuda.max_memory_allocated()`, and vLLM's KV-capacity and max-concurrency startup lines (6.8).
-  - Changed 2026-11-03: measured weights come from vLLM's "Model loading took X GiB" line (summed over TP ranks), not Transformers `max_memory_allocated()`; the Transformers stage is an optional cross-check, off by default (see docs/friction_log.md).
-- [x] If something fails on T4, log it and move on.
-- [x] Run 2–3 official quickstarts exactly as written (model-card snippets for vLLM or Transformers). Log every break; file an issue or PR where it genuinely helps.
-
-**Done when:** predicted vs measured is in a CSV and chart with misses explained (aim: weights within ~5%, KV capacity within ~10–15%), and at least 2 audits are logged.
-
-### Phase 4: Developer feedback → requirements ($0, by hand)
-
-- [x] Read ~30 recent GitHub issues and Hugging Face discussions about Nemotron 3.5 Lightning (or its architecture) in vllm-project/vllm, ggml-org/llama.cpp, ollama/ollama and the model's Hugging Face repo.
-- [x] Group them into themes (install/dependency, driver/CUDA, out of memory, chat template/tool calling, quantization, performance, correctness, docs gap).
-- [x] Write `docs/requirements.md` from template 7.4: top 5 themes → requirements with acceptance criteria.
-
-**Done when:** the table has 5 requirements, each with linked evidence.
-
-This phase is done by hand on purpose: reading the threads is the work.
-
-### Phase 5: Nemotron 3.5 Lightning launch kit (~$5–10)
-
-1. [x] **Readiness checklist** (template 7.2) for Lightning: what must be true before it can be called "ready on NVIDIA GPUs."
-2. [x] **Gap check:** read NVIDIA's model card and recipes. The kit adds independent measurements on a consumer GPU, first-user friction, cost per 1M tokens and plain-English guidance. Put that list at the top of the recipe README.
-3. [x] **Recipes** (`recipes/nemotron-3.5-lightning/`): `vllm.sh` (NVFP4) and `ollama.md` (GGUF via `ollama run hf.co/...`), each stating GPU, engine version and model revision. Start from the vLLM version NVIDIA's card uses.
-4. [x] **Benchmark + quality scripts** (`bench/`), per 6.9.
-   - Changed 2026-11-03: GGUF is bartowski Q4_K_M (ggml-org has no Q4_K_M); its header says 6.19 bits/weight, so GGUF memory comes from the header, not 6.1. The card has no GSM8K/IFEval numbers, so quality compares NVFP4 (vLLM) with GGUF (llama.cpp) directly; thinking off for both.
-5. [x] **Dry run** everything on Kaggle against `Qwen/Qwen3-4B`. All servers and runs finished; raw output in `results/dryrun_kaggle/` (not headline).
-   - Quality fixed (2026-11-03): vLLM's 0.0 in run 2 was a harness problem (`deepseek_r1` left `content` null), not a score. Run 3 at `8b4ca32` used `qwen3` and gave real scores with 0 empty answers. See results/dryrun_kaggle/README.md.
-6. [ ] **Rented RTX 5090 session:** NVFP4 in vLLM, GGUF in Ollama/llama.cpp, concurrency 1/8/32, one 32K-context point, drafter on/off at concurrency 1, quality subset, recipes run as written (`vllm.sh` and `ollama.md`, startup check). Not tested in this session: chat template, tool calling, soak, tokenizer comparison. NVIDIA's card points local devices to the GGUF, so if NVFP4 doesn't run on the 5090, that's a finding. Log it.
-7. [ ] **Results notebook** (`notebooks/02_launch_kit_nemotron.ipynb`) that rebuilds every chart from committed results.
-
-**Done when:** both recipes are verified on the 5090, every number is labeled measured, and the checklist is green or each exception is explained.
 
 ---
 
@@ -224,7 +179,7 @@ nvidia · meta-llama · google · Qwen · deepseek-ai · mistralai · microsoft 
 - **PyTorch:** `torch.cuda.max_memory_allocated()`.
 - **GPU:** `nvidia-smi --query-gpu=memory.used,power.draw,utilization.gpu --format=csv -lms 500`.
 
-### 6.9 Benchmark plan (RTX 5090)
+### 6.9 Benchmark configuration (RTX 5090)
 
 | Dimension | Values |
 |---|---|
