@@ -12,7 +12,6 @@
 | 3. Validate on free GPUs + first-user audits | Done |
 | 4. Developer feedback → requirements | Done |
 | 5. Nemotron 3.5 Lightning launch kit | kit complete and validated by dry run on 2x T4 with Qwen3-4B; RTX 5090 Lightning run pending |
-| 6. Publish | Not started |
 
 Details of what shipped in each phase are in [progress.md](progress.md).
 
@@ -26,11 +25,11 @@ One repo with five deliverables:
 2. **A model brief for NVIDIA Nemotron 3.5 Lightning** (30B total / 3B active hybrid Mamba-Transformer MoE, released Aug 11, 2026): capabilities, hardware needs, engine readiness, ecosystem impact.
 3. **Proof the calculator is right**: predicted vs measured memory on free Kaggle GPUs.
 4. **A launch kit**: verified vLLM and Ollama recipes for Lightning, benchmarked on a rented RTX 5090, with a quality check.
-5. **One blog post** that ties it together, plus a friction log and a requirements table built from real developer issues.
+5. **A friction log and a requirements table** built from real developer issues.
 
 **Customer:** developers and researchers: Hugging Face users, people running models locally, ML engineers serving models. Every output is written for them.
 
-**Cut on purpose:** scheduled automation, an automated feedback pipeline, H100 benchmarks, TensorRT-LLM, fine-tuning, demo videos and slides. Optional extras are in section 5.
+**Cut on purpose:** scheduled automation, an automated feedback pipeline, H100 benchmarks, TensorRT-LLM, fine-tuning, demo videos and slides.
 
 ---
 
@@ -44,7 +43,7 @@ One repo with five deliverables:
 | Inference, evaluation, deployment | vLLM/Ollama recipes, benchmarks, quality check, pinned containers |
 | Feedback → recurring issues → requirements | Hand-reviewed issues → requirements table |
 | Test developer workflows, notebooks, Python | Quickstart audits, friction log, notebooks anyone can run |
-| Blogs, docs, social | Blog post + thread, brief, recipe README |
+| Docs | Brief, recipe README |
 
 ---
 
@@ -144,20 +143,6 @@ This phase is done by hand on purpose: reading the threads is the work.
 7. [ ] **Results notebook** (`notebooks/02_launch_kit_nemotron.ipynb`) that rebuilds every chart from committed results.
 
 **Done when:** both recipes are verified on the 5090, every number is labeled measured, and the checklist is green or each exception is explained.
-
-### Phase 6: Publish ($0)
-
-- [ ] **Blog post:** "Running NVIDIA Nemotron 3.5 Lightning on an RTX 5090: what fits, how fast, and what broke." Include: the memory math in plain English, the predicted-vs-measured chart, recipes, benchmark charts, the quality check, cost per 1M tokens, and caveats.
-- [ ] Publish the post and a Hugging Face community article; share one chart in a short thread.
-- [ ] README: quickstart, results, links to the brief, blog and requirements table.
-
-**Done when:** the post is live and a new user can reproduce one result from the README.
-
-### Optional extras (only if they come cheap)
-
-- **SGLang** recipe and benchmark on the same 5090 session.
-- **72-hour drill:** if a notable model is released during the project, run `launchready brief`, verify a recipe and publish a short post within 72 hours.
-- **H100 session** (~$10) for a data-center comparison.
 
 ---
 

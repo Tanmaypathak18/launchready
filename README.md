@@ -191,7 +191,6 @@ The CLI itself rounds down to 7 users and marks BF16 as not supported on T4, whi
 - **Dry-run fixes are confirmed on T4 only**, not on Lightning, and the status for lost requests has never triggered on a GPU.
 - **Some checks aren't covered by the planned session:** chat template, tool calling, a long soak run and a tokenizer comparison ([list](docs/readiness_checklist.md#not-tested-by-the-5090-session)).
 - **The quality bar isn't set, and nothing is filed upstream yet**, including the Lightning card fix.
-- **The blog post isn't written.**
 
 ## Repo layout
 
