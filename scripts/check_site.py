@@ -39,6 +39,10 @@ PRIVATE_WORD_HASHES = {
     "31eb78c4e3e8b3d5d50cfb24408d4b7d01aa5f76f4a7409394856400dee4d305",
     "4bb2f659b74005b5ae2f281f0340dc29a902c32d32fe7094a63010dddef25be1",
 }
+# The one URL allowed to contain a private word, because the live tool sits at it. Only this exact
+# string is exempt: it must stand alone, so longer URLs and the bare word still fail.
+ALLOWED_URL = "https://huggingface.co/spaces/tanmaypathak4/launchready"
+ALLOWED_URL_MATCH = re.compile(rf"""(?<![^\s(\["'>]){re.escape(ALLOWED_URL)}(?![^\s)\]"'<,])""")
 # The same, for job-search wording, checked only in the project's own writing.
 JOB_WORD_HASHES = {
     "02540942346fdfbf21a94f8b823af2ae315f20cb71721c2cc6e205097d560840",
@@ -189,7 +193,7 @@ def text_problems(text: str, authored: bool) -> set[str]:
     for address in EMAIL.findall(text):
         if not address.lower().endswith(ALLOWED_EMAIL_DOMAINS):
             found.add("email address")
-    words = re.findall(r"[a-z0-9]+", text.lower())
+    words = re.findall(r"[a-z0-9]+", ALLOWED_URL_MATCH.sub(" ", text).lower())
     terms = set(words) | {f"{a} {b}" for a, b in zip(words, words[1:], strict=False)}
     hashes = {hashlib.sha256(term.encode()).hexdigest() for term in terms}
     if hashes & PRIVATE_WORD_HASHES:

@@ -125,6 +125,33 @@ def test_tree_check_catches_local_details(text, category):
     assert category in text_problems(text, authored=False)
 
 
+def test_allowed_url_passes_where_it_is_linked():
+    url = site.ALLOWED_URL
+    for text in (url, f"Live tool: {url} (free)", f"[{url}]({url})", f'<a href="{url}">{url}</a>'):
+        assert text_problems(text, authored=True) == set()
+
+
+def test_the_word_in_the_allowed_url_stays_banned_everywhere_else():
+    url = site.ALLOWED_URL
+    word = url.split("/")[-2]
+    assert hashlib.sha256(word.encode()).hexdigest() in site.PRIVATE_WORD_HASHES
+    for text in (
+        word,
+        f"contact {word} today",
+        f"{url} and also {word}",
+        f"{url}/tree/main",
+        f"{url}-fork",
+        f"{url}?x=1",
+        f"{url}#top",
+        url.removesuffix("launchready") + "other",
+        url.removeprefix("https://"),
+        url.replace("https://", "http://"),
+        f"x{url}",
+        url.upper(),
+    ):
+        assert text_problems(text, authored=False) == {"private word"}, text
+
+
 def test_tree_check_allows_redacted_paths():
     assert text_problems("/" + "Users/<user>/x and <home>/.cache", authored=False) == set()
 

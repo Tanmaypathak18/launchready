@@ -8,12 +8,14 @@ One "Done so far" entry per phase, newest first: what shipped, decisions made, w
 - **Decisions:** Phase 5 stays open in the README until Lightning runs on a 5090. Report GSM8K flexible and strict together: the strict filter couldn't read 11 of vLLM's 20 answers. The two failures (card `--enable-reasoning`, FP8 KV on T4) are logged as findings. `partial` didn't trigger because no request failed, so it's tested offline only; the run 2 disconnect stays undiagnosed.
 - **Next:** set the quality threshold; rent the 5090 (step 6); results notebook (step 7). The dry run didn't touch NVFP4, `nemotron_v3`, DSpark, vLLM v0.27.1, the Runpod image or the recipes as written.
 
-## Optional extra: Hugging Face Space, built locally, not deployed (2026-11-03)
+## Optional extra: Hugging Face Space and Pages site, live (2026-11-03)
 
 - **Shipped:** `space/` (Gradio page for non-developers: verdict, memory table, warnings, variants and links, formulas, measured results), `launchready/report.py` (the fit, now shared by the CLI, the brief's size rule and the Space), Hub errors wrapped in `HubError`.
 - **Decisions:** the Space's fit uses Hub file sizes where they exist, as the brief does, not the CLI's projection (it flips Lightning on a 4090 from 4 users to no fit); only precisions the GPU supports count; no engine cloning; the Space stays anonymous even if a token is added. T4 is 15 GiB, as measured. B200 and DGX Spark carry `unverified` notes, shown on the page.
 - **Base-repo filter:** `report.hub_file_sizes` ignores a base repo's own files when they are more than 25% from the BF16 projection (FP32 weights, or `consolidated.safetensors` beside the shards). This also affects `launchready brief`, which then shows no Hub size for BF16 and uses the projection; `launchready fit` is not affected.
-- **What's next:** merge, push, pin the pushed commit in `space/requirements.txt`, create the Space by hand. Outside the roadmap's phases (docs/roadmap.md); Phase 5's rented session is still the main next step.
+- **Deployed:** https://huggingface.co/spaces/tanmaypathak4/launchready on CPU Basic, Gradio 6.31.0, pinned to launchready `db4e928`. Gradio Spaces now need a paid Hugging Face plan, so it runs on PRO ($9/month), not the free tier first planned. All 6 examples, a pasted URL, a GGUF repo, a bad id and phone width checked on the live page.
+- **Live:** Space at https://huggingface.co/spaces/tanmaypathak4/launchready and Pages site at https://tanmaypathak18.github.io/launchready/, both linked from the README.
+- **What's next:** outside the roadmap's phases (docs/roadmap.md); Phase 5's rented session is still the main next step.
 
 ## Phase 5 (in progress): steps 1–5, checklist, gap check, recipes, bench scripts, Kaggle dry run (2026-11-03)
 
