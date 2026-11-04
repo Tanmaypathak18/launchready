@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LaunchReady: Start here</title>
-<meta name="description" content="LaunchReady helps a team know whether a new open model will run on NVIDIA GPUs before launch. Findings, evidence and what is measured.">
+<meta name="description" content="Will this open model run on my NVIDIA GPU? LaunchReady works out whether a model fits before you download it. Findings, evidence and what is measured.">
 <style>
   :root {
     color-scheme: light dark;
@@ -122,23 +122,23 @@
   <p class="eyebrow">Start here</p>
   <h1>LaunchReady</h1>
   <div class="summary">
-    <p>LaunchReady is a small open-source kit for open models on NVIDIA GPUs.</p>
-    <p>Its job is to help a team know whether a new open model will run on NVIDIA GPUs before launch.</p>
-    <p>It projects memory from a model's published files, then tests those projections on real GPUs and real quickstarts.</p>
+    <p><b>Will this open model run on my NVIDIA GPU?</b></p>
+    <p>Think of the model as a stack of papers and your GPU's memory as a desk. LaunchReady works out whether the stack fits on the desk, with room left for everyone using it, before you download it.</p>
+    <p>It estimates how much GPU memory (the memory on the graphics card, where a model has to sit while it runs) a model needs, from the model's published description files. Then it tests those estimates on real GPUs and follows published setup instructions word for word to see what breaks.</p>
   </div>
-  <p class="jump"><a href="https://github.com/Tanmaypathak18/launchready">Repo</a> · <a href="#found">What I found</a> · <a href="#brief">Brief and checklist</a> · <a href="#status">Measured vs projected</a> · <a href="#practice">In practice</a></p>
+  <p class="jump"><a href="https://huggingface.co/spaces/tanmaypathak4/launchready">Live tool</a> · <a href="https://github.com/Tanmaypathak18/launchready">Repo</a> · <a href="#found">What I found</a> · <a href="#brief">Brief and checklist</a> · <a href="#status">Measured vs projected</a> · <a href="#practice">In practice</a></p>
 </header>
 
 <section id="found">
   <h2>What I found</h2>
-  <p class="note">Every number below is tagged <span class="tag m">measured</span> or <span class="tag p">projected</span> and links to its file. Measured results are from 2026-11-03 unless noted.</p>
+  <p class="note">Each finding starts in plain English, with the technical evidence under it. Every number is tagged <span class="tag m">measured</span> (read from a real run or a real file) or <span class="tag p">projected</span> (calculated, not tested) and links to its file. Measured results are from 2026-11-03 unless noted.</p>
 
   <article class="card">
     <div class="card-head">
       <div class="big">4–6%<small>measured vs projected gap</small></div>
       <div>
-        <h3>The memory math held up on standard models</h3>
-        <p class="meaning">For one dense model and one mixture-of-experts (MoE) model, projected user capacity landed within 4–6% of measured, slightly on the cautious side.</p>
+        <h3>The estimates held up on two standard models</h3>
+        <p class="meaning">The number of users came within 4–6% of what was measured, slightly on the cautious side. One was a dense model (a standard design). The other was a mixture of experts, or MoE (a model that stores many specialist parts but uses only a few for each word).</p>
       </div>
     </div>
     <ul class="vals">
@@ -146,7 +146,7 @@
       <li>OLMoE-1B-7B (MoE), users at 4,096 tokens: <span class="tag p">projected</span> 20.22, <span class="tag m">measured</span> 21.47, a gap of −5.8%</li>
       <li>Model weights, same two models: −0.9% and −0.1% against <span class="tag m">measured</span></li>
     </ul>
-    <p class="note">Run on 2× Tesla T4 on Kaggle with vLLM 0.32.0.</p>
+    <p class="note">Tokens are pieces of words. 4,096 tokens is the context, meaning how much text one conversation can hold. Run on 2× Tesla T4 on Kaggle with vLLM 0.32.0 (a program that serves a model to users).</p>
     <figure id="chart">
       <div class="chart-scroll">
         <a href="assets/memory_validation.png"><img src="assets/memory_validation.png" width="2250" height="750" alt="Three scatter charts of projected against measured values on 2× Tesla T4. Weights: Qwen3-4B −0.9%, OLMoE-1B-7B −0.1%, granite-h-tiny −0.3%. KV-cache tokens: Qwen3-4B −3.8%, OLMoE-1B-7B −5.8%, hybrid Mamba excluded as not comparable. Max concurrency: Qwen3-4B −3.9%, OLMoE-1B-7B −5.8%, granite-h-tiny +133%, far outside the band."></a>
@@ -160,8 +160,8 @@
     <div class="card-head">
       <div class="big">+133%<small>projected above measured</small></div>
       <div>
-        <h3>The hybrid Mamba model broke the math</h3>
-        <p class="meaning">On granite-4.0-h-tiny, a team sizing from my projection would have expected more than twice the users the engine could hold.</p>
+        <h3>The estimate missed badly on a hybrid Mamba model</h3>
+        <p class="meaning">A hybrid Mamba model is a design where most layers keep a fixed-size note for each user, instead of a record that grows with the conversation. On granite-4.0-h-tiny, a team sizing from my projection would have expected more than twice the users the engine could hold.</p>
       </div>
     </div>
     <ul class="vals">
@@ -180,8 +180,8 @@
     <div class="card-head">
       <div class="big">+16%<small>real file above projection</small></div>
       <div>
-        <h3>Lightning's real NVFP4 file is bigger than the math says</h3>
-        <p class="meaning">The projection treats every weight as 4-bit, but the real checkpoint keeps some tensors at higher precision, so the tools now use real file sizes when they exist.</p>
+        <h3>Lightning's real file is bigger than the estimate</h3>
+        <p class="meaning">Quantization means storing each number in a model with fewer bits, so the file is smaller. NVFP4 is one such format. The estimate treats every number as 4-bit, but the real file keeps some at higher precision, so the tools now use real file sizes when they exist.</p>
       </div>
     </div>
     <ul class="vals">
@@ -195,8 +195,8 @@
     <div class="card-head">
       <div class="big">~6.1<small>bits per weight</small></div>
       <div>
-        <h3>"Q4_K_M" GGUF files are not what the name suggests</h3>
-        <p class="meaning">Three Lightning files with that name store about 6.1 bits per weight, so they take more memory than the label implies.</p>
+        <h3>Files labeled "Q4_K_M" hold more than the label suggests</h3>
+        <p class="meaning">Q4_K_M is a label for GGUF, a model file format for local tools. Three Lightning files with that name store about 6.1 bits per weight, so they take more memory than the label implies.</p>
       </div>
     </div>
     <ul class="vals">
@@ -211,8 +211,8 @@
     <div class="card-head">
       <div class="big">3<small>quickstarts that broke</small></div>
       <div>
-        <h3>Following the model cards as written hit three breaks</h3>
-        <p class="meaning">I ran published commands word for word, the way a first-time developer would, and each of these stopped them from getting an answer.</p>
+        <h3>Three published setup instructions broke when followed word for word</h3>
+        <p class="meaning">I ran the commands on model cards (a model's published instructions) word for word, the way a first-time developer would, and each of these stopped them from getting an answer.</p>
       </div>
     </div>
     <ul class="vals">
@@ -249,7 +249,7 @@
       <ul>
         <li><a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/environment.json">Memory on 2× Tesla T4</a>: driver 580.178.04, CUDA 13.0, vLLM 0.32.0. Weights come from vLLM's load log, because a separate <a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/friction_log.md#transformers-weight-measurement-crashed-for-every-model">Transformers check crashed on my own bug</a>; that fix was not re-run on a GPU.</li>
         <li><a href="https://github.com/Tanmaypathak18/launchready/tree/main/results/bench/gguf">GGUF headers</a> and Hugging Face file sizes, read without a GPU.</li>
-        <li><a href="https://github.com/Tanmaypathak18/launchready/tree/main/results/quickstart_audit">Quickstart audits</a>, on Kaggle 2× T4 and a MacBook Air M4 with 16 GB.</li>
+        <li><a href="https://github.com/Tanmaypathak18/launchready/tree/main/results/quickstart_audit">Quickstart audits</a> (running published setup instructions word for word), on Kaggle 2× T4 and a MacBook Air M4 with 16 GB.</li>
       </ul>
       <h3><span class="tag p">projected</span></h3>
       <ul>
@@ -263,7 +263,7 @@
         <li><b>Lightning on an RTX 5090 has not been run.</b> No speed, memory or quality number on this page comes from a 5090 (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/progress.md">progress</a>).</li>
         <li><b>The kit is dry-run only</b>, on Tesla T4 with Qwen3-4B, not Lightning. Those outputs prove the scripts run and are <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/dryrun_kaggle/README.md">not headline results</a>.</li>
         <li><b>Fixes from the dry runs are confirmed on T4 only</b>, not on Lightning, and the status for lost requests has never triggered on a GPU (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/dryrun_kaggle/README.md#what-each-fix-changed">what each fix changed</a>).</li>
-        <li><b>Chat template, tool calling, a long soak run and a tokenizer comparison</b> have not been tested (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/readiness_checklist.md#not-tested-by-the-5090-session">list</a>).</li>
+        <li><b>Chat template</b> (how a conversation is formatted for the model), <b>tool calling</b> (the model using outside tools), <b>a long soak run</b> (hours under steady load) <b>and a tokenizer comparison</b> (how text is split into tokens) have not been tested (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/readiness_checklist.md#not-tested-by-the-5090-session">list</a>).</li>
       </ul>
     </div>
   </div>

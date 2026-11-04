@@ -1,12 +1,66 @@
 # LaunchReady
 
-LaunchReady is a small, open-source kit that helps you find out whether a new open-weight model will run on NVIDIA GPUs before you download it. It reads a model's `config.json` and safetensors headers from Hugging Face, never the weights, to project memory at BF16, FP8, NVFP4 and GGUF and which GPUs fit. It then tests those projections on real GPUs and runs published quickstarts word for word to see what breaks. The worked example is NVIDIA Nemotron 3.5 Lightning. Every number is labeled measured or projected, and the misses are published alongside the hits.
+**Will this open model run on my NVIDIA GPU?**
+
+Think of the model as a stack of papers and your GPU's memory as a desk. LaunchReady works out whether the stack fits on the desk, with room left for everyone using it, before you download it.
 
 - **Live tool:** [https://huggingface.co/spaces/tanmaypathak4/launchready](https://huggingface.co/spaces/tanmaypathak4/launchready) (free CPU Basic, no login)
 - **One-page summary:** [tanmaypathak18.github.io/launchready](https://tanmaypathak18.github.io/launchready/)
 - **Repo:** [github.com/Tanmaypathak18/launchready](https://github.com/Tanmaypathak18/launchready)
 
-## The problem
+## What it does
+
+LaunchReady estimates how much GPU memory (the memory on the graphics card, where a model has to sit while it runs) a model needs, and how many people can use it at once. It reads the model's published description files, never the model itself. Then it tests those estimates on real GPUs and follows published setup instructions word for word to see what breaks. The worked example is NVIDIA Nemotron 3.5 Lightning, "Lightning" below.
+
+Every number is labeled **measured** (read from a real run or a real file) or **projected** (calculated, not tested). The misses are published alongside the hits.
+
+## What it found
+
+Results are from 2026-11-03 unless noted. The evidence for each one is in [Key findings](#key-findings).
+
+1. **The estimates held up on two standard models.** The number of users came within 4–6% of what was measured. One was a dense model (a standard design). The other was a mixture of experts, or MoE (a model that stores many specialist parts but uses only a few for each word). At a context of 4,096 tokens (context is how much text one conversation can hold, and a token is a piece of a word): Qwen3-4B projected 7.12 users, measured 7.41; OLMoE projected 20.22, measured 21.47.
+2. **They missed badly on a hybrid Mamba model** (a design where most layers keep a fixed-size note for each user, instead of a record that grows with the conversation). Anyone planning from the estimate would have expected more than twice the users: projected 118.08, measured 50.58, a gap of +133%. Lightning is also a hybrid Mamba model, so its estimate carries the same risk.
+3. **Real files are bigger than their labels suggest.** Quantization means storing each number in a model with fewer bits, so the file is smaller. Lightning's NVFP4 file is projected at 17.24 GiB and measured at 20.08 GiB (+16%). That is the file size on Hugging Face, not memory measured on a GPU. Three files labeled Q4_K_M store a measured 6.19, 6.14 and 6.08 bits per weight, not the projected 4.85.
+4. **Three published setup instructions broke when followed word for word.** Two failed with an error, after a measured 30 s and 6 s. One printed no answer before a measured 2,700 s limit on a 16 GB Mac.
+5. **Lightning is not ready on an RTX 5090.** The [readiness checklist](docs/readiness_checklist.md) stands at 1 ready, 5 not ready and 21 unknown, out of 27 checks. Those are counts from evidence in the repo, not hardware measurements, and the one ready item is a document check. Most checks are unknown because nothing has been measured on a 5090.
+
+## What it can't tell you
+
+- **Memory only.** It says nothing about speed or answer quality.
+- **One GPU, NVIDIA only.** It doesn't cover several GPUs working together, spilling onto ordinary computer memory, or other brands.
+- **Hybrid Mamba models run high.** The one measured missed by +133%, and the formula is not retuned.
+- **Tested on three models.** They ran on Tesla T4 with one engine version, and the other GPUs in the list are unmeasured.
+- **No comparison.** We have not compared LaunchReady with other calculators, so we make no claim that it's more accurate than any of them.
+
+The full list of limits is under [For developers](#where-it-isnt-better-and-its-limits).
+
+## Measured vs projected
+
+**Measured:**
+
+- Memory on 2× Tesla T4 ([environment](results/environment.json)).
+- GGUF headers (the description at the top of a GGUF model file) and Hugging Face file sizes, read without a GPU.
+- Quickstart audits (running published setup instructions word for word) on Kaggle 2× T4 and a MacBook Air M4 with 16 GB ([results](results/quickstart_audit)).
+
+**Projected:**
+
+- Everything about Lightning running on an RTX 5090. With vLLM (a program that serves a model to users): 20.08 GiB of weights (the model itself), 0.28 GiB per 40,960-token conversation and about 18 conversations ([table](recipes/nemotron-3.5-lightning/README.md#memory-on-a-32-gib-rtx-5090-projected)).
+- With a GGUF file: about 6.0 GiB left with 8 slots (one conversation each), from a 23.73 GiB file ([table](recipes/nemotron-3.5-lightning/ollama.md#memory-projected)).
+
+**Not measured:**
+
+- **Lightning on an RTX 5090.** It has not been run on one, so there is no speed, memory or quality number from a 5090.
+- **The kit on Lightning.** It has run on Tesla T4 with Qwen3-4B, not Lightning. Those outputs prove the scripts run and are [not headline results](results/dryrun_kaggle/README.md).
+- **Dry-run fixes are confirmed on T4 only**, not on Lightning, and the status for lost requests has never triggered on a GPU.
+- **Chat template** (how a conversation is formatted for the model), **tool calling** (the model using outside tools), **a long soak run** (hours under steady load) **and a tokenizer comparison** (how text is split into tokens). None has been tested ([list](docs/readiness_checklist.md#not-tested-by-the-5090-session)).
+
+## For developers
+
+Everything below is the technical detail: formulas, config fields, engine paths, quantization formats and commands.
+
+LaunchReady is a small, open-source kit that helps you find out whether a new open-weight model will run on NVIDIA GPUs before you download it. It reads a model's `config.json` and safetensors headers from Hugging Face, never the weights, to project memory at BF16, FP8, NVFP4 and GGUF and which GPUs fit. It then tests those projections on real GPUs and runs published quickstarts word for word to see what breaks. The worked example is NVIDIA Nemotron 3.5 Lightning. Every number is labeled measured or projected, and the misses are published alongside the hits.
+
+### The problem
 
 When a new open model drops, a developer has two questions: will it fit my GPU, and will the model card's commands work? Neither is easy to answer without spending the download and the GPU time first.
 
@@ -15,7 +69,7 @@ When a new open model drops, a developer has two questions: will it fit my GPU, 
 - **Model cards drift.** A flag gets removed from an engine, or a recipe names a file that isn't in the repo. Three of the quickstarts we ran as written [stopped a first-time developer](#key-findings).
 - **"Supported" can mean only "registered."** An architecture in an engine's registry doesn't prove every precision or feature works. Reading [36 developer threads](docs/requirements.md) on Lightning found files whose contents don't match their names, crashes on recipes as written, and kernels that return fluent but wrong output.
 
-## What LaunchReady does
+### What LaunchReady does
 
 **1. Fit calculator.** `launchready fit` projects weights at each precision, memory per user, and maximum users on each GPU in [the catalog](launchready/data/gpus.yaml). The [Space](https://huggingface.co/spaces/tanmaypathak4/launchready) wraps the same code for people who don't use a terminal, and leads with a plain-English verdict. The code is in [`launchready/`](launchready/report.py).
 
@@ -27,13 +81,13 @@ When a new open model drops, a developer has two questions: will it fit my GPU, 
 
 **5. Friction log and requirements.** The [friction log](docs/friction_log.md) records each break with its command, error and root cause, including our own bugs. The [requirements table](docs/requirements.md) groups developer threads by root cause and turns them into user stories with acceptance criteria and owners.
 
-## How it works
+### How it works
 
-### Reading a model without downloading it
+#### Reading a model without downloading it
 
 `launchready` fetches `config.json` and model info from the Hub, and reads parameter counts by data type from the safetensors file headers through `huggingface_hub`. No weights are downloaded. It then normalizes the config into layers, attention heads, sliding windows, MoE fields and Mamba fields. If a config field looks architecture-related and can't be interpreted, the tool warns and names it instead of guessing.
 
-### The memory formulas
+#### The memory formulas
 
 All of these are projections. The code is in [`launchready/memory.py`](launchready/memory.py), and the reference is in [section 6 of the roadmap](docs/roadmap.md).
 
@@ -44,21 +98,21 @@ All of these are projections. The code is in [`launchready/memory.py`](launchrea
 
 `launchready fit` uses the projected weights above. `launchready brief` and the Space use the real Hub file size where a matching repo exists, because real files can be larger. A base repo's own files are ignored if they're more than 25% from the BF16 projection, since they probably aren't plain BF16.
 
-### How engine support is checked
+#### How engine support is checked
 
 `launchready brief` makes shallow sparse clones of vLLM, SGLang, llama.cpp and Transformers, at the latest stable release and the default branch, and searches each engine's model registry. Each engine is reported as `release`, `main-only`, `not-found` or `unknown`, with the matching file and line ([code](launchready/engines.py)). This shows that an engine knows the architecture, not that every precision or feature works. The Space skips this check.
 
-### How validation was done
+#### How validation was done
 
 We ran [the notebook](notebooks/01_memory_validation.ipynb) on Kaggle's free 2× Tesla T4 (driver 580.178.04, CUDA 13.0, vLLM 0.32.0). Each model started in vLLM at 4,096 tokens per request. Measured values came from vLLM's startup log: `Model loading took X GiB`, `Available KV cache memory`, `GPU KV cache size` and `Maximum concurrency`. Each CSV row records the model revision, GPU, driver, versions and date.
 
 A separate Transformers measurement [crashed on our own bug](docs/friction_log.md#transformers-weight-measurement-crashed-for-every-model), so weights come from vLLM's load log. That fix has not been re-run on a GPU.
 
-## Key findings
+### Key findings
 
 Results are from 2026-11-03 unless noted. Each number is tagged **measured** or **projected**.
 
-### The math held up on standard models
+#### The math held up on standard models
 
 Users at 4,096 tokens on 2× Tesla T4 with vLLM 0.32.0:
 
@@ -72,7 +126,7 @@ Users at 4,096 tokens on 2× Tesla T4 with vLLM 0.32.0:
 
 Evidence: [CSV](results/memory_validation.csv), [environment](results/environment.json), [notebook](notebooks/01_memory_validation.ipynb).
 
-### The hybrid Mamba model broke it
+#### The hybrid Mamba model broke it
 
 A team sizing granite-4.0-h-tiny from this projection would have expected more than twice the users the engine could hold. Two errors multiply:
 
@@ -81,32 +135,32 @@ A team sizing granite-4.0-h-tiny from this projection would have expected more t
 
 The tool now warns about this gap. It was not retuned from one model. Lightning is also a hybrid Mamba model, so its capacity projection carries the same risk. Evidence: [analysis](docs/friction_log.md#granite-40-h-tiny-serves-23-fewer-users-in-vllm-than-projected), [vLLM log](results/logs/ibm-granite__granite-4.0-h-tiny__vllm.log).
 
-### Real files are bigger than the labels
+#### Real files are bigger than the labels
 
 - **NVFP4:** projected 17.24 GiB, against a measured 20.08 GiB file for Lightning (+16%). That is the file size on Hugging Face, read on 2026-11-02, not memory measured on a GPU. Evidence: [brief](briefs/nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md#hardware-requirements), [friction log](docs/friction_log.md#lightning-nvfp4-projection-is-16-below-the-real-nvfp4-repo).
 - **GGUF Q4_K_M:** three Lightning files store a measured 6.19 ([bartowski](results/bench/gguf/bartowski__Lightning-Q4_K_M.json)), 6.14 ([unsloth](results/bench/gguf/unsloth__Lightning-UD-Q4_K_M.json)) and 6.08 ([AtomicChat](results/bench/gguf/AtomicChat__Lightning-Q4_K_M.json)) bits per weight, read from file headers. The tool's projected figure is 4.85 bits per weight, or 18.58 GiB against the measured 23.73 GiB bartowski file. `launchready fit` still uses 4.85.
 
-### Three quickstarts broke when run as written
+#### Three quickstarts broke when run as written
 
 - **Qwen3-4B card, vLLM command:** fails on vLLM 0.32.0 with an unrecognized `--enable-reasoning` flag, exiting after a measured 30 s on 2× Tesla T4. Evidence: [log](results/quickstart_audit/1b_vllm.log), [write-up](docs/friction_log.md#qwen3-4bs-vllm-one-liner-fails-on---enable-reasoning-in-vllm-0320-quickstart-audit-1b-kaggle).
 - **Qwen3-4B card, Python snippet on a 16 GB Mac:** offloads to disk with a one-line log notice and printed no answer before the 2,700 s cap (measured). The same snippet worked on 2× Tesla T4 in a measured 115 s. Evidence: [log](results/quickstart_audit/1a_mac_run2_with_accelerate.log), [write-up](docs/friction_log.md#qwen3-4b-quickstart-offloads-to-disk-on-a-16-gb-mac-and-doesnt-finish-in-45-minutes-quickstart-audit-1a-mac).
 - **Lightning NVFP4 card, llama.cpp recipe:** asks for `:Q4_K_M`, but the official GGUF repo has no such file, so it exits after a measured 6 s. Evidence: [log](results/quickstart_audit/3b_lightning_llama_server.log), [write-up](docs/friction_log.md#lightnings-llamacpp-recipe-asks-for-a-q4_k_m-file-that-doesnt-exist-quickstart-audit-3b).
 
-### The Lightning verdict: not ready
+#### The Lightning verdict: not ready
 
 The [readiness checklist](docs/readiness_checklist.md) stands at 1 ready, 5 not ready and 21 unknown, out of 27 checks. Those are counts from evidence in the repo, not hardware measurements, and the one ready item is a document check. Most checks are unknown because nothing has been measured on a 5090.
 
-## Who it helps, and how
+### Who it helps, and how
 
-### Developers and local-model users
+#### Developers and local-model users
 
 Use the Space or `launchready fit` to rule out a GPU before a long download. Use `launchready brief` to see engine support and which quantized versions exist, with real file sizes. Read the warnings: they name what the tool couldn't interpret and where its numbers are known to run high.
 
-### Model-enablement and launch teams
+#### Model-enablement and launch teams
 
 The method transfers even if the tool doesn't. Run the quickstarts as written, log each break with its root cause, group developer threads into requirements, and hold a launch to a checklist where a claim about running the model needs a measurement on the target GPU. The [Lightning checklist](docs/readiness_checklist.md), [friction log](docs/friction_log.md) and [requirements table](docs/requirements.md) are worked examples.
 
-### Where it isn't better, and its limits
+#### Where it isn't better, and its limits
 
 We have not compared LaunchReady with other calculators, so we make no claim that it's more accurate than any of them. If you want a rough size for a dense model, a simpler estimate may be all you need. Its limits:
 
@@ -119,7 +173,7 @@ We have not compared LaunchReady with other calculators, so we make no claim tha
 - **Catalog caveats.** GPU capacity is the size on NVIDIA's spec pages read as GiB, except the T4's measured 15 GiB. B200 and DGX Spark carry `unverified` notes in [the catalog](launchready/data/gpus.yaml).
 - **Gated repos.** The CLI needs your own `HF_TOKEN` for them. The Space has no login, so it can't read them.
 
-## Quickstart
+### Quickstart
 
 You need Python 3.11 or newer and [uv](https://docs.astral.sh/uv/). Run LaunchReady from a clone: `brief` loads its template from the repo.
 
@@ -163,7 +217,7 @@ uv run launchready radar --since 30d
 
 For gated repos, accept the license on Hugging Face and set `HF_TOKEN` in your environment.
 
-### Reproduce a validation result
+#### Reproduce a validation result
 
 Print the projected and measured users from the committed CSV:
 
@@ -179,27 +233,7 @@ uv run launchready fit Qwen/Qwen3-4B --context 4096 --gpu tesla-t4 --json | uv r
 
 The CLI itself rounds down to 7 users and marks BF16 as not supported on T4, which runs FP16 at the same size. This reproduces the projection only. Qwen3-4B ran on one GPU, while the other two models ran across two, which the CLI doesn't model. Reproducing the measured values means rerunning [the notebook](notebooks/01_memory_validation.ipynb) on Kaggle.
 
-## Measured vs projected
-
-**Measured:**
-
-- Memory on 2× Tesla T4 ([environment](results/environment.json)).
-- GGUF headers and Hugging Face file sizes, read without a GPU.
-- Quickstart audits on Kaggle 2× T4 and a MacBook Air M4 with 16 GB ([results](results/quickstart_audit)).
-
-**Projected:**
-
-- Everything about Lightning running on an RTX 5090. With vLLM: 20.08 GiB of weights, 0.28 GiB per 40,960-token conversation and about 18 conversations ([table](recipes/nemotron-3.5-lightning/README.md#memory-on-a-32-gib-rtx-5090-projected)).
-- With a GGUF file: about 6.0 GiB left with 8 slots, from a 23.73 GiB file ([table](recipes/nemotron-3.5-lightning/ollama.md#memory-projected)).
-
-**Not measured:**
-
-- **Lightning on an RTX 5090.** It has not been run on one, so there is no speed, memory or quality number from a 5090.
-- **The kit on Lightning.** It has run on Tesla T4 with Qwen3-4B, not Lightning. Those outputs prove the scripts run and are [not headline results](results/dryrun_kaggle/README.md).
-- **Dry-run fixes are confirmed on T4 only**, not on Lightning, and the status for lost requests has never triggered on a GPU.
-- **Chat template, tool calling, a long soak run and a tokenizer comparison.** None has been tested ([list](docs/readiness_checklist.md#not-tested-by-the-5090-session)).
-
-## Repo layout
+### Repo layout
 
 | Path | What's there |
 |---|---|
@@ -216,7 +250,7 @@ The CLI itself rounds down to 7 users and marks BF16 as not supported on T4, whi
 | [`templates/`](templates) | The brief template |
 | [`tests/`](tests) | Offline tests with saved fixtures |
 
-## Contributing
+### Contributing
 
 To report a bad number, a broken command or a model the tool misreads, [open an issue](https://github.com/Tanmaypathak18/launchready/issues). Include the repo id, the command and its output.
 

@@ -24,8 +24,13 @@ from logic import (  # noqa: E402
 
 INTRO = """# LaunchReady
 
-Will an open model fit in your NVIDIA GPU's memory? Enter a model from Hugging Face and how you'd
-use it. Nothing is downloaded, and every result is a projection, not a measurement.
+**Will this open model run on my NVIDIA GPU?**
+
+Think of the model as a stack of papers and your GPU's memory as a desk. LaunchReady works out
+whether the stack fits on the desk, with room left for everyone using it, before you download it.
+
+Enter a model from Hugging Face and how you'd use it. Nothing is downloaded, and every result is a
+projection, not a measurement.
 """
 # Gradio breaks table cells mid-word on a phone; keep words whole and scroll the table instead.
 CSS = """
