@@ -23,7 +23,7 @@ When a new open model drops, a developer has two questions: will it fit my GPU, 
 
 **3. Memory validation.** A [Kaggle notebook](notebooks/01_memory_validation.ipynb) compared projections with what vLLM reported on real GPUs for a dense, an MoE and a hybrid Mamba model. Raw results are [in a CSV](results/memory_validation.csv), with the [environment](results/environment.json) and [logs](results/logs).
 
-**4. Readiness checklist and launch kit.** The [checklist](docs/readiness_checklist.md) grades Lightning on an RTX 5090 across 27 checks, each with its evidence and what would close it. The [recipes](recipes/nemotron-3.5-lightning/README.md) and [benchmark scripts](bench/run_matrix.py) are pinned and ready for that session. So far they have run only as a [dry run on T4 with a different model](results/dryrun_kaggle/README.md).
+**4. Readiness checklist and launch kit.** The [checklist](docs/readiness_checklist.md) grades Lightning on an RTX 5090 across 27 checks, each with its evidence and what would close it. The [recipes](recipes/nemotron-3.5-lightning/README.md) and [benchmark scripts](bench/run_matrix.py) are pinned. They have run only as a [dry run on T4 with a different model](results/dryrun_kaggle/README.md).
 
 **5. Friction log and requirements.** The [friction log](docs/friction_log.md) records each break with its command, error and root cause, including our own bugs. The [requirements table](docs/requirements.md) groups developer threads by root cause and turns them into user stories with acceptance criteria and owners.
 
@@ -92,9 +92,9 @@ The tool now warns about this gap. It was not retuned from one model. Lightning 
 - **Qwen3-4B card, Python snippet on a 16 GB Mac:** offloads to disk with a one-line log notice and printed no answer before the 2,700 s cap (measured). The same snippet worked on 2× Tesla T4 in a measured 115 s. Evidence: [log](results/quickstart_audit/1a_mac_run2_with_accelerate.log), [write-up](docs/friction_log.md#qwen3-4b-quickstart-offloads-to-disk-on-a-16-gb-mac-and-doesnt-finish-in-45-minutes-quickstart-audit-1a-mac).
 - **Lightning NVFP4 card, llama.cpp recipe:** asks for `:Q4_K_M`, but the official GGUF repo has no such file, so it exits after a measured 6 s. Evidence: [log](results/quickstart_audit/3b_lightning_llama_server.log), [write-up](docs/friction_log.md#lightnings-llamacpp-recipe-asks-for-a-q4_k_m-file-that-doesnt-exist-quickstart-audit-3b).
 
-### The Lightning verdict: not ready yet
+### The Lightning verdict: not ready
 
-The [readiness checklist](docs/readiness_checklist.md) stands at 1 ready, 5 not ready and 21 unknown, out of 27 checks. Those are counts from evidence in the repo, not hardware measurements, and the one ready item is a document check. Most of the unknowns remain because nothing has been measured on a 5090.
+The [readiness checklist](docs/readiness_checklist.md) stands at 1 ready, 5 not ready and 21 unknown, out of 27 checks. Those are counts from evidence in the repo, not hardware measurements, and the one ready item is a document check. Most checks are unknown because nothing has been measured on a 5090.
 
 ## Who it helps, and how
 
@@ -171,7 +171,7 @@ uv run launchready fit Qwen/Qwen3-4B --context 4096 --gpu tesla-t4 --json | uv r
 
 The CLI itself rounds down to 7 users and marks BF16 as not supported on T4, which runs FP16 at the same size. This reproduces the projection only. Qwen3-4B ran on one GPU, while the other two models ran across two, which the CLI doesn't model. Reproducing the measured values means rerunning [the notebook](notebooks/01_memory_validation.ipynb) on Kaggle.
 
-## Measured vs projected, and what isn't done
+## Measured vs projected
 
 **Measured:**
 
@@ -184,13 +184,12 @@ The CLI itself rounds down to 7 users and marks BF16 as not supported on T4, whi
 - Everything about Lightning running on an RTX 5090. With vLLM: 20.08 GiB of weights, 0.28 GiB per 40,960-token conversation and about 18 conversations ([table](recipes/nemotron-3.5-lightning/README.md#memory-on-a-32-gib-rtx-5090-projected)).
 - With a GGUF file: about 6.0 GiB left with 8 slots, from a 23.73 GiB file ([table](recipes/nemotron-3.5-lightning/ollama.md#memory-projected)).
 
-**Not done yet:**
+**Not measured:**
 
-- **The RTX 5090 run is deferred.** Lightning has not been run on a 5090, so there is no speed, memory or quality number from one, and the launch kit's headline benchmarks don't exist yet.
-- **The kit is dry-run only.** It has run on Tesla T4 with Qwen3-4B, not Lightning. Those outputs prove the scripts run and are [not headline results](results/dryrun_kaggle/README.md).
+- **Lightning on an RTX 5090.** It has not been run on one, so there is no speed, memory or quality number from a 5090.
+- **The kit on Lightning.** It has run on Tesla T4 with Qwen3-4B, not Lightning. Those outputs prove the scripts run and are [not headline results](results/dryrun_kaggle/README.md).
 - **Dry-run fixes are confirmed on T4 only**, not on Lightning, and the status for lost requests has never triggered on a GPU.
-- **Some checks aren't covered by the planned session:** chat template, tool calling, a long soak run and a tokenizer comparison ([list](docs/readiness_checklist.md#not-tested-by-the-5090-session)).
-- **The quality bar isn't set, and nothing is filed upstream yet**, including the Lightning card fix.
+- **Chat template, tool calling, a long soak run and a tokenizer comparison.** None has been tested ([list](docs/readiness_checklist.md#not-tested-by-the-5090-session)).
 
 ## Repo layout
 

@@ -38,7 +38,7 @@ Only 6 of its 52 layers keep a KV cache that grows with the conversation (6,144 
 
 BF16 weights are 61.31 GiB: the smallest single GPU that fits them is the A100 80GB, not an RTX 5090.
 
-On a single RTX 5090 (32 GB) it fits at NVFP4 (20.08 GiB Hub files, ~28 × 32K sequences) and GGUF Q4_K_M (23.53 GiB Hub files, ~13 × 32K sequences): projected, to be measured in Phase 5.
+On a single RTX 5090 (32 GB) it fits at NVFP4 (20.08 GiB Hub files, ~28 × 32K sequences) and GGUF Q4_K_M (23.53 GiB Hub files, ~13 × 32K sequences): projected, not measured.
 
 The architecture is registered in the latest release of vLLM, SGLang, llama.cpp and Transformers.
 
@@ -111,16 +111,16 @@ From the Hub filter `base_model:quantized:nvidia/NVIDIA-Nemotron-3.5-Lightning-3
 
 **Where the ecosystem is today (2026-11-02):** the architecture is registered in the latest release of vLLM, SGLang, llama.cpp (so Ollama via GGUF) and Transformers. Quantized variants already exist for every major path: NVFP4 from nvidia (~1.0M downloads), FP8 from RedHatAI, GGUF from ggml-org, unsloth and bartowski, MLX from TensorFold. Builders outside NVIDIA shipped these, which suggests the community is treating it as a first-class model.
 
-**What it means for NVIDIA:** at NVFP4 it is projected to fit on a 32 GiB RTX 5090, but it has not been measured on one yet. Drafter models (DSpark, DFlash) for speculative decoding are published alongside. The open license (openmdw-1.1) and no gating remove the usual access friction.
+**What it means for NVIDIA:** at NVFP4 it is projected to fit on a 32 GiB RTX 5090, but it has not been measured on one. Drafter models (DSpark, DFlash) for speculative decoding are published alongside. The open license (openmdw-1.1) and no gating remove the usual access friction.
 
-**Not covered here:** how it compares in quality or speed with similar-size open models. That needs measured benchmarks and will be covered in phase 5 of this repo.
+**Not covered here:** how it compares in quality or speed with similar-size open models. That needs measured benchmarks.
 
 ## Open questions and risks
 
 - **NVFP4 memory is higher than projected.** The real NVFP4 repo is 20.08 GiB vs 17.24 GiB projected (+16%), so some tensors likely stay in higher precision. The ~28-user figure for an RTX 5090 uses the real size, but it is still projected, not measured.
-- **Mamba state is unmeasured.** The config says float32; vLLM may store or pad it differently. Phase 3 measures it.
+- **Mamba state is unmeasured.** The config says float32; vLLM may store or pad it differently.
 - **Variant tags on the Hub can't be trusted.** Two repos tagged as NVFP4 variants (DSpark, DFlash) are speculative-decoding drafters, not quantized copies of this model. Check what a repo contains before relying on its tag.
-- **Engine support means "registered", not "fully working".** A registry entry doesn't prove every precision, the MTP layer or drafter decoding works in each engine. Phase 5 tests this on vLLM and Ollama.
+- **Engine support means "registered", not "fully working".** A registry entry doesn't prove every precision, the MTP layer or drafter decoding works in each engine.
 - **Community variants vary in quality.** Several GGUF and "uncensored" repos are from unknown builders; the brief lists sizes and downloads, not quality.
 - **Hub dates are not release dates.** The repo was created 2026-08-01; public release may be later.
 

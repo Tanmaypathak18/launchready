@@ -257,7 +257,7 @@ def build_context(
         if local_fits:
             developer.append(
                 f"On a single {local.name} ({local.memory_gib:g} GB) it fits at "
-                f"{_join(local_fits)}: projected, to be measured in Phase 5."
+                f"{_join(local_fits)}: projected, not measured."
             )
         else:
             developer.append(f"It doesn't fit a single {local.name} at any precision checked.")

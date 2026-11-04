@@ -320,7 +320,7 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 - Root cause: the card's tag `:Q4_K_M` doesn't match any file; the official GGUF repo ships `Q4_0` (18.9 GB), `Q8_0` (33.6 GB) and `BF16` (63.2 GB). llama.cpp's first error line says "no GGUF files found" even though it lists six, and the last lines blame an empty model path, so the real cause (wrong quant tag) is easy to miss.
 - Fix or workaround: use `:Q4_0`, the only 4-bit file in the repo (not run: an 18.9 GB download that also exceeds this Mac's 16 GB). Replace the deprecated `--no-webui` with `--no-ui`.
 - Severity: blocks (the card's recommended local recipe fails on its first line)
-- Filed: not filed yet: candidate fix to the NVFP4 card (`:Q4_K_M` → `:Q4_0`, or publish a Q4_K_M) and a candidate llama.cpp issue for the misleading message; waiting for the owner's OK before filing on someone else's repo
+- Filed: not filed: candidate fix to the NVFP4 card (`:Q4_K_M` → `:Q4_0`, or publish a Q4_K_M) and a candidate llama.cpp issue for the misleading message; waiting for the owner's OK before filing on someone else's repo
 - Requirement this implies: every quant tag in a model card's recipe must resolve against the linked weights repo at publish time (a tag-exists check is cheap and needs no download).
 
 ### granite-4.0-h-tiny serves 2.3× fewer users in vLLM than projected
@@ -363,7 +363,7 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 - Root cause: the Hub has no "draft model of" relation, so drafters reuse `base_model:quantized`.
 - Fix or workaround: classify repos named DFlash/DSpark/EAGLE/Medusa/draft as `drafter`; the brief also flags any variant far smaller than the projected size for its format.
 - Severity: slows (wrong sizes in a brief; a developer could download a drafter thinking it's the model)
-- Filed: not filed yet: candidate model-card suggestion to nvidia (say "drafter for …" in the card's first line)
+- Filed: not filed: candidate model-card suggestion to nvidia (say "drafter for …" in the card's first line)
 - Requirement this implies: variants lookup must sanity-check size against the projection before calling something a variant.
 
 ### llama.cpp's stable release is buried under per-build prereleases

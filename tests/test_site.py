@@ -161,7 +161,7 @@ def test_brief_makes_no_unmeasured_5090_claim():
     template = (ROOT / "templates" / "brief.md.j2").read_text()
     assert "shows Blackwell" not in brief + template
     assert "projected to fit on a 32 GiB RTX 5090" in brief
-    assert "has not been measured on one yet" in brief
+    assert "has not been measured on one" in brief
 
 
 def test_page_and_brief_agree_on_nvfp4():

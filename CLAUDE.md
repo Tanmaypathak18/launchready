@@ -1,6 +1,6 @@
 # LaunchReady
 
-Small open-source launch-readiness kit for open-weight LLMs on NVIDIA GPUs: sizes hardware needs, checks engine support, writes model briefs, and benchmarks NVIDIA Nemotron 3.5 Lightning. Roadmap: docs/roadmap.md (read the current phase before starting). Read docs/progress.md at session start to see what's done and what's next.
+Small open-source launch-readiness kit for open-weight LLMs on NVIDIA GPUs: sizes hardware needs, checks engine support, writes model briefs, and benchmarks NVIDIA Nemotron 3.5 Lightning. Roadmap: docs/roadmap.md. Read docs/progress.md at session start to see what's done.
 
 ## Audience
 Developers and researchers: Hugging Face users, local-model users, ML engineers serving models. Write every output for them.
@@ -25,5 +25,5 @@ Python 3.11+, uv, Typer, huggingface_hub, Jinja2, PyYAML, pytest, ruff. Benchmar
 
 ## Conventions
 - Small commits.
-- At the end of each phase, update README Status and add a 3-line "Done so far" entry to docs/progress.md (what shipped, decisions made, what's next).
+- At the end of each phase, add a "Done so far" entry to docs/progress.md (what shipped, decisions made).
 - Compute in bytes, display GiB.

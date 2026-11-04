@@ -6,7 +6,7 @@
 | Engine | Ollama 0.40.14 (NVIDIA's card was written for 0.32.9); llama.cpp v0.8.0 for `llama-server` |
 | Model | [`bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF`](https://huggingface.co/bartowski/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF) @ `f0eec2267ae843d9eb21ea3926ab0046da0a8628`, file `NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M.gguf` (25,477,403,616 bytes = 23.73 GiB, sha256 `b520a899…5787a9158`) |
 | What's in the file | Measured from the GGUF header on 2026-11-03 ([`results/bench/gguf/bartowski__Lightning-Q4_K_M.json`](../../results/bench/gguf/bartowski__Lightning-Q4_K_M.json)): **6.19 bits per weight**, not ~4.85. The expert tensors fell back to `Q5_0` (63% of bytes) and `Q8_0` (33%); only 0.3% is `Q4_K`. `tokenizer.ggml.pre = pixtral` |
-| Verified | **Pending the RTX 5090 session.** Not yet run on a 5090 |
+| Verified | Not run on a 5090 |
 
 ## Ollama: one user
 

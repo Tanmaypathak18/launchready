@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LaunchReady: Start here</title>
-<meta name="description" content="LaunchReady helps a team know whether a new open model will run on NVIDIA GPUs before launch. Findings, evidence and what is not done yet.">
+<meta name="description" content="LaunchReady helps a team know whether a new open model will run on NVIDIA GPUs before launch. Findings, evidence and what is measured.">
 <style>
   :root {
     color-scheme: light dark;
@@ -226,7 +226,7 @@
 
 <section id="brief">
   <h2>The Lightning brief and readiness checklist</h2>
-  <p>I applied this work to one launch: NVIDIA Nemotron 3.5 Lightning on a single RTX 5090. The verdict today is <b>not ready yet</b>, mostly because nothing has been measured on a 5090.</p>
+  <p>I applied this work to one launch: NVIDIA Nemotron 3.5 Lightning on a single RTX 5090. The verdict today is <b>not ready</b>, mostly because nothing has been measured on a 5090.</p>
   <div class="box">
     <div class="counts">
       <div class="count"><b>1</b><span>ready</span></div>
@@ -258,13 +258,12 @@
       </ul>
     </div>
     <div class="box open">
-      <h2>Not done yet</h2>
+      <h2>Not measured</h2>
       <ul>
         <li><b>Lightning on an RTX 5090 has not been run.</b> No speed, memory or quality number on this page comes from a 5090 (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/progress.md">progress</a>).</li>
         <li><b>The kit is dry-run only</b>, on Tesla T4 with Qwen3-4B, not Lightning. Those outputs prove the scripts run and are <a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/dryrun_kaggle/README.md">not headline results</a>.</li>
         <li><b>Fixes from the dry runs are confirmed on T4 only</b>, not on Lightning, and the status for lost requests has never triggered on a GPU (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/results/dryrun_kaggle/README.md#what-each-fix-changed">what each fix changed</a>).</li>
-        <li><b>Chat template, tool calling, a long soak run and a tokenizer comparison</b> are not covered by the planned 5090 session (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/readiness_checklist.md#not-tested-by-the-5090-session">list</a>).</li>
-        <li><b>The quality bar is not set</b>, and <b>nothing is filed upstream</b> yet, including the Lightning card fix (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/readiness_checklist.md">checks 4.3 and 1.4</a>).</li>
+        <li><b>Chat template, tool calling, a long soak run and a tokenizer comparison</b> have not been tested (<a href="https://github.com/Tanmaypathak18/launchready/blob/main/docs/readiness_checklist.md#not-tested-by-the-5090-session">list</a>).</li>
       </ul>
     </div>
   </div>

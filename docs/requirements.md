@@ -28,7 +28,7 @@ collected November 3, 2026
 
 ## What this changes in LaunchReady
 
-These findings hit the plan directly; each should get a friction-log entry when reproduced.
+These findings shaped the launch kit.
 
 1. **Phase 1 calculator.** For Lightning, "GGUF Q4_K_M ≈ 4.8–4.9 bits/weight" (section 6.1) is wrong for the expert tensors, which are about 93% of the weights: they fall back to `Q5_0` (5.5 bits/weight). Read the tensor types from the GGUF header, or check against the real file size, before publishing a projection ([unsloth GGUF #1](https://huggingface.co/unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF/discussions/1)).
 2. **Phase 5 vLLM recipe on the 5090.** Two reports say the card's `--kv-cache-dtype fp8` breaks startup on SM12x and that removing it works. Try the card's command first (that's the finding), then without FP8 KV, and record both. The memory projection should use a BF16 KV cache for the working config.

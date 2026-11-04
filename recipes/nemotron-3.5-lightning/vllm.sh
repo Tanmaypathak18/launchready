@@ -6,7 +6,7 @@
 #                   pip-installed 0.27.1 fails on the card command, NVFP4 discussion #3)
 #   Model:          nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4 @ bee7596271d1495f6992ae224aefde4410e816b8
 #   Drafter (opt.): nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DSpark @ 6d127b50ecd98562cea85d0087680b7d86091fb0
-#   Verified:       PENDING the RTX 5090 session (bench/run_session_5090.sh). Not yet run on a 5090.
+#   Verified:       Not run on a 5090.
 #
 # Modes (MODE=...):
 #   no-fp8-kv (default)  NVIDIA's flags without --kv-cache-dtype fp8: two RTX 5090 / DGX Spark reports
