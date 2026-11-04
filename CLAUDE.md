@@ -18,6 +18,7 @@ Developers and researchers: Hugging Face users, local-model users, ML engineers 
 Python 3.11+, uv, Typer, huggingface_hub, Jinja2, PyYAML, pytest, ruff. Benchmarks: AIPerf, lm-evaluation-harness. Tests use saved fixtures; CI has no network.
 
 ## Commands
+- `uv run launchready run <repo_id>` (fit, brief and radar together)
 - `uv run launchready fit <repo_id> --context 32768 --users 8`
 - `uv run launchready brief <repo_id>`
 - `uv run launchready radar --since 30d`

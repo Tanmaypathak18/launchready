@@ -1,3 +1,5 @@
+Not yet run on Lightning. Dry-run on Qwen3-4B (Kaggle 2x T4) only.
+
 # Nemotron 3.5 Lightning GGUF with Ollama (and llama-server for more than one user)
 
 | | |

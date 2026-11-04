@@ -4,7 +4,10 @@ import json
 
 from typer.testing import CliRunner
 
+from launchready import brief as brief_module
+from launchready import cli as cli_module
 from launchready.cli import app
+from launchready.hub import HubError
 
 runner = CliRunner()
 
@@ -55,3 +58,48 @@ def test_fit_unknown_gpu(hub_cache):
     result = runner.invoke(app, ["fit", "Qwen/Qwen3-4B", "--gpu", "rtx-9999"])
     assert result.exit_code == 2
     assert "rtx-9999" in result.output
+
+
+def _stub_run(monkeypatch, tmp_path):
+    def fake_radar(since, out_dir):
+        out_dir.mkdir(parents=True)
+        path = out_dir / "2026-11-03.md"
+        path.write_text(f"radar {since}\n")
+        return path, {}
+
+    monkeypatch.setattr(cli_module, "run_radar", fake_radar)
+    monkeypatch.setattr(brief_module, "check_engines", lambda config, refresh=False: [])
+    monkeypatch.setattr(brief_module, "load_variants", lambda repo_id, refresh=False: [])
+    return ["--out", str(tmp_path)]
+
+
+def test_run_generates_fit_brief_and_radar(hub_cache, monkeypatch, tmp_path):
+    args = _stub_run(monkeypatch, tmp_path)
+    result = runner.invoke(app, ["run", "Qwen/Qwen3-4B", "--since", "2w", *args])
+    assert result.exit_code == 0, result.output
+
+    data = json.loads((tmp_path / "fit" / "Qwen__Qwen3-4B.json").read_text())
+    direct = json.loads(runner.invoke(app, ["fit", "Qwen/Qwen3-4B", "--json"]).output)
+    assert data == direct
+    assert data["label"] == "projected"
+    assert (tmp_path / "briefs" / "Qwen__Qwen3-4B.md").read_text().startswith("# Qwen3-4B")
+    assert (tmp_path / "radar" / "2026-11-03.md").read_text() == "radar 2w\n"
+
+
+def test_run_rejects_a_bad_window_before_writing(hub_cache, monkeypatch, tmp_path):
+    args = _stub_run(monkeypatch, tmp_path)
+    result = runner.invoke(app, ["run", "Qwen/Qwen3-4B", "--since", "soon", *args])
+    assert result.exit_code == 2
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_run_stops_cleanly_on_a_hub_error(monkeypatch, tmp_path):
+    def gated(repo_id, refresh=False):
+        raise HubError("org/name is gated: accept its license on huggingface.co and set HF_TOKEN")
+
+    monkeypatch.setattr(cli_module, "load_model", gated)
+    args = _stub_run(monkeypatch, tmp_path)
+    result = runner.invoke(app, ["run", "org/name", *args])
+    assert result.exit_code == 1
+    assert "gated" in result.output
+    assert list(tmp_path.iterdir()) == []

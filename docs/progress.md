@@ -2,6 +2,11 @@
 
 One "Done so far" entry per phase, newest first: what shipped and decisions made.
 
+## `launchready run` (2026-11-03)
+
+- **Shipped:** one command that writes the fit as JSON to `fit/`, the brief to `briefs/` and a radar to `radar/`. `launchready brief` now keeps hand-written sections on a rerun instead of overwriting them.
+- **Decisions:** only generated deliverables are in it. The validation needs a GPU, and the checklist, recipes, friction log and requirements are written by hand.
+
 ## Phase 5: kit complete and validated by dry run on 2x T4 with Qwen3-4B (2026-11-03)
 
 - **Shipped:** Kaggle dry run 3 at `8b4ca32` in `results/dryrun_kaggle/run3_20261103/`, run 2 moved to `run2_20261103/`, and a run 2 vs run 3 comparison in `results/dryrun_kaggle/README.md` (dry run, not headline). All stages exited 0 and 10 of 10 runs were `ok`. vLLM quality is real (GSM8K flexible 0.70, IFEval prompt strict 0.75, n=20, stderr ~0.1, 0 empty answers), and per-request TTFT is flat on llama-server and Ollama.

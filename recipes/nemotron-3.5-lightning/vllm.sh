@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Not yet run on Lightning. Dry-run on Qwen3-4B (Kaggle 2x T4) only.
 # NVIDIA Nemotron 3.5 Lightning, NVFP4, on one RTX 5090 (32 GB, Blackwell SM120) with vLLM.
 #
 #   GPU:            1× NVIDIA GeForce RTX 5090 (32 GB). CUDA 12.8+ driver.

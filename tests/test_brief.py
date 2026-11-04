@@ -1,5 +1,8 @@
 """`launchready brief` end to end on saved fixtures: hub and variants caches, fake engines."""
 
+from pathlib import Path
+
+import pytest
 from typer.testing import CliRunner
 
 from launchready import brief as brief_module
@@ -106,3 +109,85 @@ def test_brief_numbers_and_sources(hub_cache, monkeypatch, tmp_path):
     )
     assert "https://github.com/vllm-project/vllm/blob/v0.32.0/" in sources
     assert "https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4" in sources
+
+
+def _with_hand_sections(text, ecosystem, risks):
+    text = text.replace(text.split("## Ecosystem impact\n")[1].split("## Open")[0], ecosystem)
+    return text.replace(
+        text.split("## Open questions and risks\n")[1].split("## Sources")[0], risks
+    )
+
+
+def test_rerunning_brief_keeps_hand_written_sections(hub_cache, monkeypatch, tmp_path):
+    path = tmp_path / "nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md"
+    written = _with_hand_sections(
+        _render(hub_cache, monkeypatch, tmp_path), "\nOur view.\n\n", "\n- **Risk.** One.\n\n"
+    )
+    path.write_text(written.replace("| Builder | nvidia |", "| Builder | stale |"))
+
+    result = runner.invoke(app, ["brief", LIGHTNING, "--out", str(tmp_path)])
+
+    assert result.exit_code == 0, result.output
+    assert "kept the hand-written sections" in result.output
+    assert "TODO:" not in result.output
+    text = path.read_text()
+    assert "Our view." in text and "- **Risk.** One." in text
+    assert "TODO (write by hand)" not in text
+    assert "| Builder | nvidia |" in text  # data sections are regenerated
+
+
+def test_rerunning_keeps_only_sections_that_were_written(hub_cache, monkeypatch, tmp_path):
+    path = tmp_path / "nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md"
+    text = _render(hub_cache, monkeypatch, tmp_path)
+    ecosystem = text.split("## Ecosystem impact\n")[1].split("## Open")[0]
+    path.write_text(text.replace(ecosystem, "\nOur view.\n\n"))
+
+    runner.invoke(app, ["brief", LIGHTNING, "--out", str(tmp_path)])
+
+    text = path.read_text()
+    assert "Our view." in text
+    assert "TODO (write by hand)" in text.split("## Open questions and risks")[1]
+
+
+def test_committed_brief_keeps_its_hand_written_sections(hub_cache):
+    committed = (
+        Path(__file__).parent.parent
+        / "briefs"
+        / "nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md"
+    ).read_text()
+    model = load_model(LIGHTNING)
+    fresh = brief_module.render(build_context(model, load_variants(LIGHTNING), FAKE_ENGINES))
+    merged = brief_module.keep_hand_written(fresh, committed)
+    for title in brief_module.HAND_WRITTEN:
+        kept = brief_module._section(merged, title)[0]
+        assert kept == brief_module._section(committed, title)[0]
+    assert "TODO (write by hand)" not in merged
+
+
+@pytest.mark.parametrize(
+    ("written", "missing"),
+    [
+        ("Ecosystem impact", "Open questions and risks"),
+        ("Open questions and risks", "Ecosystem impact"),
+    ],
+)
+def test_todo_message_names_only_the_missing_section(
+    hub_cache, monkeypatch, tmp_path, written, missing
+):
+    path = tmp_path / "nvidia__NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16.md"
+    text = _render(hub_cache, monkeypatch, tmp_path)
+    section = brief_module._section(text, written)[0]
+    path.write_text(text.replace(section, f"## {written}\n\nOur view.\n\n"))
+
+    result = runner.invoke(app, ["brief", LIGHTNING, "--out", str(tmp_path)])
+
+    todo = next(line for line in result.output.splitlines() if line.startswith("TODO:"))
+    assert todo == f'TODO: hand-write "{missing}"'
+    assert "kept the hand-written sections" in result.output
+
+
+def test_todo_message_names_both_sections_on_a_new_brief(hub_cache, monkeypatch, tmp_path):
+    monkeypatch.setattr(brief_module, "check_engines", lambda config, refresh=False: FAKE_ENGINES)
+    result = runner.invoke(app, ["brief", LIGHTNING, "--out", str(tmp_path)])
+    assert 'TODO: hand-write "Ecosystem impact" and "Open questions and risks"' in result.output
+    assert "kept the hand-written sections" not in result.output

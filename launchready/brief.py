@@ -37,6 +37,8 @@ CONTEXTS = (8_192, 32_768, 131_072)
 USER_COUNTS = (1, 8)
 HEADLINE_CONTEXT = 32_768
 LOCAL_GPU = "rtx-5090"
+HAND_WRITTEN = ("Ecosystem impact", "Open questions and risks")
+TODO_MARK = "TODO (write by hand)"
 # Format → precision used to sanity-check a variant's size; 4-bit-ish formats compare to NVFP4.
 _FORMAT_PRECISION = {"FP8": "fp8", "NVFP4": "nvfp4", "MLX": "nvfp4", "other": "nvfp4"}
 _FORMAT_PRECISION.update({"AWQ": "nvfp4", "GPTQ": "nvfp4", "bitsandbytes": "nvfp4"})
@@ -365,13 +367,36 @@ def render(context: dict) -> str:
     return env.get_template("brief.md.j2").render(**context)
 
 
+def _section(text: str, title: str) -> re.Match | None:
+    return re.search(rf"^## {re.escape(title)}\n.*?(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+
+
+def unwritten_sections(text: str) -> list[str]:
+    """Hand-written sections of a brief that still hold the TODO."""
+    return [t for t in HAND_WRITTEN if (s := _section(text, t)) and TODO_MARK in s[0]]
+
+
+def keep_hand_written(rendered: str, existing: str) -> str:
+    """`rendered` with any hand-written sections carried over from the `existing` brief."""
+    for title in HAND_WRITTEN:
+        old, new = _section(existing, title), _section(rendered, title)
+        if old and new and TODO_MARK not in old[0]:
+            rendered = rendered[: new.start()] + old[0] + rendered[new.end() :]
+    return rendered
+
+
 def write_brief(repo_id: str, out_dir: Path, refresh: bool = False) -> Path:
-    """Fetch everything for `repo_id`, render the brief and write briefs/<org>__<model>.md."""
+    """Fetch everything for `repo_id`, render the brief and write briefs/<org>__<model>.md.
+
+    Regenerates the data sections of an existing brief and keeps its hand-written sections.
+    """
     model = load_model(repo_id, refresh=refresh)
     variants = load_variants(repo_id, refresh=refresh)
     engines = check_engines(model.config, refresh=refresh)
     text = render(build_context(model, variants, engines))
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"{repo_id.replace('/', '__')}.md"
+    if path.exists():
+        text = keep_hand_written(text, path.read_text())
     path.write_text(text)
     return path

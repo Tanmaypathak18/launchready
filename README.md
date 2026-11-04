@@ -135,13 +135,21 @@ cd launchready
 uv sync
 ```
 
-Project memory and see which GPUs fit:
+Generate everything that can be generated for a model in one step. This writes the fit as JSON to `fit/`, the brief to `briefs/` and a release radar to `radar/`:
+
+```bash
+uv run launchready run Qwen/Qwen3-4B
+```
+
+The validation needs a GPU, so it stays in [the notebook](notebooks/01_memory_validation.ipynb). The checklist, recipes, friction log and requirements are written by hand.
+
+Or run each step on its own. Project memory and see which GPUs fit:
 
 ```bash
 uv run launchready fit Qwen/Qwen3-4B --context 32768 --users 8
 ```
 
-Write a brief to `briefs/`. It clones engine registries on first use and asks you to hand-write two sections:
+Write a brief to `briefs/`. It clones engine registries on first use and asks you to hand-write two sections. Rerunning it refreshes the data and keeps what you wrote:
 
 ```bash
 uv run launchready brief Qwen/Qwen3-4B

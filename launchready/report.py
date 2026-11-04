@@ -11,9 +11,12 @@ from launchready.arch import Architecture, parse_config
 from launchready.hub import HubModel
 from launchready.memory import (
     BITS_PER_WEIGHT,
+    GPU_MEMORY_UTILIZATION,
+    RUNTIME_RESERVE_BYTES,
     Gpu,
     SequenceMemory,
     fit,
+    kv_bytes_per_token,
     sequence_bytes,
     total_parameters,
     weight_bytes,
@@ -125,3 +128,55 @@ def project(
         warnings=warnings,
         notes=notes,
     )
+
+
+def fit_payload(
+    model: HubModel, report: FitReport, context: int, users: int, kv_dtype: str
+) -> dict:
+    """The JSON form of a fit: everything `launchready fit --json` prints."""
+    arch, seq = report.arch, report.seq
+    return {
+        "label": "projected",
+        "repo_id": model.repo_id,
+        "revision": model.revision,
+        "license": model.license,
+        "gated": model.gated,
+        "created_at": model.created_at,
+        "architecture": {
+            "family": arch.family,
+            "model_type": arch.model_type,
+            "layers": arch.num_layers,
+            "layer_counts": {k: arch.count(k) for k in sorted(set(arch.layer_kinds))},
+            "num_kv_heads": arch.num_kv_heads,
+            "head_dim": arch.head_dim,
+            "max_context": arch.max_context,
+            "sliding_window": arch.sliding_window,
+        },
+        "parameters": {
+            "total": report.total,
+            "active": report.active,
+            "source": "safetensors headers",
+        },
+        "assumptions": {
+            "bits_per_weight": BITS_PER_WEIGHT,
+            "kv_dtype": kv_dtype,
+            "mamba_state_dtype": seq.mamba.dtype,
+            "mamba_state_dtype_assumed": seq.mamba.assumed,
+            "gpu_memory_utilization": GPU_MEMORY_UTILIZATION,
+            "runtime_reserve_bytes": RUNTIME_RESERVE_BYTES,
+            "gpu_memory": "marketed capacity read as GiB",
+        },
+        "context": context,
+        "users": users,
+        "weights_bytes": report.weights,
+        "sequence": {
+            "kv_bytes_per_token": kv_bytes_per_token(arch, kv_dtype),
+            "attention_bytes": seq.attention_bytes,
+            "mamba_state_bytes": seq.mamba_bytes,
+            "total_bytes": seq.total,
+            "kv_tokens_comparable_to_vllm": seq.mamba.dtype is None,
+        },
+        "fit": report.fits,
+        "warnings": report.warnings,
+        "notes": report.notes,
+    }

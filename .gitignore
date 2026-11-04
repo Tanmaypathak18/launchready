@@ -17,3 +17,6 @@ dist/
 
 # macOS
 .DS_Store
+
+# launchready run output
+/fit/

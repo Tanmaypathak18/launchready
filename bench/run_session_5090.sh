@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Not yet run on Lightning. Dry-run on Qwen3-4B (Kaggle 2x T4) only.
 # One unattended GPU session: preflight → downloads/builds (the matrix's `prepare:` list) →
 # benchmarks + quality (bench/run_matrix.py --with-quality) → pack results.
 #

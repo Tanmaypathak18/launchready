@@ -1,3 +1,5 @@
+Not yet run on Lightning. Dry-run on Qwen3-4B (Kaggle 2x T4) only.
+
 # NVIDIA Nemotron 3.5 Lightning on one RTX 5090: launch kit
 
 Recipes, benchmark scripts and a quality check for [NVIDIA Nemotron 3.5 Lightning](https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16) (32.9B total / ~3B active hybrid Mamba-Transformer MoE) on a single consumer Blackwell GPU.

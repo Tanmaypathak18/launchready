@@ -18,6 +18,16 @@ Write an entry here *before* fixing anything that breaks. Newest entries first.
 
 ## Entries
 
+### Rerunning `launchready brief` wipes a brief's hand-written sections
+- When / where: 2026-11-03 · no GPU · launchready 0.0.1 `brief.write_brief` · nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16
+- Exact command: `uv run launchready brief nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16`
+- What happened (error excerpt): `write_brief` renders the template and overwrites the file, so the committed "Ecosystem impact" and "Open questions and risks" sections would be replaced by `TODO (write by hand)`. Found by reading the code; the committed brief was never overwritten.
+- Root cause: the two hand-written sections exist only in the output file, and the writer treats that file as disposable.
+- Fix or workaround: `write_brief` carries a hand-written section over when the existing file has one, and only writes the TODO when it doesn't.
+- Severity: slows (a rerun silently loses written work, though git can restore it)
+- Filed: not filed: our code
+- Requirement this implies: generated files that hold hand-written text must survive a rerun.
+
 ### Wrap-up: tree guard caught a model-invented email in raw samples, after a bad check chain pushed anyway
 - When / where: 2026-11-03 · MacBook Air (no GPU) · branch phase5-wrapup · `scripts/check_site.py`
 - Exact command: `uv run python scripts/check_site.py`

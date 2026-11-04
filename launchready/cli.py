@@ -1,4 +1,4 @@
-"""Command-line interface: `launchready fit`, `launchready brief` and `launchready radar`."""
+"""Command-line interface: `launchready fit`, `brief`, `radar`, and `run` for all three."""
 
 import json
 from pathlib import Path
@@ -7,7 +7,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from launchready.brief import write_brief
+from launchready.brief import HAND_WRITTEN, unwritten_sections, write_brief
 from launchready.hub import HubError, load_model
 from launchready.memory import (
     BITS_PER_WEIGHT,
@@ -20,7 +20,7 @@ from launchready.memory import (
 )
 from launchready.radar import parse_since
 from launchready.radar import run as run_radar
-from launchready.report import PRECISION_LABELS, project
+from launchready.report import PRECISION_LABELS, fit_payload, project
 
 app = typer.Typer(
     help="Launch-readiness kit for open-weight LLMs on NVIDIA GPUs.",
@@ -42,6 +42,15 @@ def _gib(n: float) -> str:
 
 def _billions(n: int) -> str:
     return f"{n / 1e9:,.2f}B"
+
+
+def _echo_brief(path: Path) -> None:
+    typer.echo(f"wrote {path}")
+    missing = unwritten_sections(path.read_text())
+    if len(missing) < len(HAND_WRITTEN):
+        typer.echo("kept the hand-written sections: check them against the new numbers")
+    if missing:
+        typer.echo("TODO: hand-write " + " and ".join(f'"{title}"' for title in missing))
 
 
 @app.command()
@@ -72,59 +81,9 @@ def fit(
         _fail(str(e), 1)
     arch, total, active, seq = report.arch, report.total, report.active, report.seq
     weights, fits, warnings, notes = report.weights, report.fits, report.warnings, report.notes
-    hybrid = seq.mamba.dtype is not None
 
     if json_output:
-        typer.echo(
-            json.dumps(
-                {
-                    "label": "projected",
-                    "repo_id": repo_id,
-                    "revision": model.revision,
-                    "license": model.license,
-                    "gated": model.gated,
-                    "created_at": model.created_at,
-                    "architecture": {
-                        "family": arch.family,
-                        "model_type": arch.model_type,
-                        "layers": arch.num_layers,
-                        "layer_counts": {k: arch.count(k) for k in sorted(set(arch.layer_kinds))},
-                        "num_kv_heads": arch.num_kv_heads,
-                        "head_dim": arch.head_dim,
-                        "max_context": arch.max_context,
-                        "sliding_window": arch.sliding_window,
-                    },
-                    "parameters": {
-                        "total": total,
-                        "active": active,
-                        "source": "safetensors headers",
-                    },
-                    "assumptions": {
-                        "bits_per_weight": BITS_PER_WEIGHT,
-                        "kv_dtype": kv_dtype,
-                        "mamba_state_dtype": seq.mamba.dtype,
-                        "mamba_state_dtype_assumed": seq.mamba.assumed,
-                        "gpu_memory_utilization": GPU_MEMORY_UTILIZATION,
-                        "runtime_reserve_bytes": RUNTIME_RESERVE_BYTES,
-                        "gpu_memory": "marketed capacity read as GiB",
-                    },
-                    "context": context,
-                    "users": users,
-                    "weights_bytes": weights,
-                    "sequence": {
-                        "kv_bytes_per_token": kv_bytes_per_token(arch, kv_dtype),
-                        "attention_bytes": seq.attention_bytes,
-                        "mamba_state_bytes": seq.mamba_bytes,
-                        "total_bytes": seq.total,
-                        "kv_tokens_comparable_to_vllm": not hybrid,
-                    },
-                    "fit": fits,
-                    "warnings": warnings,
-                    "notes": notes,
-                },
-                indent=2,
-            )
-        )
+        typer.echo(json.dumps(fit_payload(model, report, context, users, kv_dtype), indent=2))
         return
 
     console = Console()
@@ -225,8 +184,7 @@ def brief(
         path = write_brief(repo_id, Path(out), refresh=refresh)
     except (HubError, ValueError) as e:
         _fail(str(e), 1)
-    typer.echo(f"wrote {path}")
-    typer.echo('TODO: hand-write "Ecosystem impact" and "Open questions and risks"')
+    _echo_brief(path)
 
 
 @app.command()
@@ -243,3 +201,34 @@ def radar(
     for org, releases in kept.items():
         typer.echo(f"{org:<12} {len(releases):>3} root-model repos")
     typer.echo(f"wrote {path}")
+
+
+@app.command()
+def run(
+    repo_id: str = typer.Argument(..., help="Hugging Face repo ID, e.g. Qwen/Qwen3-4B."),
+    context: int = typer.Option(32_768, help="Tokens per sequence (prompt + output)."),
+    users: int = typer.Option(8, help="Concurrent sequences you want to serve."),
+    since: str = typer.Option("30d", help="Radar look-back window, e.g. 30d or 2w."),
+    out: str = typer.Option(".", help="Base directory for fit/, briefs/ and radar/."),
+    refresh: bool = typer.Option(False, help="Ignore caches: re-read the Hub and re-clone."),
+):
+    """Generate everything that can be generated for a model: the fit as JSON in fit/, the brief
+    in briefs/ and a release radar in radar/. Hand-written brief sections are kept."""
+    try:
+        parse_since(since)
+    except ValueError as e:
+        _fail(str(e), 2)
+    base = Path(out)
+    try:
+        model = load_model(repo_id, refresh=refresh)
+        report = project(model, context, "fp16", load_gpus())
+        fit_path = base / "fit" / f"{repo_id.replace('/', '__')}.json"
+        fit_path.parent.mkdir(parents=True, exist_ok=True)
+        payload = fit_payload(model, report, context, users, "fp16")
+        fit_path.write_text(json.dumps(payload, indent=2) + "\n")
+        typer.echo(f"wrote {fit_path}")
+        _echo_brief(write_brief(repo_id, base / "briefs", refresh=refresh))
+    except (HubError, ValueError) as e:
+        _fail(str(e), 1)
+    radar_path, _ = run_radar(since, base / "radar")
+    typer.echo(f"wrote {radar_path}")
